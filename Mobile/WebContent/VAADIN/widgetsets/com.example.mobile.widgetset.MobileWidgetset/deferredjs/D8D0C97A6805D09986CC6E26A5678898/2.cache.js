@@ -1,0 +1,1 @@
+$wnd.com_example_mobile_widgetset_MobileWidgetset.runAsyncCallback2('Ehb(1637,1,gse);_.tc=function HDc(){Fnc((!ync&&(ync=new Lnc),ync),this.a.d)};qbe(Uh)(2);\n//# sourceURL=com.example.mobile.widgetset.MobileWidgetset-2.js\n')
