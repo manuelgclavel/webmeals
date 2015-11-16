@@ -42,10 +42,17 @@ public class MealSelectionSwipeView extends NavigationManager
       
       //NavigationButton test = new NavigationButton();
 	  NavigationView navview = new NavigationView();
-	  navview.setPreviousComponent(new UserMenuView());
+	  //navview.setPreviousComponent(new UserMenuView());
+	  //navview.setPreviousComponent(new CloseSessionView());
       navview.setSizeFull();
-      ((NavigationButton) navview.getNavigationBar().getLeftComponent())
-      	.addClickListener(new ExitBehavior());
+   
+    Button logout = new Button();
+  	logout.setCaption("Exit");
+  	logout.addClickListener(new ExitBehavior());
+  	navview.setRightComponent(logout);
+       
+      //((NavigationButton) navview.getNavigationBar().getLeftComponent())
+      //	.addClickListener(new ExitBehavior());
      
 
       // Use an inner layout to center the image

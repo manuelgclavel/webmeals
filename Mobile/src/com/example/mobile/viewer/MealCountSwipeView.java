@@ -43,6 +43,11 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
       view.setSizeFull();
       navview.setSizeFull();
       navview.setPreviousComponent(new AdminMenuView());
+      
+      Button logout = new Button();
+      logout.setCaption("Exit");
+      logout.addClickListener(new ExitBehavior());
+      navview.setRightComponent(logout);
 
       // Use an inner layout to center the image
       //NavigationBar nav = new NavigationBar();

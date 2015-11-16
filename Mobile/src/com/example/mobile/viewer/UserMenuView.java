@@ -8,6 +8,7 @@ import com.vaadin.addon.touchkit.ui.NavigationButton;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickEvent;
 import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickListener;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 
 
@@ -37,7 +38,7 @@ public class UserMenuView  extends VerticalComponentGroup {
 		addComponent(mealcount);
 
 		/** */
-		NavigationButton logout = new NavigationButton("Logout");
+		Button logout = new Button("Logout");
 		logout.addClickListener(new ExitBehavior());
 		addComponent(logout);
 
