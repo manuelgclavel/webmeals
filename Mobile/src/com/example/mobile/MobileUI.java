@@ -4,6 +4,8 @@ package com.example.mobile;
 import java.sql.SQLException;
 
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
+
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.Residence;
 import com.example.mobile.data.Role;
@@ -18,6 +20,7 @@ import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinService;
 import com.vaadin.ui.UI;
 
 //package com.vaadin.touchkitsampler;
@@ -40,6 +43,12 @@ public class MobileUI extends UI {
 	private User user;
 	private Role role;
 	private Residence residence; 
+	private NavigationManager manager;
+	
+	public static final String LOGIN_COOKIE = "loginmeals";
+	public static final String PASSWORD_COOKIE = "passwordmeals";
+	public static final Integer COOKIE_MAX_AGE = 31536000; /** 1 year */
+	
 
 	
     @Override
@@ -47,9 +56,9 @@ public class MobileUI extends UI {
     	
     	try {
 			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","admin");	
-			NavigationManager manager =
-					new NavigationManager(new LoginView());
-					setContent(manager);
+			manager = new NavigationManager(new LoginView());
+			setContent(manager);
+			//setContent(new LoginView());
 					
 			
 		} catch (SQLException e) {
@@ -66,6 +75,10 @@ public class MobileUI extends UI {
 
 	public User getUser() {
 		return user;
+	}
+	
+	public NavigationManager getManager () {
+		return manager;
 	}
 
 	public void setUser(User user) {
@@ -88,8 +101,25 @@ public class MobileUI extends UI {
 		this.residence = residence;
 	}
 	
+
+
+	
+	
 	//public java.sql.Timestamp getCurrentTimeStamp() {
 	//	java.util.Date today = new java.util.Date();
 	//	return new java.sql.Timestamp(today.getTime());
 	//}	
+	public Cookie getCookieByName(String name) { 
+		// Fetch all cookies from the request 
+		Cookie[] cookies = VaadinService.getCurrentRequest().getCookies();
+
+		// Iterate to find cookie by its name 
+		for (Cookie cookie : cookies) { 
+			if (name.equals(cookie.getName())) { 
+				return cookie; 
+			} 
+		}
+
+		return null; 
+	} 
 }

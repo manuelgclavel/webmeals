@@ -1,28 +1,34 @@
 package com.example.mobile.viewer;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.Iterator;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.DailyMealSelection;
 import com.example.mobile.data.Meal;
+import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.DateField;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.Panel;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
-public class SelectionView extends Panel {
-
+public class SelectionDateView extends VerticalComponentGroup {
 	final private MobileUI mobile;
 	final private JDBCConnectionPool connectionPool;
-	final private Date dayselected;
+	//final private Date dayselected;
 
 
 	/** 
@@ -31,11 +37,11 @@ public class SelectionView extends Panel {
 	 * We assume that selected !== null and user !== null
 	 * 
 	 */
-	public SelectionView(java.util.Date date){
+	public SelectionDateView(java.util.Date date){
 
 		this.mobile = ((MobileUI) UI.getCurrent());
 		this.connectionPool = mobile.getConnectionPool();
-		this.dayselected = new java.sql.Date(date.getTime());
+		//this.dayselected = new java.sql.Date(date.getTime());
 
 		PreparedStatement ps;
 		ResultSet result;
@@ -48,7 +54,8 @@ public class SelectionView extends Panel {
 				/** Check if it exists already */
 			ps = conn.prepareStatement("SELECT count(*), pk from DailyMealSelection" + " " +  
 					"WHERE Date(date) = ?  and selectedBy = ?");
-			ps.setDate(1, dayselected); 
+			//ps.setDate(1, dayselected); 
+			ps.setDate(1, new java.sql.Date(date.getTime()));
 			ps.setInt(2, mobile.getUser().getPk()); 
 			result = ps.executeQuery();
 			result.next();
@@ -56,7 +63,8 @@ public class SelectionView extends Panel {
 					/** If it does not exists, created first and then save it */
 				ps = conn.prepareStatement("INSERT INTO DailyMealSelection" + " " + 
 						"(date,selectedBy) values (?,?)");
-				ps.setDate(1, dayselected);
+				//ps.setDate(1, dayselected);
+				ps.setDate(1, new java.sql.Date(date.getTime()));
 				ps.setInt(2, mobile.getUser().getPk()); 
 				ps.executeUpdate();
 				result.close();
@@ -88,20 +96,25 @@ public class SelectionView extends Panel {
 			}
 			result.close();
 			ps.close();
-
-			VerticalComponentGroup combogroup = new VerticalComponentGroup();
+			
+			/** */
+			//VerticalComponentGroup combogroup = new VerticalComponentGroup();
 			
 			/** Create a combobox for this meal */
 			for (Iterator<Meal> j = meals.getItemIds().iterator(); j.hasNext();) {
+				//Notification.show("HERE");
 				Meal meal = j.next();
 				//ComboBox options = new MealOptionComboBox(meal, dayselected, mobile.getUser(), dailymealselection, connectionPool);
-				NativeSelect options = new MealOptionComboBox(meal, dayselected, dailymealselection);
-				
-				combogroup.addComponent(options);
+				//NativeSelect options = new MealOptionComboBox(meal, dayselected, dailymealselection);
+				NativeSelect options = new MealOptionComboBox(meal, date, dailymealselection);	
+				addComponent(options);
+				//combogroup.addComponent(new Label(meal.getLiteral()));
 			}
 
 			/** release connection */
-			this.setContent(combogroup);
+			//addComponent(combogroup);
+			//content.addComponent(combogroup);
+			//setContent(combogroup);
 			connectionPool.releaseConnection(conn);
 
 		}
@@ -111,4 +124,3 @@ public class SelectionView extends Panel {
 
 	}
 }
-

@@ -6,6 +6,7 @@ import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickEvent;
 import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickListener;
 import com.vaadin.addon.touchkit.ui.NavigationView;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
 
 @SuppressWarnings("serial")
@@ -25,13 +26,14 @@ public class AdminMenuView extends NavigationView {
 		@Override
 		public void buttonClick(NavigationButtonClickEvent event) {
 			// TODO Auto-generated method stub
-			getNavigationManager().navigateTo(new MealCountView());
+			//getNavigationManager().navigateTo(new MealCountView());
+			setContent(new MealCountView());
 		}});
 	
 	componentGroup.addComponent(mealcount);
 	
 	/** */
-	NavigationButton logout = new NavigationButton("Logout");
+	Button logout = new Button("Logout");
 	logout.addClickListener(new ExitBehavior());
 	componentGroup.addComponent(logout);
 	

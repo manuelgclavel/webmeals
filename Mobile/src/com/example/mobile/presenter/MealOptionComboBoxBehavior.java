@@ -1,7 +1,8 @@
 package com.example.mobile.presenter;
 
 import java.sql.Connection;
-import java.sql.Date;
+//import java.sql.Date;
+import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +29,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 
 	final private JDBCConnectionPool connectionPool = ((MobileUI) UI.getCurrent()).getConnectionPool();
 	final private User curUser = ((MobileUI) UI.getCurrent()).getUser();
-	final private Date dayselected;
+	final private java.util.Date dayselected;
 	final private DailyMealSelection dailymealselection;
 	final private Meal mealselected;
 	final private MealSelection curMealSelection;
@@ -103,10 +104,10 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 							"IN (select pk from Residency where ownedByOption = ?" + " " +
 							"and Date(?) >= Date(start)  and Date(?) <= Date(end)))))");
 
-					ps.setDate(1,dayselected);
+					ps.setDate(1, new java.sql.Date(dayselected.getTime()));
 					ps.setInt(2, curMealOption.getPk());
-					ps.setDate(3, dayselected);
-					ps.setDate(4, dayselected);
+					ps.setDate(3, new java.sql.Date(dayselected.getTime()));
+					ps.setDate(4, new java.sql.Date(dayselected.getTime()));
 
 					result = ps.executeQuery();
 					result.next();
@@ -131,10 +132,10 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 							"IN (select pk from Residency where ownedByOption = ?" + " " +
 							"and Date(?) >= Date(start)  and Date(?) <= Date(end)))))");
 
-					ps.setDate(1, dayselected);
+					ps.setDate(1, new java.sql.Date(dayselected.getTime()));
 					ps.setInt(2, selMealOption.getPk());
-					ps.setDate(3, dayselected);
-					ps.setDate(4, dayselected);
+					ps.setDate(3, new java.sql.Date(dayselected.getTime()));
+					ps.setDate(4, new java.sql.Date(dayselected.getTime()));
 
 					result = ps.executeQuery();
 					result.next();
@@ -227,7 +228,7 @@ private void refreshMealSelection(){
 				"(SELECT pk from DailyMealSelection" + " " +  
 				"WHERE Date(date) = ?  and selectedBy = ?)) AS TEMP)");
 		ps.setInt(1, mealselected.getPk());
-		ps.setDate(2, dayselected);
+		ps.setDate(2, new java.sql.Date(dayselected.getTime()));
 		ps.setInt(3, curUser.getPk());
 		result = ps.executeQuery();
 		result.next();

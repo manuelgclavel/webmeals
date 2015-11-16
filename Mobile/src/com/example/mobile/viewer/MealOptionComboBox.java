@@ -1,7 +1,8 @@
 package com.example.mobile.viewer;
 
 import java.sql.Connection;
-import java.sql.Date;
+//import java.sql.Date;
+import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,13 +18,14 @@ import com.example.mobile.presenter.MealOptionComboBoxBehavior;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.ui.NativeSelect;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
 public class MealOptionComboBox extends NativeSelect {
 
 	final private JDBCConnectionPool connectionPool = ((MobileUI) UI.getCurrent()).getConnectionPool();
-	final private Date dayselected;
+	final private java.util.Date dayselected;
 	final private Meal mealselected;
 	final private DailyMealSelection dailymealselection;
 	
@@ -33,8 +35,8 @@ public class MealOptionComboBox extends NativeSelect {
 
 
 
-	MealOptionComboBox(Meal meal, Date selected, DailyMealSelection dailymeal){
-		this.dayselected = selected; 
+	MealOptionComboBox(Meal meal, java.util.Date selected, DailyMealSelection dailymeal){
+		this.dayselected = new java.sql.Date(selected.getTime()); 
 		this.mealselected = meal;
 		this.dailymealselection = dailymeal;
 
@@ -101,6 +103,7 @@ public class MealOptionComboBox extends NativeSelect {
 				}
 				for (Iterator<MealOption> k = mealOptions.getItemIds().iterator(); k.hasNext();) {
 					MealOption row = k.next();
+					//Notification.show("THERE");
 					if (row.getPk() == curMealOption.getPk()){
 						this.setValue(row);
 					}

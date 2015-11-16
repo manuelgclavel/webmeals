@@ -22,8 +22,8 @@ public class MealCountView extends NavigationView {
 	public MealCountView(){
 		
 
-		CssLayout content = new CssLayout();
-		content.setWidth("100%");
+		//CssLayout content = new CssLayout();
+		//content.setWidth("100%");
 			
 		final VerticalComponentGroup componentGroup = new VerticalComponentGroup();
 		//componentGroup.setCaption("Menu");
@@ -36,10 +36,10 @@ public class MealCountView extends NavigationView {
 		java.sql.Date sqlDate = new java.sql.Date(new Date().getTime()); 
 		panel = new CountView(sqlDate);	
 		componentGroup.addComponent(panel);
-		content.addComponent(componentGroup);
+		setContent(componentGroup);
 
-		setContent(content);
-			
+		//setContent(componentGroup);
+			/**
 			date.addValueChangeListener(new ValueChangeListener() {
 
 				@Override
@@ -54,6 +54,7 @@ public class MealCountView extends NavigationView {
 					componentGroup.addComponent(panel);	
 				}
 			});
+			*/
 	}
 }
 	
