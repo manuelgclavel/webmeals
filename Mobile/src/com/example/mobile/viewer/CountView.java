@@ -13,6 +13,7 @@ import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.User;
+import com.example.mobile.presenter.PopupRegimeBehavior;
 import com.example.mobile.presenter.PopupUserBehavior;
 import com.vaadin.addon.touchkit.ui.Popover;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
@@ -147,11 +148,8 @@ public class CountView extends VerticalComponentGroup {
 					result.close();
 					ps.close();
 					if (!(optionCount == 0)){
-
-						
-						/** */
+					/**
 						BeanItemContainer<User> users = new BeanItemContainer<User>(User.class);
-						
 						ps = conn.prepareStatement("select User.pk, User.surname, User.name from User" + " " +
 								"INNER JOIN (select * from FullMealSelectionView where mealoption = ?) as MealOptionTempA" + " " +
 								"ON User.pk=MealOptionTempA.user" + " " +
@@ -168,13 +166,13 @@ public class CountView extends VerticalComponentGroup {
 						}
 						result.close();
 						ps.close();
-						/** */
+						*/
 						
 						HorizontalLayout rowMealCount = new HorizontalLayout();
 						rowMealCount.setSpacing(true);
 						Button popup = new Button (mealoption.getInitial() + " : " + Integer.valueOf(optionCount).toString());
 						
-						popup.addClickListener(new PopupUserBehavior(users));
+						popup.addClickListener(new PopupUserBehavior(selected, meal, mealoption));
 						/** */
 						rowMealCount.addComponent(popup);
 						
@@ -192,33 +190,12 @@ public class CountView extends VerticalComponentGroup {
 							result.close();
 							ps.close();
 							if (!(regimenCount == 0)){
-
-								BeanItemContainer<User> regimeusers = new BeanItemContainer<User>(User.class);
-								ps = conn.prepareStatement("select User.pk, User.surname, User.name from User" + " " +
-										"INNER JOIN (select * from FullMealSelectionView where mealoption = ? and foodRegime = ?) as MealOptionTempA" + " " +
-										"ON User.pk=MealOptionTempA.user" + " " +
-										"UNION" + " " + 
-										"select Guest.pk, Guest.surname, Guest.name from Guest" + " " +
-										"INNER JOIN (select * from FullMealSelectionView where mealoption = ? and foodRegime = ?) as MealOptionTempB" + " " +
-										"ON Guest.pk=MealOptionTempB.guest ORDER BY surname, name");
-								ps.setInt(1, mealoption.getPk());
-								ps.setInt(2, regime.getPk());
-								ps.setInt(3, mealoption.getPk());
-								ps.setInt(4, regime.getPk());
-								result = ps.executeQuery();
-								while (result.next()){
-									User nextUser = new User(result.getInt(1), result.getString(2), result.getString(3));
-									regimeusers.addItem(nextUser);				
-								}
-								result.close();
-								ps.close();
-
 								
 								HorizontalLayout rowRegimeCount = new HorizontalLayout();
 								rowRegimeCount.setSpacing(true);
 								Button regimePopup = new Button ("#" + regime.getName() + " (" + Integer.valueOf(regimenCount).toString() + ")");
 				
-								regimePopup.addClickListener(new PopupUserBehavior(regimeusers));
+								regimePopup.addClickListener(new PopupRegimeBehavior(selected,meal,mealoption,regime));
 								regimenesPanel.addComponent(regimePopup);	
 							}
 						}

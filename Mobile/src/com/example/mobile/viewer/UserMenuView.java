@@ -25,6 +25,7 @@ public class UserMenuView  extends VerticalComponentGroup {
 		//VerticalComponentGroup componentGroup = new VerticalComponentGroup();
 		//componentGroup.setCaption("Menu");
 
+		/**
 		NavigationButton mealcount = new NavigationButton("Meal selection");
 		mealcount.addClickListener(new NavigationButtonClickListener(){
 
@@ -36,13 +37,8 @@ public class UserMenuView  extends VerticalComponentGroup {
 			}});
 
 		addComponent(mealcount);
+		*/
 
-		/** */
-		Button logout = new Button("Logout");
-		logout.addClickListener(new ExitBehavior());
-		addComponent(logout);
-
-		/** */
 
 	}
 

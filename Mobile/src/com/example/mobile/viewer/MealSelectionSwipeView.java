@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
 import com.vaadin.addon.touchkit.ui.NavigationButton;
 import com.vaadin.addon.touchkit.ui.NavigationManager;
@@ -18,6 +19,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.UI;
 
 
 @SuppressWarnings("serial")
@@ -42,15 +44,28 @@ public class MealSelectionSwipeView extends NavigationManager
       
       //NavigationButton test = new NavigationButton();
 	  NavigationView navview = new NavigationView();
-	  //navview.setPreviousComponent(new UserMenuView());
+	  navview.setPreviousComponent(new UserMenuView());
 	  //navview.setPreviousComponent(new CloseSessionView());
       navview.setSizeFull();
-   
-    Button logout = new Button();
-  	logout.setCaption("Exit");
-  	logout.addClickListener(new ExitBehavior());
-  	navview.setRightComponent(logout);
-       
+      
+      /**
+      Button menu = new Button();
+      menu.setCaption("");
+      menu.addClickListener(new ClickListener(){
+
+    	  @Override
+    	  public void buttonClick(ClickEvent event) {
+    		  // TODO Auto-generated method stub
+    		  ((MobileUI) UI.getCurrent()).getManager().navigateTo(new UserMenuView());
+    	  }});
+      navview.setLeftComponent(menu);
+	
+      Button logout = new Button();
+      logout.setCaption("Exit");
+      logout.addClickListener(new ExitBehavior());
+      navview.setRightComponent(logout);
+       */
+  	
       //((NavigationButton) navview.getNavigationBar().getLeftComponent())
       //	.addClickListener(new ExitBehavior());
      
@@ -69,10 +84,10 @@ public class MealSelectionSwipeView extends NavigationManager
       HorizontalLayout datepanel = new HorizontalLayout();
 		datepanel.setWidth("100%");
 		
-		final Button prev = new Button("prev");
-		final Button now = new Button("today");
+		final Button prev = new Button("-1");
+		final Button now = new Button("^");
 		final DateField dateshown =  new DateField();
-		final Button next = new Button("next");
+		final Button next = new Button("+1");
 		
 
 		Calendar c = new GregorianCalendar();

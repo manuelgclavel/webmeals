@@ -124,7 +124,8 @@ import com.vaadin.ui.Button.ClickListener;
 					/** */
 				
 					if (currentUI.getRole().getId() == 0){
-						currentUI.getManager().navigateTo(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
+						currentUI.setContent(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
+						//currentUI.getManager().navigateTo(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
 					} else { 
 						if (currentUI.getRole().getId() == 1){			
 							currentUI.getManager().navigateTo(new AdminMenuView());

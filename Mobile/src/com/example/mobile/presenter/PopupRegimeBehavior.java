@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.Iterator;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.FoodRegime;
@@ -15,32 +14,29 @@ import com.example.mobile.data.User;
 import com.vaadin.addon.touchkit.ui.Popover;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
-import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
 @SuppressWarnings("serial")
-public class PopupUserBehavior implements ClickListener {
-	
+public class PopupRegimeBehavior implements ClickListener {
 	private MobileUI mealcount;
 	private JDBCConnectionPool connectionPool;
 
 	private Date dayselected;
 	private Meal meal;
 	private MealOption mealoption;
+	private FoodRegime regime;
 
-	public PopupUserBehavior(Date selected, Meal meal, MealOption mealoption) {
+	public PopupRegimeBehavior(Date selected, Meal meal, MealOption mealoption, FoodRegime regime) {
 		this.mealcount = ((MobileUI) UI.getCurrent());
 		this.connectionPool = mealcount.getConnectionPool();
 		this.dayselected = selected;
 		this.meal = meal;
 		this.mealoption = mealoption;
+		this.regime = regime;
 		
 
 	}
@@ -133,42 +129,48 @@ public class PopupUserBehavior implements ClickListener {
 			result.close();
 			ps.close();
 			if (!(optionCount == 0)){
-				BeanItemContainer<User> users = new BeanItemContainer<User>(User.class);
+				
+				BeanItemContainer<User> regimeusers = new BeanItemContainer<User>(User.class);
+				
 				ps = conn.prepareStatement("select User.pk, User.surname, User.name from User" + " " +
-								"INNER JOIN (select * from FullMealSelectionView where mealoption = ?) as MealOptionTempA" + " " +
-								"ON User.pk=MealOptionTempA.user" + " " +
-								"UNION" + " " + 
-								"select Guest.pk, Guest.surname, Guest.name from Guest" + " " +
-								"INNER JOIN (select * from FullMealSelectionView where mealoption = ?) as MealOptionTempB" + " " +
-								"ON Guest.pk=MealOptionTempB.guest ORDER BY surname, name");
-						ps.setInt(1, mealoption.getPk());
-						ps.setInt(2, mealoption.getPk());
-						result = ps.executeQuery();
-						while (result.next()){
-							User nextUser = new User(result.getInt(1), result.getString(2), result.getString(3));
-							users.addItem(nextUser);				
-						}
-						result.close();
-						ps.close();
-						
-						// Show it relative to the navigation bar of
-						// the current NavigationView.
-						CssLayout layout = new CssLayout();
-						//Label test = new Label(mealoption.getLiteral());
-						//Label num = new Label(Integer.valueOf(mealoption.getPk()).toString());
-						//Label count = new Label(Integer.valueOf(i))
-						
-						Table userstable = new Table("", users);
-						userstable.setPageLength(userstable.size());
-						userstable.setVisibleColumns(new Object[] {"name", "surname"});
-						Popover popover = new Popover();
-						//layout.addComponent(test);
-						//layout.addComponent(num);
-						
-						layout.addComponent(userstable);
-						popover.setContent(layout);   
-						popover.showRelativeTo(event.getButton());
-						
+						"INNER JOIN (select * from FullMealSelectionView where mealoption = ? and foodRegime = ?) as MealOptionTempA" + " " +
+						"ON User.pk=MealOptionTempA.user" + " " +
+						"UNION" + " " + 
+						"select Guest.pk, Guest.surname, Guest.name from Guest" + " " +
+						"INNER JOIN (select * from FullMealSelectionView where mealoption = ? and foodRegime = ?) as MealOptionTempB" + " " +
+						"ON Guest.pk=MealOptionTempB.guest ORDER BY surname, name");
+				ps.setInt(1, mealoption.getPk());
+				ps.setInt(2, regime.getPk());
+				ps.setInt(3, mealoption.getPk());
+				ps.setInt(4, regime.getPk());
+				result = ps.executeQuery();
+				while (result.next()){
+					User nextUser = new User(result.getInt(1), result.getString(2), result.getString(3));
+					regimeusers.addItem(nextUser);				
+				}
+				result.close();
+				ps.close();
+			
+				
+
+				// Show it relative to the navigation bar of
+				// the current NavigationView.
+				CssLayout layout = new CssLayout();
+				//Label test = new Label(mealoption.getLiteral());
+				//Label num = new Label(Integer.valueOf(mealoption.getPk()).toString());
+				//Label count = new Label(Integer.valueOf(i))
+
+				Table userstable = new Table("", regimeusers);
+				userstable.setPageLength(userstable.size());
+				userstable.setVisibleColumns(new Object[] {"name", "surname"});
+				Popover popover = new Popover();
+				//layout.addComponent(test);
+				//layout.addComponent(num);
+
+				layout.addComponent(userstable);
+				popover.setContent(layout);   
+				popover.showRelativeTo(event.getButton());
+
 						
 			}
 			connectionPool.releaseConnection(conn);

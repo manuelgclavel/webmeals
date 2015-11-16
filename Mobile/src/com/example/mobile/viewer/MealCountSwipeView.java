@@ -1,9 +1,11 @@
 package com.example.mobile.viewer;
 
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
 import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
 import com.vaadin.addon.touchkit.ui.NavigationBar;
@@ -18,6 +20,7 @@ import com.vaadin.server.AbstractErrorMessage.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
@@ -42,12 +45,14 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
     		  
       view.setSizeFull();
       navview.setSizeFull();
-      navview.setPreviousComponent(new AdminMenuView());
+      //navview.setPreviousComponent(new AdminMenuView());
+     
+      
       
       Button logout = new Button();
       logout.setCaption("Exit");
       logout.addClickListener(new ExitBehavior());
-      navview.setRightComponent(logout);
+      navview.setLeftComponent(logout);
 
       // Use an inner layout to center the image
       //NavigationBar nav = new NavigationBar();
@@ -111,8 +116,8 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 		
 		//layout.addComponent(new SelectionDateView(c.getTime()));
 		layout.addComponent(new CountView(c.getTime()));
-		navview.setContent(layout);
-		view.setContent(navview);
+		//navview.setContent(layout);
+		view.setContent(layout);
 		
 		
 		dateshown.addValueChangeListener(new ValueChangeListener() {
