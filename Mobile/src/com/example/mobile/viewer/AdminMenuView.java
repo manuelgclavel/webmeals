@@ -1,24 +1,27 @@
 package com.example.mobile.viewer;
 
+import java.util.Calendar;
+
+import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
 import com.vaadin.addon.touchkit.ui.NavigationButton;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickEvent;
 import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickListener;
-import com.vaadin.addon.touchkit.ui.NavigationView;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
-public class AdminMenuView extends NavigationView {
+public class AdminMenuView extends VerticalComponentGroup {
 	
 	public AdminMenuView(){
 	
-	CssLayout content = new CssLayout();
-	content.setWidth("100%");
+	//CssLayout content = new CssLayout();
+	//content.setWidth("100%");
+		this.setSizeFull();
+		this.setCaption("Menu");
 		
-	VerticalComponentGroup componentGroup = new VerticalComponentGroup();
-	componentGroup.setCaption("Menu");
+	//VerticalComponentGroup componentGroup = new VerticalComponentGroup();
+	//componentGroup.setCaption("Menu");
 
 	NavigationButton mealcount = new NavigationButton("Meal count");
 	mealcount.addClickListener(new NavigationButtonClickListener(){
@@ -26,21 +29,21 @@ public class AdminMenuView extends NavigationView {
 		@Override
 		public void buttonClick(NavigationButtonClickEvent event) {
 			// TODO Auto-generated method stub
-			//getNavigationManager().navigateTo(new MealCountView());
-			setContent(new MealCountView());
+			((MobileUI) UI.getCurrent()).getManager().navigateTo(new MealCountSwipeView(Calendar.getInstance().getTime()));
+			//setContent(new MealCountView());
 		}});
 	
-	componentGroup.addComponent(mealcount);
+	addComponent(mealcount);
 	
 	/** */
-	Button logout = new Button("Logout");
+	NavigationButton logout = new NavigationButton("Logout");
 	logout.addClickListener(new ExitBehavior());
-	componentGroup.addComponent(logout);
+	addComponent(logout);
 	
 	/** */
 	
-	content.addComponent(componentGroup);
-	setContent(content);
+	//content.addComponent(componentGroup);
+	//setContent(content);
 
 	//componentGroup.addComponent(new TextField("Username"));
 

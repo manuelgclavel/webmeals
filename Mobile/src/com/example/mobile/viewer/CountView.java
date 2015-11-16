@@ -2,7 +2,8 @@ package com.example.mobile.viewer;
 
 import java.util.Iterator;
 import java.sql.Connection;
-import java.sql.Date;
+//import java.sql.Date;
+import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,11 +13,14 @@ import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.User;
-import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
+import com.vaadin.addon.touchkit.ui.Popover;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.PopupView;
@@ -72,7 +76,7 @@ public class CountView extends VerticalComponentGroup {
 			ps = conn.prepareStatement("CREATE VIEW DailyMealSelectionView as" + " " +
 					"SELECT pk as dailymealselection, selectedBy as user, offeredTo as guest" + " " +
 					"FROM DailyMealSelection WHERE Date(date) = ?");
-			ps.setDate(1, selected);
+			ps.setDate(1, new java.sql.Date(selected.getTime()));
 			ps.execute();
 			ps.close();
 
@@ -120,6 +124,7 @@ public class CountView extends VerticalComponentGroup {
 					result.close();
 					ps.close();
 					if (!(optionCount == 0)){
+						/**
 						BeanItemContainer<User> users = new BeanItemContainer<User>(User.class);
 						ps = conn.prepareStatement("select User.pk, User.surname, User.name from User" + " " +
 								"INNER JOIN (select * from FullMealSelectionView where mealoption = ?) as MealOptionTempA" + " " +
@@ -137,31 +142,75 @@ public class CountView extends VerticalComponentGroup {
 						}
 						result.close();
 						ps.close();
+						*/
 
 
-
-						VerticalComponentGroup popupContent = new VerticalComponentGroup();
-						Table userstable = new Table("", users);
-						userstable.setVisibleColumns(new Object[] {"name", "surname"});
-						popupContent.addComponent(userstable);
+						//VerticalComponentGroup popupContent = new VerticalComponentGroup();
+						//Table userstable = new Table("", users);
+						//userstable.setVisibleColumns(new Object[] {"name", "surname"});
+						//popupContent.addComponent(userstable);
 
 
 						HorizontalLayout rowMealCount = new HorizontalLayout();
 						rowMealCount.setSpacing(true);
 						Label label = new Label(optionName);
-						PopupView popup = new PopupView(Integer.valueOf(optionCount).toString(), popupContent);
-						//label.setWidth(200, Unit.PIXELS);
-						//popup.setWidth(100, Unit.PIXELS);
+						Label popup = new Label(Integer.valueOf(optionCount).toString());
+						//PopupView popup = new PopupView(Integer.valueOf(optionCount).toString(), popupContent);
 
-						//rowMealCount.addComponent(new Label(optionName + ":" + " "));
+						/** */
+						Button test = new Button("Test");
+						test.addClickListener(new ClickListener() {
+							@Override
+							public void buttonClick(ClickEvent event) {
+								// TODO Auto-generated method stub
+								 
+								try {
+									PreparedStatement ps;
+									ResultSet result;
+									Connection conn;
+									conn = ((MobileUI) UI.getCurrent()).getConnectionPool().reserveConnection();
+									ps = conn.prepareStatement("select User.pk, User.surname, User.name from User");
+									//ps.setInt(1, mealoption.getPk());
+									//ps.setInt(2, mealoption.getPk());
 
 
+									result = ps.executeQuery();
+									Popover popover = new Popover();	
+									BeanItemContainer<User> users = new BeanItemContainer<User>(User.class);
+
+									while (result.next()){
+										User nextUser = new User(result.getInt(1), result.getString(2), result.getString(3));
+										users.addItem(nextUser);				
+									}
+									result.close();
+									ps.close();
+
+									// Show it relative to the navigation bar of
+									// the current NavigationView.
+									Table userstable = new Table("", users);
+									userstable.setVisibleColumns(new Object[] {"name", "surname"});
+									popover.setContent(userstable);   
+									popover.showRelativeTo(event.getButton());
+									
+								} catch (SQLException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								 
+							}
+						});
+						
+						
 						rowMealCount.addComponent(label);
 						rowMealCount.addComponent(popup);
+						rowMealCount.addComponent(test);
+						
 
 
 						HorizontalLayout regimenesPanel = new HorizontalLayout();
 						regimenesPanel.setSpacing(true);
+						
+						
 						for (Iterator<FoodRegime> k = regimenes.getItemIds().iterator(); k.hasNext();) {
 							FoodRegime regime = k.next();
 							ps = conn.prepareStatement("SELECT count(*) FROM FullMealSelectionView WHERE mealOption = ? and foodRegime = ?");
@@ -194,20 +243,23 @@ public class CountView extends VerticalComponentGroup {
 								result.close();
 								ps.close();
 
-								VerticalComponentGroup regimeuserspopup = new VerticalComponentGroup();
-								Table regimeuserstable = new Table("", regimeusers);
-								regimeuserstable.setVisibleColumns(new Object[] {"name","surname"});
-								regimeuserspopup.addComponent(regimeuserstable);
+								//VerticalComponentGroup regimeuserspopup = new VerticalComponentGroup();
+								//Table regimeuserstable = new Table("", regimeusers);
+								//regimeuserstable.setVisibleColumns(new Object[] {"name","surname"});
+								//regimeuserspopup.addComponent(regimeuserstable);
 
 								Label regimeNameLabel = new Label("<b>" + regime.getName() + "</b>", ContentMode.HTML);
 								//regimeNameLabel.setWidth(50, Unit.PIXELS);
-								PopupView regimePopup = new PopupView("(" + Integer.valueOf(regimenCount).toString() + ")", regimeuserspopup);
+								Label regimePopup = new Label("(" + Integer.valueOf(regimenCount).toString() + ")");
+								
+								//PopupView regimePopup = new PopupView("(" + Integer.valueOf(regimenCount).toString() + ")", regimeuserspopup);
 								//regimePopup.setWidth(10, Unit.PIXELS);
 
 								regimenesPanel.addComponent(regimeNameLabel);
 								regimenesPanel.addComponent(regimePopup);	
 							}
 						}
+						
 						rowMealCount.addComponent(regimenesPanel);
 						addComponent(rowMealCount);
 					}

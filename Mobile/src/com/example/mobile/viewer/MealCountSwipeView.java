@@ -5,29 +5,29 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import com.example.mobile.presenter.ExitBehavior;
-import com.vaadin.addon.touchkit.ui.NavigationButton;
+import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
+import com.vaadin.addon.touchkit.ui.NavigationBar;
 import com.vaadin.addon.touchkit.ui.NavigationManager;
-import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationListener;
-import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.SwipeView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
+import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationListener;
+import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.server.AbstractErrorMessage.ContentMode;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
-
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 
 @SuppressWarnings("serial")
-public class MealSelectionSwipeView extends NavigationManager
-	implements NavigationListener {
+public class MealCountSwipeView extends NavigationManager implements NavigationListener {
 	
   int pos = 0;
   Date dayselected;
 
-  public MealSelectionSwipeView(Date selected) {
+  public MealCountSwipeView(Date selected) {
 	  this.dayselected= selected;
       // Set up the initial views
       navigateTo(createView(+pos));
@@ -37,26 +37,38 @@ public class MealSelectionSwipeView extends NavigationManager
   }
 
   SwipeView createView(int currentpos) {
-	  SwipeView view = new SwipeView();
+      SwipeView view = new SwipeView();
+      NavigationView navview = new NavigationView();
+    		  
       view.setSizeFull();
-      
-      //NavigationButton test = new NavigationButton();
-	  NavigationView navview = new NavigationView();
-	  navview.setPreviousComponent(new UserMenuView());
       navview.setSizeFull();
-      ((NavigationButton) navview.getNavigationBar().getLeftComponent())
-      	.addClickListener(new ExitBehavior());
-     
+      navview.setPreviousComponent(new AdminMenuView());
 
       // Use an inner layout to center the image
+      //NavigationBar nav = new NavigationBar();
+      //nav.setPreviousView(getPreviousComponent());
+     
       VerticalComponentGroup layout = new VerticalComponentGroup();
       layout.setSizeFull();
  
      //HorizontalButtonGroup top = new HorizontalButtonGroup();
-     //Button exit = new Button("Exit");
-     //exit.addClickListener(new ExitBehavior());
+     //Button exit = new Button("<");
+     //exit.addStyleName("rav");
+     
+    
+     //exit.addClickListener(new ClickListener(){
+
+	//	@Override
+	//	public void buttonClick(ClickEvent event) {
+			// TODO Auto-generated method stub
+	//		navigateTo(new AdminMenuView());
+	//	}});
+     
+     
      //top.addComponent(exit);
      //layout.addComponent(top);
+   
+      //layout.addComponent(exit);
      
       
       HorizontalLayout datepanel = new HorizontalLayout();
@@ -92,7 +104,8 @@ public class MealSelectionSwipeView extends NavigationManager
 		//layout.addComponent(new Label(Integer.valueOf(currentpos).toString()));
 		/** END */
 		
-		layout.addComponent(new SelectionDateView(c.getTime()));
+		//layout.addComponent(new SelectionDateView(c.getTime()));
+		layout.addComponent(new CountView(c.getTime()));
 		navview.setContent(layout);
 		view.setContent(navview);
 		
@@ -176,4 +189,3 @@ public class MealSelectionSwipeView extends NavigationManager
       }
   }
 }
-
