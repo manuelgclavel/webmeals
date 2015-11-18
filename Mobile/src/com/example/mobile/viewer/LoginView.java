@@ -1,45 +1,32 @@
 package com.example.mobile.viewer;
 
+import static com.example.mobile.MobileUI.COOKIE_MAX_AGE;
+import static com.example.mobile.MobileUI.LOGIN_COOKIE;
+import static com.example.mobile.MobileUI.PASSWORD_COOKIE;
 import static com.vaadin.ui.Notification.Type.ERROR_MESSAGE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
 
 import javax.servlet.http.Cookie;
 
 import com.example.mobile.MobileUI;
-import static com.example.mobile.MobileUI.LOGIN_COOKIE;
-import static com.example.mobile.MobileUI.PASSWORD_COOKIE;
-import static com.example.mobile.MobileUI.COOKIE_MAX_AGE;
 import com.example.mobile.data.Residence;
 import com.example.mobile.data.Role;
 import com.example.mobile.data.User;
-import com.example.mobile.presenter.LoginBehavior;
-import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
 import com.vaadin.addon.touchkit.ui.NavigationBar;
-import com.vaadin.addon.touchkit.ui.NavigationButton;
-import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickEvent;
-import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickListener;
-import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationEvent;
-import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationListener;
-import com.vaadin.addon.touchkit.ui.NavigationManager;
-import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
-import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 
 @SuppressWarnings("serial")
 //public class LoginView extends NavigationManager {
