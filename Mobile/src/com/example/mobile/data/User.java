@@ -24,6 +24,12 @@ public class User {
 		this.name = name;
 		this.surname = surname;
 	}
+	
+	public User(String surname, String name) {
+		this.name = name;
+		this.surname = surname;
+	}
+	
 
 	public User(int pk) {
 		// TODO Auto-generated constructor stub

@@ -63,7 +63,15 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 		/**
 		 * Get the SELECTED meal option, which may be null, i.e., the undefined value in the combo-box
 		 */
+		
 		selMealOption = (MealOption) event.getProperty().getValue();
+		//if (selMealOption == null) {
+		//	Notification.show("YES!");
+		//};
+
+		//if (curMealOption == null){
+		//	Notification.show("VAMOS!");
+		//}
 
 		Boolean proceed = false;
 		if ((curMealOption == null) & (selMealOption == null)) {
@@ -149,16 +157,27 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 				}
 
 
-
 				if (checkDeadlines(curOptionDeadline, selOptionDeadline)){
 
 					if (!(curMealSelection == null)) {
 						ps = conn.prepareStatement("UPDATE MealSelection SET mealoption = ? where pk = ?");
-						ps.setInt(1, selMealOption.getPk());
-						ps.setInt(2, curMealSelection.getPk());
-						ps.executeUpdate();
+						if (!(selMealOption == null)){
+							ps.setInt(1, selMealOption.getPk());
+							ps.setInt(2, curMealSelection.getPk());
+							ps.executeUpdate();
+						} else {
+							//Notification.show("THERE!");
+							//ps.setString(1, "NULL");
+							//ps.setInt(2, curMealSelection.getPk());
+							Notification.show("WHAT?");
+							ps = conn.prepareStatement("DELETE FROM MealSelection where pk = ?");
+							ps.setInt(1, curMealSelection.getPk());
+							ps.executeUpdate();
+						}
+						
 					} 
 					else {	
+						/** Note that, in this case, selMealOption cannot be null */
 						ps = conn.prepareStatement("INSERT INTO MealSelection" + " " + 	"(mealOption,meal, ownedBy) values (?,?,?)");
 						ps.setInt(1, selMealOption.getPk());
 						ps.setInt(2, mealselected.getPk());

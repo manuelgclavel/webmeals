@@ -55,7 +55,7 @@ public class MobileUI extends UI {
     protected void init(VaadinRequest request)  {
     	
     	try {
-			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","admin");	
+			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","4Meaningful");	
 			manager = new NavigationManager(new LoginView());
 			setContent(manager);
 			//setContent(new LoginView());

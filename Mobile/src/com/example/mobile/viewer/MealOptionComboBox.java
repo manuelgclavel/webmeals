@@ -71,7 +71,8 @@ public class MealOptionComboBox extends NativeSelect {
 			 * select in combo-box the current stored option
 			 */
 
-			MealSelection curMealSelection = null;
+			//MealSelection curMealSelection = null;
+			curMealSelection = null;
 
 
 			ps = conn.prepareStatement("SELECT count(*), pk, mealOption, foodRegime FROM MealSelection" + " " +
@@ -89,7 +90,8 @@ public class MealOptionComboBox extends NativeSelect {
 			result.close();
 			ps.close();
 
-			MealOption curMealOption = null;
+			//MealOption curMealOption = null;
+			curMealOption = null;
 
 			if (!(curMealSelection == null)){
 				ps = conn.prepareStatement("SELECT count(*), pk, position, initial, literal, ownedBy FROM MealOption" + " " +

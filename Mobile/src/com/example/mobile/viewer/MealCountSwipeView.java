@@ -41,30 +41,32 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 
   SwipeView createView(int currentpos) {
       SwipeView view = new SwipeView();
-      NavigationView navview = new NavigationView();
     		  
       view.setSizeFull();
-      navview.setSizeFull();
-      //navview.setPreviousComponent(new AdminMenuView());
-     
-      
-      
-      Button logout = new Button();
-      logout.setCaption("Exit");
-      logout.addClickListener(new ExitBehavior());
-      navview.setLeftComponent(logout);
-
-      // Use an inner layout to center the image
-      //NavigationBar nav = new NavigationBar();
-      //nav.setPreviousView(getPreviousComponent());
      
       VerticalComponentGroup layout = new VerticalComponentGroup();
       layout.setSizeFull();
  
-     //HorizontalButtonGroup top = new HorizontalButtonGroup();
-     //Button exit = new Button("<");
-     //exit.addStyleName("rav");
+      NavigationBar top = new NavigationBar();
+
+     Button menu = new Button("Menu");
+     top.setLeftComponent(menu);
+     Button logout = new Button("Exit");
+     top.setRightComponent(logout);
+
+     menu.addClickListener(new ClickListener(){
+
+		@Override
+		public void buttonClick(ClickEvent event) {
+			// TODO Auto-generated method stub
+			((MobileUI) UI.getCurrent()).getManager().navigateTo(new AdminMenuView());
+			
+		}});
      
+     logout.addClickListener(new ExitBehavior());
+    
+     layout.addComponent(top);
+    
     
      //exit.addClickListener(new ClickListener(){
 
@@ -84,10 +86,10 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
       HorizontalLayout datepanel = new HorizontalLayout();
 		datepanel.setWidth("100%");
 		
-		final Button prev = new Button("prev");
-		final Button now = new Button("today");
+		final Button prev = new Button("-1");
+		final Button now = new Button("^");
 		final DateField dateshown =  new DateField();
-		final Button next = new Button("next");
+		final Button next = new Button("+1");
 		
 
 		Calendar c = new GregorianCalendar();
@@ -116,7 +118,6 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 		
 		//layout.addComponent(new SelectionDateView(c.getTime()));
 		layout.addComponent(new CountView(c.getTime()));
-		//navview.setContent(layout);
 		view.setContent(layout);
 		
 		

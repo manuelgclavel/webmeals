@@ -6,6 +6,8 @@ import java.util.GregorianCalendar;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
+import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
+import com.vaadin.addon.touchkit.ui.NavigationBar;
 import com.vaadin.addon.touchkit.ui.NavigationButton;
 import com.vaadin.addon.touchkit.ui.NavigationManager;
 import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationListener;
@@ -19,6 +21,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 
 
@@ -42,44 +45,30 @@ public class MealSelectionSwipeView extends NavigationManager
 	  SwipeView view = new SwipeView();
       view.setSizeFull();
       
-      //NavigationButton test = new NavigationButton();
-	  NavigationView navview = new NavigationView();
-	  navview.setPreviousComponent(new UserMenuView());
-	  //navview.setPreviousComponent(new CloseSessionView());
-      navview.setSizeFull();
-      
-      /**
-      Button menu = new Button();
-      menu.setCaption("");
-      menu.addClickListener(new ClickListener(){
-
-    	  @Override
-    	  public void buttonClick(ClickEvent event) {
-    		  // TODO Auto-generated method stub
-    		  ((MobileUI) UI.getCurrent()).getManager().navigateTo(new UserMenuView());
-    	  }});
-      navview.setLeftComponent(menu);
-	
-      Button logout = new Button();
-      logout.setCaption("Exit");
-      logout.addClickListener(new ExitBehavior());
-      navview.setRightComponent(logout);
-       */
-  	
-      //((NavigationButton) navview.getNavigationBar().getLeftComponent())
-      //	.addClickListener(new ExitBehavior());
-     
 
       // Use an inner layout to center the image
       VerticalComponentGroup layout = new VerticalComponentGroup();
       layout.setSizeFull();
- 
-     //HorizontalButtonGroup top = new HorizontalButtonGroup();
-     //Button exit = new Button("Exit");
-     //exit.addClickListener(new ExitBehavior());
-     //top.addComponent(exit);
-     //layout.addComponent(top);
+      
+      NavigationBar top = new NavigationBar();
+
+      Button menu = new Button("Menu");
+      top.setLeftComponent(menu);
+      Button logout = new Button("Exit");
+      top.setRightComponent(logout);
+
+      menu.addClickListener(new ClickListener(){
+
+ 		@Override
+ 		public void buttonClick(ClickEvent event) {
+ 			// TODO Auto-generated method stub
+ 			((MobileUI) UI.getCurrent()).getManager().navigateTo(new UserMenuView());
+ 			
+ 		}});
+      
+      logout.addClickListener(new ExitBehavior());
      
+      layout.addComponent(top);
       
       HorizontalLayout datepanel = new HorizontalLayout();
 		datepanel.setWidth("100%");
@@ -115,8 +104,7 @@ public class MealSelectionSwipeView extends NavigationManager
 		/** END */
 		
 		layout.addComponent(new SelectionDateView(c.getTime()));
-		navview.setContent(layout);
-		view.setContent(navview);
+		view.setContent(layout);
 		
 		
 		dateshown.addValueChangeListener(new ValueChangeListener() {

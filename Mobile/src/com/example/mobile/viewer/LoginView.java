@@ -19,6 +19,7 @@ import com.example.mobile.data.Role;
 import com.example.mobile.data.User;
 import com.example.mobile.presenter.LoginBehavior;
 import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
+import com.vaadin.addon.touchkit.ui.NavigationBar;
 import com.vaadin.addon.touchkit.ui.NavigationButton;
 import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickEvent;
 import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickListener;
@@ -31,6 +32,7 @@ import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
@@ -52,20 +54,21 @@ import com.vaadin.ui.Button.ClickListener;
 		
 		//addNavigationListener((NavigationListener) this);
 		
-		VerticalComponentGroup content = new VerticalComponentGroup();
+		//VerticalComponentGroup content = new VerticalComponentGroup();
 		setWidth("100%");
+		
+		NavigationBar top = new NavigationBar();
+		Button enterButton = new Button("Enter");
+		Label nihil = new Label("");
+		top.setLeftComponent(nihil);
+		top.setRightComponent(enterButton);
+		addComponent(top);
 		
 		//VerticalComponentGroup vertical =
     	//		new VerticalComponentGroup();
     	
     	loginField = new TextField("Login: ");
 		passwordField = new PasswordField("Password: ");
-		//loginField.setImmediate(true);
-		//passwordField.setImmediate(true);
-		
-		
-		Button enterButton = new Button("Enter");
-				
 		// Read previously stored cookie value 
     	Cookie loginCookie = currentUI.getCookieByName(LOGIN_COOKIE); 
     	Cookie passwordCookie = currentUI.getCookieByName(PASSWORD_COOKIE);
@@ -77,15 +80,15 @@ import com.vaadin.ui.Button.ClickListener;
     	}
     	
     	
-		content.addComponent(loginField);
-    	content.addComponent(passwordField);
-    	HorizontalButtonGroup buttons = new HorizontalButtonGroup();
-    	buttons.addComponent(enterButton);
-    	content.addComponent(buttons);
+		addComponent(loginField);
+    	addComponent(passwordField);
+    	//HorizontalButtonGroup buttons = new HorizontalButtonGroup();
+    	//buttons.addComponent(enterButton);
+    	//content.addComponent(buttons);
     	
     	//content.addComponent(vertical);
     	//addComponent(content);
-    	addComponent(content);
+    	//addComponent(content);
  
     				
     	/** */	
@@ -124,8 +127,8 @@ import com.vaadin.ui.Button.ClickListener;
 					/** */
 				
 					if (currentUI.getRole().getId() == 0){
-						currentUI.setContent(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
-						//currentUI.getManager().navigateTo(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
+						//currentUI.setContent(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
+						currentUI.getManager().navigateTo(new UserMenuView());
 					} else { 
 						if (currentUI.getRole().getId() == 1){			
 							currentUI.getManager().navigateTo(new AdminMenuView());
