@@ -43,12 +43,10 @@ public class MealSelectionSwipeView extends NavigationManager
 
   SwipeView createView(int currentpos) {
 	  SwipeView view = new SwipeView();
-      view.setSizeFull();
       
 
       // Use an inner layout to center the image
       VerticalComponentGroup layout = new VerticalComponentGroup();
-      layout.setSizeFull();
       
       NavigationBar top = new NavigationBar();
 

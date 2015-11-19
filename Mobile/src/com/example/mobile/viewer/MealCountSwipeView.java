@@ -41,11 +41,9 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 
   SwipeView createView(int currentpos) {
       SwipeView view = new SwipeView();
-    		  
-      view.setSizeFull();
-     
+    		       
       VerticalComponentGroup layout = new VerticalComponentGroup();
-      layout.setSizeFull();
+
  
       NavigationBar top = new NavigationBar();
 
@@ -68,55 +66,35 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
      layout.addComponent(top);
     
     
-     //exit.addClickListener(new ClickListener(){
-
-	//	@Override
-	//	public void buttonClick(ClickEvent event) {
-			// TODO Auto-generated method stub
-	//		navigateTo(new AdminMenuView());
-	//	}});
-     
-     
-     //top.addComponent(exit);
-     //layout.addComponent(top);
-   
-      //layout.addComponent(exit);
-     
-      
-      HorizontalLayout datepanel = new HorizontalLayout();
-		datepanel.setWidth("100%");
 		
-		final Button prev = new Button("-1");
-		final Button now = new Button("^");
+		final Button prev = new Button("prev");
+		final Button now = new Button("today");
 		final DateField dateshown =  new DateField();
-		final Button next = new Button("+1");
+		final Button next = new Button("next");
 		
 
 		Calendar c = new GregorianCalendar();
 		c.setTime(dayselected);
 		c.add(Calendar.DATE, currentpos);
+		
 		dateshown.setValue(c.getTime());
 		dateshown.setDateFormat("EEE, MMM d, ''yy");
 
-		datepanel.addComponent(dateshown);
-		datepanel.addComponent(prev);
-		datepanel.addComponent(next);
-		datepanel.addComponent(now);
+		layout.addComponent(dateshown);
 		
-		datepanel.setExpandRatio(prev, 1);
-		datepanel.setExpandRatio(now, 1);
-		datepanel.setExpandRatio(next, 1);
-		datepanel.setExpandRatio(dateshown, 3);
-	
-		layout.addComponent(datepanel);
+		HorizontalButtonGroup buttons = new HorizontalButtonGroup();
 		
+		buttons.addComponent(prev);
+		buttons.addComponent(next);
+		buttons.addComponent(now);
+		
+		layout.addComponent(buttons);
 		
 		/** GREAT FOR DEBUGGING */
 		//layout.addComponent(new Label(c.getTime().toString()));
 		//layout.addComponent(new Label(Integer.valueOf(currentpos).toString()));
 		/** END */
-		
-		//layout.addComponent(new SelectionDateView(c.getTime()));
+
 		layout.addComponent(new CountView(c.getTime()));
 		view.setContent(layout);
 		

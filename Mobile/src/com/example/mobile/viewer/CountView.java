@@ -13,6 +13,8 @@ import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealCount;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.User;
+import com.example.mobile.presenter.UserPopupBehavior;
+import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.Popover;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.util.BeanItemContainer;
@@ -24,10 +26,14 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.PopupView;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 @SuppressWarnings("serial")
 public class CountView extends VerticalComponentGroup {
@@ -131,28 +137,15 @@ public class CountView extends VerticalComponentGroup {
 							MealCount mealcount = h.next();
 							users.addItem(new User(mealcount.getUsersurname(),mealcount.getUsername()));
 						}
-						final CssLayout layout = new CssLayout();
-							
-						Table userstable = new Table("", users);
-						userstable.setPageLength(userstable.size());
-						userstable.setVisibleColumns(new Object[] {"name", "surname"});
-						final Popover popover = new Popover();
-						layout.addComponent(userstable);
-							
-						popup.addClickListener(new ClickListener(){
-
-							@Override
-							public void buttonClick(ClickEvent event) {
-								// TODO Auto-generated method stub
-								popover.setContent(layout);   
-								popover.showRelativeTo(event.getButton());					
-							}
-						});
+								
+						//popup.addClickListener(new UserPopupBehavior(new Table("", users)));
+						popup.addClickListener(new UserPopupBehavior(users));
 						/** */
 						rowMealCount.addComponent(popup);
 						
 						HorizontalLayout regimenesPanel = new HorizontalLayout();
-						regimenesPanel.setSpacing(true);	
+						regimenesPanel.setSpacing(true);
+						
 						
 						for (Iterator<FoodRegime> k = regimenes.getItemIds().iterator(); k.hasNext();) {
 							FoodRegime regime = k.next();
@@ -171,24 +164,9 @@ public class CountView extends VerticalComponentGroup {
 									MealCount mealcount = h.next();
 									regimeusers.addItem(new User(mealcount.getUsersurname(),mealcount.getUsername()));
 								}
-								final CssLayout regimelayout = new CssLayout();
-									
-								Table regimeuserstable = new Table("", regimeusers);
-								regimeuserstable.setPageLength(regimeuserstable.size());
-								regimeuserstable.setVisibleColumns(new Object[] {"name", "surname"});
-								final Popover regimepopover = new Popover();
-								regimelayout.addComponent(regimeuserstable);
-									
-								regimepopup.addClickListener(new ClickListener(){
-
-									@Override
-									public void buttonClick(ClickEvent event) {
-										// TODO Auto-generated method stub
-										regimepopover.setContent(regimelayout);   
-										regimepopover.showRelativeTo(event.getButton());					
-									}
-								});
-								/** */
+								
+								//regimepopup.addClickListener(new UserPopupBehavior(new Table("", regimeusers)));
+								regimepopup.addClickListener(new UserPopupBehavior(regimeusers));
 								
 								regimenesPanel.addComponent(regimepopup);	
 							}
