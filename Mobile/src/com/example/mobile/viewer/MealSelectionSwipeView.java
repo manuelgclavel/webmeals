@@ -70,32 +70,39 @@ public class MealSelectionSwipeView extends NavigationManager
      
       layout.addComponent(top);
       
-      HorizontalLayout datepanel = new HorizontalLayout();
-		datepanel.setWidth("100%");
+      
+      //HorizontalLayout datepanel = new HorizontalLayout();
+      //datepanel.setWidth("100%");
 		
-		final Button prev = new Button("-1");
-		final Button now = new Button("^");
+		final Button prev = new Button("prev");
+		final Button now = new Button("today");
 		final DateField dateshown =  new DateField();
-		final Button next = new Button("+1");
+		final Button next = new Button("next");
 		
 
 		Calendar c = new GregorianCalendar();
 		c.setTime(dayselected);
 		c.add(Calendar.DATE, currentpos);
+		
 		dateshown.setValue(c.getTime());
 		dateshown.setDateFormat("EEE, MMM d, ''yy");
 
-		datepanel.addComponent(dateshown);
-		datepanel.addComponent(prev);
-		datepanel.addComponent(next);
-		datepanel.addComponent(now);
+		//datepanel.addComponent(dateshown);
+		layout.addComponent(dateshown);
 		
-		datepanel.setExpandRatio(prev, 1);
-		datepanel.setExpandRatio(now, 1);
-		datepanel.setExpandRatio(next, 1);
-		datepanel.setExpandRatio(dateshown, 3);
+		HorizontalButtonGroup buttons = new HorizontalButtonGroup();
+		
+		buttons.addComponent(prev);
+		buttons.addComponent(next);
+		buttons.addComponent(now);
+		
+		//datepanel.setExpandRatio(prev, 1);
+		//datepanel.setExpandRatio(now, 1);
+		//datepanel.setExpandRatio(next, 1);
+		//datepanel.setExpandRatio(dateshown, 3);
 	
-		layout.addComponent(datepanel);
+		//layout.addComponent(datepanel);
+		layout.addComponent(buttons);
 		
 		
 		/** GREAT FOR DEBUGGING */
