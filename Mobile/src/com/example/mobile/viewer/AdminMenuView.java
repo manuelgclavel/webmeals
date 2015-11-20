@@ -20,7 +20,7 @@ public class AdminMenuView extends NavigationView {
 	public AdminMenuView(){	
 	//CssLayout content = new CssLayout();
 	//content.setWidth("100%");
-	this.setCaption("Menu");
+	setCaption("Admin menu");
 		
 	VerticalComponentGroup layout = new VerticalComponentGroup();
 	layout.setSizeFull();
@@ -39,6 +39,7 @@ public class AdminMenuView extends NavigationView {
      
      
 	NavigationButton mealcount = new NavigationButton("Meal count");
+	/**
 	mealcount.addClickListener(new NavigationButtonClickListener(){
 
 		@Override
@@ -47,7 +48,7 @@ public class AdminMenuView extends NavigationView {
 			((MobileUI) UI.getCurrent()).getManager().navigateTo(new MealCountSwipeView(Calendar.getInstance().getTime()));
 			//setContent(new MealCountView());
 		}});
-	
+	*/
 	layout.addComponent(mealcount);
 	
 	setContent(layout);

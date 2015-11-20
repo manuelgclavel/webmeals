@@ -10,6 +10,7 @@ import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
 import com.vaadin.addon.touchkit.ui.NavigationBar;
 import com.vaadin.addon.touchkit.ui.NavigationButton;
 import com.vaadin.addon.touchkit.ui.NavigationManager;
+import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationEvent;
 import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationListener;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.SwipeView;
@@ -22,28 +23,37 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
 
 @SuppressWarnings("serial")
 public class MealSelectionSwipeView extends NavigationManager
+//public class MealSelectionSwipeView extends NavigationView
 	implements NavigationListener {
 	
   int pos = 0;
   Date dayselected;
+  //NavigationManager manager;
 
   public MealSelectionSwipeView(Date selected) {
+	  
+	  setCaption("Meal selection (by day)");
+	  //this.manager = getNavigationManager();
 	  this.dayselected= selected;
       // Set up the initial views
+	  //if (getNavigationManager() == null){Notification.show("PROBLEM");};
       navigateTo(createView(+pos));
       setNextComponent(createView(pos+1));
       setPreviousComponent(createView(pos-1));
       addNavigationListener((NavigationListener) this);
   }
 
-  SwipeView createView(int currentpos) {
+
+
+SwipeView createView(int currentpos) {
 	  SwipeView view = new SwipeView();
-      
+
 
       // Use an inner layout to center the image
       VerticalComponentGroup layout = new VerticalComponentGroup();
@@ -76,7 +86,7 @@ public class MealSelectionSwipeView extends NavigationManager
 		final Button now = new Button("today");
 		final DateField dateshown =  new DateField();
 		final Button next = new Button("next");
-		final Button week = new Button("week");
+		//final Button week = new Button("week");
 		
 
 		Calendar c = new GregorianCalendar();
@@ -94,7 +104,7 @@ public class MealSelectionSwipeView extends NavigationManager
 		buttons.addComponent(prev);
 		buttons.addComponent(next);
 		buttons.addComponent(now);
-		buttons.addComponent(week);
+		//buttons.addComponent(week);
 		
 		//datepanel.setExpandRatio(prev, 1);
 		//datepanel.setExpandRatio(now, 1);
@@ -172,16 +182,22 @@ public class MealSelectionSwipeView extends NavigationManager
 			
 		});
 		
+		/**
 		week.addClickListener(new ClickListener(){
 
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				((MobileUI) UI.getCurrent()).getManager().navigateTo(new SelectionWeekView(dayselected));
+				Calendar c = new GregorianCalendar();
+				c.setTime(dayselected);
+				//c.add(Calendar.DATE, pos);
+				((MobileUI) UI.getCurrent()).setContent(new SelectionWeekView(c.getTime()));
+				//((MobileUI) UI.getCurrent()).getManager().
+				//navigateTo(new SelectionWeekView(c.getTime()));
 			}
 			
 		});
-		
+		*/
 		return view;
 		
   }

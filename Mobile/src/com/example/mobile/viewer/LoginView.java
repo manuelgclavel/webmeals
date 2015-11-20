@@ -17,6 +17,7 @@ import com.example.mobile.data.Residence;
 import com.example.mobile.data.Role;
 import com.example.mobile.data.User;
 import com.vaadin.addon.touchkit.ui.NavigationBar;
+import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Button;
@@ -30,26 +31,26 @@ import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
 //public class LoginView extends NavigationManager {
-	public class LoginView extends VerticalComponentGroup {
-
+	//public class LoginView extends VerticalComponentGroup {
+	public class LoginView extends NavigationView {
 	
 	private final MobileUI currentUI = ((MobileUI) UI.getCurrent());
-	final private TextField loginField;
-	final private PasswordField passwordField;
+	private TextField loginField;
+	private PasswordField passwordField;
 	
 	public LoginView(){
 		
 		//addNavigationListener((NavigationListener) this);
 		
-		//VerticalComponentGroup content = new VerticalComponentGroup();
+		VerticalComponentGroup content = new VerticalComponentGroup();
 		setWidth("100%");
 		
-		NavigationBar top = new NavigationBar();
+		//NavigationBar top = new NavigationBar();
 		Button enterButton = new Button("Enter");
 		Label nihil = new Label("");
-		top.setLeftComponent(nihil);
-		top.setRightComponent(enterButton);
-		addComponent(top);
+		setLeftComponent(nihil);
+		setRightComponent(enterButton);
+		//content.addComponent(top);
 		
 		//VerticalComponentGroup vertical =
     	//		new VerticalComponentGroup();
@@ -67,8 +68,8 @@ import com.vaadin.ui.UI;
     	}
     	
     	
-		addComponent(loginField);
-    	addComponent(passwordField);
+		content.addComponent(loginField);
+    	content.addComponent(passwordField);
     	//HorizontalButtonGroup buttons = new HorizontalButtonGroup();
     	//buttons.addComponent(enterButton);
     	//content.addComponent(buttons);
@@ -76,7 +77,7 @@ import com.vaadin.ui.UI;
     	//content.addComponent(vertical);
     	//addComponent(content);
     	//addComponent(content);
- 
+    	setContent(content);
     				
     	/** */	
     	
@@ -115,10 +116,13 @@ import com.vaadin.ui.UI;
 				
 					if (currentUI.getRole().getId() == 0){
 						//currentUI.setContent(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
-						currentUI.getManager().navigateTo(new UserMenuView());
+						getNavigationManager().navigateTo(new UserMenuView());
+						//currentUI.setContent(new UserMenuView());
 					} else { 
 						if (currentUI.getRole().getId() == 1){			
-							currentUI.getManager().navigateTo(new AdminMenuView());
+							//currentUI.getManager().navigateTo(new AdminMenuView());;
+							//currentUI.setContent(new AdminMenuView());
+							getNavigationManager().navigateTo(new AdminMenuView());
 						} else {
 							Notification.show("Unauthorized role.", ERROR_MESSAGE);
 						}
