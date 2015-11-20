@@ -76,6 +76,7 @@ public class MealSelectionSwipeView extends NavigationManager
 		final Button now = new Button("today");
 		final DateField dateshown =  new DateField();
 		final Button next = new Button("next");
+		final Button week = new Button("week");
 		
 
 		Calendar c = new GregorianCalendar();
@@ -93,6 +94,7 @@ public class MealSelectionSwipeView extends NavigationManager
 		buttons.addComponent(prev);
 		buttons.addComponent(next);
 		buttons.addComponent(now);
+		buttons.addComponent(week);
 		
 		//datepanel.setExpandRatio(prev, 1);
 		//datepanel.setExpandRatio(now, 1);
@@ -135,9 +137,9 @@ public class MealSelectionSwipeView extends NavigationManager
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				Calendar c = new GregorianCalendar();
-				c.setTime(dayselected);
-				c.add(Calendar.DATE, +1);
+				//Calendar c = new GregorianCalendar();
+				//c.setTime(dayselected);
+				//c.add(Calendar.DATE, +1);
 				navigateTo(getNextComponent());
 			}
 			
@@ -148,10 +150,9 @@ public class MealSelectionSwipeView extends NavigationManager
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				Calendar c = new GregorianCalendar();
-				c.setTime(dayselected);
-				c.add(Calendar.DATE, -1);
-				
+				//Calendar c = new GregorianCalendar();
+				//c.setTime(dayselected);
+				//c.add(Calendar.DATE, -1);
 				navigateTo(getPreviousComponent());
 			}
 			
@@ -167,6 +168,16 @@ public class MealSelectionSwipeView extends NavigationManager
 				setCurrentComponent(createView(+pos));
 				setNextComponent(createView(pos+1));
 			    setPreviousComponent(createView(pos-1));
+			}
+			
+		});
+		
+		week.addClickListener(new ClickListener(){
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO Auto-generated method stub
+				((MobileUI) UI.getCurrent()).getManager().navigateTo(new SelectionWeekView(dayselected));
 			}
 			
 		});
