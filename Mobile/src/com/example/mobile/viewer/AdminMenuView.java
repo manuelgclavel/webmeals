@@ -37,19 +37,28 @@ public class AdminMenuView extends NavigationView {
 	logout.addClickListener(new ExitBehavior());
 	
      
-     
-	NavigationButton mealcount = new NavigationButton("Meal count");
-	/**
-	mealcount.addClickListener(new NavigationButtonClickListener(){
-
-		@Override
-		public void buttonClick(NavigationButtonClickEvent event) {
-			// TODO Auto-generated method stub
-			((MobileUI) UI.getCurrent()).getManager().navigateTo(new MealCountSwipeView(Calendar.getInstance().getTime()));
-			//setContent(new MealCountView());
-		}});
-	*/
+  
+	NavigationButton mealcount = 
+			new NavigationButton("Meal count", new MealCountSwipeView(Calendar.getInstance().getTime()));
+	mealcount.setTargetViewCaption("Meal count");
+	NavigationButton editusers =
+			new NavigationButton("Users", new UserEditView());
+	editusers.setTargetViewCaption("Users");
+	
+	NavigationButton editguests =
+			new NavigationButton("Guests", new GuestEditView());
+	editguests.setTargetViewCaption("Guests");
+	
+	NavigationButton editmeals =
+			new NavigationButton("Meals", new MealEditView());
+	editmeals.setTargetViewCaption("Meals");
+	
+	
 	layout.addComponent(mealcount);
+	layout.addComponent(editusers);
+	layout.addComponent(editguests);
+	layout.addComponent(editmeals);
+	
 	
 	setContent(layout);
 	}
