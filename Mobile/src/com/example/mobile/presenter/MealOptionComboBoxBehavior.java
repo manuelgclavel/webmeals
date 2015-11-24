@@ -103,7 +103,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 				 */
 				MealOptionDeadline curOptionDeadline = null;
 				if (!(curMealOption == null)){
-					ps = conn.prepareStatement("select count(*), pk, cday, chour, cminute, ownedBy from MealOptionDeadline where pk in" + " " +
+					ps = conn.prepareStatement("select count(*), pk, cday, chour, cminute, literal, ownedBy from MealOptionDeadline where pk in" + " " +
 							"(select entity from MealOptionDeadline_days" + " " +
 							"where elements = WEEKDAY(Date(?)) and entity in (" + " " +
 							"select pk from MealOptionDeadline where pk in (" + " " +
@@ -121,7 +121,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 					result.next();
 					if (result.getInt(1) > 0){
 						curOptionDeadline = new MealOptionDeadline(result.getInt(2), result.getInt(3), 
-								result.getInt(4), result.getInt(5), result.getInt(6));
+								result.getInt(4), result.getInt(5), result.getString(6), result.getInt(7));
 					}
 					result.close();
 					ps.close();
@@ -131,7 +131,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 				 */
 				MealOptionDeadline selOptionDeadline = null;
 				if (!(selMealOption == null)){
-					ps = conn.prepareStatement("select count(*), pk, cday, chour, cminute, ownedBy from MealOptionDeadline where pk in" + " " +
+					ps = conn.prepareStatement("select count(*), pk, cday, chour, cminute, literal, ownedBy from MealOptionDeadline where pk in" + " " +
 							"(select entity from MealOptionDeadline_days" + " " +
 							"where elements = WEEKDAY(Date(?)) and entity in (" + " " +
 							"select pk from MealOptionDeadline where pk in (" + " " +
@@ -150,7 +150,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 
 					if (result.getInt(1) > 0){
 						selOptionDeadline = new MealOptionDeadline(result.getInt(2), result.getInt(3), 
-								result.getInt(4), result.getInt(5), result.getInt(6));
+								result.getInt(4), result.getInt(5), result.getString(6), result.getInt(7));
 					}
 					result.close();
 					ps.close();			

@@ -13,8 +13,17 @@ public class Residency {
 	private int ownedBy;
 	private int regime;
 
-	public Residency(){
-		
+	public Residency(int pk, Date start, Date end, int ownedByRegime, int contract,
+			int ownedByOption, int guestRegime, int ownedBy, int regime){
+		this.pk = pk;
+		this.start = start;
+		this.end = end;
+		this.ownedByRegime = ownedByRegime;
+		this.contract = contract;
+		this.ownedByOption = ownedByOption;
+		this.guestRegime = guestRegime;
+		this.ownedBy = ownedBy;
+		this.regime = regime;
 	}
 
 	public int getPk() {

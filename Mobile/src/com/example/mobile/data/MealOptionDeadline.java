@@ -5,17 +5,19 @@ public class MealOptionDeadline {
 	private int cday;
 	private int cminute;
 	private int chour;
+	private String literal;
 	private int ownedBy;
 	
 	public MealOptionDeadline(int pk){
 		this.pk = pk;
 	}
 	
-	public MealOptionDeadline(int pk, int cday, int chour, int cminute, int ownedBy){
+	public MealOptionDeadline(int pk, int cday, int chour, int cminute, String literal, int ownedBy){
 		this.pk = pk;
 		this.cday = cday;
 		this.cminute = cminute;
 		this.chour = chour;
+		this.literal = literal;
 		this.ownedBy = ownedBy;
 	}
 		
@@ -34,6 +36,9 @@ public class MealOptionDeadline {
 		return chour;
 	}
 
+	public String getLiteral() {
+		return literal;
+	}
 	public int getOwnedBy() {
 		return ownedBy;
 	}
@@ -53,6 +58,10 @@ public class MealOptionDeadline {
 
 	public void setChour(int chour){
 		this.chour = chour;
+	}
+
+	public void setLiteral(String literal){
+		this.literal = literal;
 	}
 
 	public void setOwnedBy(int ownedBy){
