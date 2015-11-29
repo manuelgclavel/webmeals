@@ -4,10 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Iterator;
 
 import com.example.mobile.MobileUI;
-import com.example.mobile.data.Guest;
+import com.example.mobile.data.DeadlineDay;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealOptionDeadline;
@@ -16,14 +17,20 @@ import com.example.mobile.data.Residency;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Item;
+import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
@@ -36,6 +43,8 @@ public class MealEditView extends NavigationView {
 	private BeanItemContainer<MealOptionResidency> mealoptionresidencies;
 	private BeanItemContainer<MealOptionDeadline> deadlines; 
 	private BeanItemContainer<MealOptionDeadline> filterdeadlines; 
+	private BeanItemContainer<DeadlineDay> deadlinedays;
+	private Table deadlinesTable;
 	
 	public MealEditView(){
 		VerticalComponentGroup content = new VerticalComponentGroup();	
@@ -101,6 +110,15 @@ public class MealEditView extends NavigationView {
 				
 				filterdeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
 				
+				deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
+				ps = conn.prepareStatement("SELECT * FROM MealOptionDeadline_days");
+				result = ps.executeQuery();
+				while (result.next()){
+					deadlinedays.addItem(new DeadlineDay(result.getInt(1), result.getInt(2))); 
+				}
+				result.close();
+				ps.close();
+				
 				
 				
 				connectionPool.releaseConnection(conn);
@@ -139,21 +157,24 @@ public class MealEditView extends NavigationView {
 				periods.addContainerFilter(noneFilter);
 				periodsTable.setPageLength(periodsTable.size());
 				
-				
-				final Table deadlinesTable = new Table("", filterdeadlines);
-				deadlinesTable.setSortContainerPropertyId("cday");
-				deadlinesTable.setSortAscending(true);
-				//mealsTable.setSizeFull();
-				deadlinesTable.setImmediate(true);
-				deadlinesTable.setSelectable(true);
-				deadlinesTable.setVisibleColumns(new Object[] {"cday", "chour", "cminute"});
-				deadlinesTable.setPageLength(deadlinesTable.size());
-				
-				
-				
+
 				content.addComponent(mealsTable);
 				content.addComponent(mealoptionsTable);
 				content.addComponent(periodsTable);
+				
+				deadlinesTable = new Table("");
+				Calendar c = Calendar.getInstance();
+				int firstdayofweek = c.getFirstDayOfWeek();
+				c.set(Calendar.DAY_OF_WEEK, firstdayofweek);
+				for (int i = firstdayofweek; i <= (firstdayofweek + 6); i++){
+					deadlinesTable.addContainerProperty(displayDay(c.get(Calendar.DAY_OF_WEEK)), Label.class, null);
+					c.add(Calendar.DATE, 1);
+				}
+				
+				deadlinesTable.addContainerProperty("-Days", Label.class, null);
+				deadlinesTable.addContainerProperty("+Hour", Label.class, null);
+				deadlinesTable.addContainerProperty("+Min", Label.class, null);
+		
 				content.addComponent(deadlinesTable);
 				
 				
@@ -171,6 +192,7 @@ public class MealEditView extends NavigationView {
 						mealoptions.addContainerFilter(filterbyMeal);
 						periods.addContainerFilter(noneFilter);
 						filterdeadlines.removeAllItems();
+						//deadlinesTable = DeadlinesTable(filterdeadlines);
 					}});
 				
 				mealoptionsTable.addItemClickListener(new ItemClickListener(){
@@ -184,6 +206,7 @@ public class MealEditView extends NavigationView {
 								new Compare.Equal("ownedByOption", mealoptionselected.getPk());
 						periods.addContainerFilter(filterbyMealOption);		
 						filterdeadlines.removeAllItems();
+						
 					}});
 				
 				periodsTable.addItemClickListener(new ItemClickListener(){
@@ -201,16 +224,18 @@ public class MealEditView extends NavigationView {
 							MealOptionDeadline deadline = (MealOptionDeadline) j.next();
 							for (Iterator<MealOptionResidency> i = mealoptionresidencies.getItemIds().iterator(); i.hasNext();) {
 								MealOptionResidency period = (MealOptionResidency) i.next();
-								//Notification.show(Integer.valueOf(deadline.getOwnedBy()).toString() 
-								//		+ " :: " + Integer.valueOf(period.getResidency()).toString());
 								if (deadline.getOwnedBy() == period.getResidency()){
 									filterdeadlines.addItem(deadline);
 								}
 						}
 							
 						}	
+						deadlinesTable = DeadlinesTable(filterdeadlines);
+						
 					}});
 			
+					
+				
 				
 				setContent(content);
 				
@@ -219,6 +244,70 @@ public class MealEditView extends NavigationView {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}		
+	}
+	
+	
+private String displayDay(int dayofweek) {
+		// TODO Auto-generated method stub
+	String day = "";
+	switch (dayofweek) {
+	   case (1):
+		   day = "Sun";
+	   break;
+	   case (2):
+		   day = "Mon";
+	   break;
+	   case (3): 
+		   day = "Tue";
+	   break;
+	   case (4):
+		   day = "Wed";
+		   break;
+	   case (5):
+		   day = "Thu";
+		   break;
+	   case (6):
+		   day = "Fri";
+		   break;
+	   case (7):
+		   day = "Sat";
+		   break;
+	   }
+		return day;
+	}
+
+
+public Table DeadlinesTable(BeanItemContainer<MealOptionDeadline> filterdeadlines){
+	Table table = new Table();
+	
+	for (Iterator<MealOptionDeadline> h = filterdeadlines.getItemIds().iterator(); h.hasNext();) {
+		MealOptionDeadline deadline = (MealOptionDeadline) h.next();
+		Object[] row = new Object[10];
+		
+		for (int i = 0; i<= 6; i++){
+			Label day = new Label();
+
+			for (Iterator<DeadlineDay> j = deadlinedays.getItemIds().iterator(); j.hasNext();){
+				DeadlineDay deadlineday = (DeadlineDay) j.next();
+				if (deadlineday.getDeadline() == deadline.getPk()){
+					if (deadlineday.getDay() == i){
+						day.setValue("X");
+					}
+				}
+			}
+			row[i] = day;
+		}
+		row[7] = new Label(Integer.valueOf(deadline.getCday()).toString());
+		row[8] = new Label(Integer.valueOf(deadline.getChour()).toString());
+		row[9] = new Label(Integer.valueOf(deadline.getCminute()).toString());
+		
+		deadlinesTable.addItem(row, deadline.getPk());
+		
+		
+		
+	}
+	return table; 
+		
 	}
 	
 
