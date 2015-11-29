@@ -167,6 +167,7 @@ public class MealEditView extends NavigationView {
 				/** */
 				deadlinesinfo = new IndexedContainer();
 				Table mydeadlinesTable = new Table("", deadlinesinfo);
+				mydeadlinesTable.setPageLength(deadlinesinfo.size());
 				Calendar h = Calendar.getInstance();
 				int myfirstdayofweek = h.getFirstDayOfWeek();
 				h.set(Calendar.DAY_OF_WEEK, myfirstdayofweek);
