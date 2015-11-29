@@ -21,6 +21,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
@@ -44,7 +45,7 @@ public class MealEditView extends NavigationView {
 	private BeanItemContainer<MealOptionDeadline> deadlines; 
 	private BeanItemContainer<MealOptionDeadline> filterdeadlines; 
 	private BeanItemContainer<DeadlineDay> deadlinedays;
-	private Table deadlinesTable;
+	private IndexedContainer deadlinesinfo;
 	
 	public MealEditView(){
 		VerticalComponentGroup content = new VerticalComponentGroup();	
@@ -121,6 +122,7 @@ public class MealEditView extends NavigationView {
 				
 				
 				
+				
 				connectionPool.releaseConnection(conn);
 				
 				Table mealsTable = new Table("",meals);
@@ -162,20 +164,22 @@ public class MealEditView extends NavigationView {
 				content.addComponent(mealoptionsTable);
 				content.addComponent(periodsTable);
 				
-				deadlinesTable = new Table("");
-				Calendar c = Calendar.getInstance();
-				int firstdayofweek = c.getFirstDayOfWeek();
-				c.set(Calendar.DAY_OF_WEEK, firstdayofweek);
-				for (int i = firstdayofweek; i <= (firstdayofweek + 6); i++){
-					deadlinesTable.addContainerProperty(displayDay(c.get(Calendar.DAY_OF_WEEK)), Label.class, null);
-					c.add(Calendar.DATE, 1);
+				/** */
+				deadlinesinfo = new IndexedContainer();
+				Table mydeadlinesTable = new Table("", deadlinesinfo);
+				Calendar h = Calendar.getInstance();
+				int myfirstdayofweek = h.getFirstDayOfWeek();
+				h.set(Calendar.DAY_OF_WEEK, myfirstdayofweek);
+				for (int i = 0; i <= 6; i++){
+					mydeadlinesTable.addContainerProperty(displayDay(h.get(Calendar.DAY_OF_WEEK)), Label.class, null);
+					h.add(Calendar.DATE, 1);
 				}
+				mydeadlinesTable.addContainerProperty("-Days", Label.class, null);
+				mydeadlinesTable.addContainerProperty("+Hour", Label.class, null);
+				mydeadlinesTable.addContainerProperty("+Min", Label.class, null);
 				
-				deadlinesTable.addContainerProperty("-Days", Label.class, null);
-				deadlinesTable.addContainerProperty("+Hour", Label.class, null);
-				deadlinesTable.addContainerProperty("+Min", Label.class, null);
-		
-				content.addComponent(deadlinesTable);
+				content.addComponent(mydeadlinesTable);
+				/** */
 				
 				
 				
@@ -192,7 +196,8 @@ public class MealEditView extends NavigationView {
 						mealoptions.addContainerFilter(filterbyMeal);
 						periods.addContainerFilter(noneFilter);
 						filterdeadlines.removeAllItems();
-						//deadlinesTable = DeadlinesTable(filterdeadlines);
+						deadlinesinfo.removeAllItems();
+
 					}});
 				
 				mealoptionsTable.addItemClickListener(new ItemClickListener(){
@@ -206,6 +211,7 @@ public class MealEditView extends NavigationView {
 								new Compare.Equal("ownedByOption", mealoptionselected.getPk());
 						periods.addContainerFilter(filterbyMealOption);		
 						filterdeadlines.removeAllItems();
+						deadlinesinfo.removeAllItems();
 						
 					}});
 				
@@ -215,6 +221,8 @@ public class MealEditView extends NavigationView {
 					public void itemClick(ItemClickEvent event) {
 						// TODO Auto-generated method stub
 						mealoptionresidencies.removeAllContainerFilters();
+						filterdeadlines.removeAllItems();
+						deadlinesinfo.removeAllItems();
 						Residency periodselected = (Residency) event.getItemId();
 						Filter filterbyPeriod = 
 								new Compare.Equal("residency", periodselected.getPk());
@@ -230,7 +238,7 @@ public class MealEditView extends NavigationView {
 						}
 							
 						}	
-						deadlinesTable = DeadlinesTable(filterdeadlines);
+						refreshDeadlinesInfo();
 						
 					}});
 			
@@ -247,68 +255,78 @@ public class MealEditView extends NavigationView {
 	}
 	
 	
+protected void refreshDeadlinesInfo() {
+		// TODO Auto-generated method stub
+	for (Iterator<MealOptionDeadline> h = filterdeadlines.getItemIds().iterator(); h.hasNext();) {
+		MealOptionDeadline deadline = (MealOptionDeadline) h.next();
+		
+		// Create an item
+		Object itemId = deadlinesinfo.addItem();
+		
+		// Get the item object
+		Item item = deadlinesinfo.getItem(itemId);
+		
+		// Access a property in the item
+		Property<Label> cdays = item.getItemProperty("-Days");
+		Property<Label> chour = item.getItemProperty("+Hour");
+		Property<Label> cmin = item.getItemProperty("+Min");
+		
+		// Do something with the property
+		cdays.setValue(new Label(Integer.valueOf(deadline.getCday()).toString()));
+		chour.setValue(new Label(Integer.valueOf(deadline.getChour()).toString()));
+		cmin.setValue(new Label(Integer.valueOf(deadline.getCminute()).toString()));
+		
+		
+		
+		Calendar c = Calendar.getInstance();
+		int firstdayofweek = c.getFirstDayOfWeek();
+		c.set(Calendar.DAY_OF_WEEK, firstdayofweek);
+		
+		for (int i = 0; i <= 6; i++){
+			Property<Label> day = item.getItemProperty(displayDay(c.get(Calendar.DAY_OF_WEEK)));
+			for (Iterator<DeadlineDay> j = deadlinedays.getItemIds().iterator(); j.hasNext();){
+				DeadlineDay deadlineday = (DeadlineDay) j.next();
+				if (deadlineday.getDeadline() == deadline.getPk()){
+					if (deadlineday.getDay() == i){
+						//day.setValue(new Label(Integer.valueOf(deadlineday.getDay()).toString()));
+						day.setValue(new Label("X"));
+					}
+				}
+			}
+			c.add(Calendar.DATE, 1);
+		}
+	}
+}
+
+
 private String displayDay(int dayofweek) {
 		// TODO Auto-generated method stub
 	String day = "";
 	switch (dayofweek) {
 	   case (1):
-		   day = "Sun";
-	   break;
-	   case (2):
 		   day = "Mon";
 	   break;
-	   case (3): 
+	   case (2):
 		   day = "Tue";
 	   break;
-	   case (4):
+	   case (3): 
 		   day = "Wed";
-		   break;
-	   case (5):
+	   break;
+	   case (4):
 		   day = "Thu";
 		   break;
-	   case (6):
+	   case (5):
 		   day = "Fri";
 		   break;
-	   case (7):
+	   case (6):
 		   day = "Sat";
+		   break;
+	   case (7):
+		   day = "Sun";
 		   break;
 	   }
 		return day;
 	}
 
-
-public Table DeadlinesTable(BeanItemContainer<MealOptionDeadline> filterdeadlines){
-	Table table = new Table();
-	
-	for (Iterator<MealOptionDeadline> h = filterdeadlines.getItemIds().iterator(); h.hasNext();) {
-		MealOptionDeadline deadline = (MealOptionDeadline) h.next();
-		Object[] row = new Object[10];
-		
-		for (int i = 0; i<= 6; i++){
-			Label day = new Label();
-
-			for (Iterator<DeadlineDay> j = deadlinedays.getItemIds().iterator(); j.hasNext();){
-				DeadlineDay deadlineday = (DeadlineDay) j.next();
-				if (deadlineday.getDeadline() == deadline.getPk()){
-					if (deadlineday.getDay() == i){
-						day.setValue("X");
-					}
-				}
-			}
-			row[i] = day;
-		}
-		row[7] = new Label(Integer.valueOf(deadline.getCday()).toString());
-		row[8] = new Label(Integer.valueOf(deadline.getChour()).toString());
-		row[9] = new Label(Integer.valueOf(deadline.getCminute()).toString());
-		
-		deadlinesTable.addItem(row, deadline.getPk());
-		
-		
-		
-	}
-	return table; 
-		
-	}
-	
 
 }
