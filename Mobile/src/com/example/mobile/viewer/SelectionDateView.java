@@ -9,6 +9,7 @@ import java.util.Iterator;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.DailyMealSelection;
+import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
@@ -97,8 +98,35 @@ public class SelectionDateView extends VerticalComponentGroup {
 			result.close();
 			ps.close();
 			
-			/** */
-			//VerticalComponentGroup combogroup = new VerticalComponentGroup();
+			ps = conn.prepareStatement("SELECT count(*), pk, description, name, residence from Residency" + " " +
+					"where ownedByRegime = ?" + " " +
+					"and Date(date) <= ?" + " " +
+					"and Date(date) >= ?");
+			
+			ps = conn.prepareStatement("SELECT count(*), FoodRegime.pk, description, name, residence" + " " +
+					"FROM FoodRegime" + " " + 
+					"LEFT JOIN" + " " +
+					"Residency" + " " +
+					"on FoodRegime.pk = Residency.regime" + " " +
+					"where ownedByRegime = ?" + " " + 
+					"and Date(Residency.start) <= Date(?)" + " " + 
+					"and Date(Residency.end) >= Date(?)");
+			ps.setInt(1, mobile.getUser().getPk());
+			ps.setDate(2, new java.sql.Date(date.getTime()));
+			ps.setDate(3, new java.sql.Date(date.getTime()));
+			result = ps.executeQuery();
+			result.next();
+			FoodRegime regime = null;
+			if (result.getInt(1)== 1){
+				regime = new FoodRegime(result.getInt(2), result.getString(3), 
+						result.getString(4), result.getInt(5));
+			}
+			result.close();
+			ps.close();
+			
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
 			
 			/** Create a combobox for this meal */
 			for (Iterator<Meal> j = meals.getItemIds().iterator(); j.hasNext();) {
@@ -106,16 +134,10 @@ public class SelectionDateView extends VerticalComponentGroup {
 				Meal meal = j.next();
 				//ComboBox options = new MealOptionComboBox(meal, dayselected, mobile.getUser(), dailymealselection, connectionPool);
 				//NativeSelect options = new MealOptionComboBox(meal, dayselected, dailymealselection);
-				NativeSelect options = new MealOptionComboBox(meal, date, dailymealselection);	
+				NativeSelect options = new MealOptionComboBox(meal, regime, date, dailymealselection);	
 				addComponent(options);
 				//combogroup.addComponent(new Label(meal.getLiteral()));
 			}
-
-			/** release connection */
-			//addComponent(combogroup);
-			//content.addComponent(combogroup);
-			//setContent(combogroup);
-			connectionPool.releaseConnection(conn);
 
 		}
 		catch (SQLException e) {

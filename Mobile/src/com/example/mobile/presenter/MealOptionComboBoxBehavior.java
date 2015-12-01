@@ -12,6 +12,7 @@ import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.DailyMealSelection;
+import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealOptionDeadline;
@@ -32,22 +33,22 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	final private java.util.Date dayselected;
 	final private DailyMealSelection dailymealselection;
 	final private Meal mealselected;
-	final private MealSelection curMealSelection;
-	final private MealOption curMealOption;
-	final private MealOptionComboBox combobox;
+	private MealSelection curMealSelection;
+	private MealOption curMealOption;
+	final private FoodRegime activeregime;
+	private MealOptionComboBox combobox;
 
 	private MealOption selMealOption;
 
 	public MealOptionComboBoxBehavior(Date dayselected, 
 			DailyMealSelection dailymealselection, 
-			Meal mealselected, MealSelection curMealSelection, 
-			MealOption curMealOption, MealOptionComboBox combobox){
-		
-		this.curMealSelection = curMealSelection;
-		this.curMealOption = curMealOption;
+			FoodRegime regime,
+			Meal mealselected, MealOptionComboBox combobox){
+
 		this.dayselected = dayselected;
 		this.mealselected = mealselected;
 		this.dailymealselection = dailymealselection;
+		this.activeregime = regime;
 		this.combobox = combobox;
 
 	}
@@ -57,41 +58,84 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	public void valueChange (ValueChangeEvent event) {
 		// TODO Auto-generated method stub
 
-		PreparedStatement ps;
-		ResultSet result;
+		try{
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps;
+			ResultSet result;
 
-		/**
-		 * Get the SELECTED meal option, which may be null, i.e., the undefined value in the combo-box
-		 */
-		
-		selMealOption = (MealOption) event.getProperty().getValue();
-		//if (selMealOption == null) {
-		//	Notification.show("YES!");
-		//};
+			/**
+			 * select in combo-box the current stored option
+			 */
 
-		//if (curMealOption == null){
-		//	Notification.show("VAMOS!");
-		//}
+			//MealSelection curMealSelection = null;
+			curMealSelection = null;
 
-		Boolean proceed = false;
-		if ((curMealOption == null) & (selMealOption == null)) {
-			proceed = false; 
-		}
-		else if ((curMealOption == null) & !(selMealOption == null)){
-			proceed = true ; 
-		}
-		else if (!(curMealOption == null) & (selMealOption == null)) {
-			proceed = true;
-		}
-		else if (!(curMealOption == null) & !(selMealOption == null)) {
-			proceed = !(curMealOption.getPk() == selMealOption.getPk());
-		}
+			ps = conn.prepareStatement("SELECT count(*), pk, mealOption, foodRegime FROM MealSelection" + " " +
+					"WHERE meal = ? and ownedBy = ?");
+			ps.setInt(1, mealselected.getPk());
+			ps.setInt(2, dailymealselection.getPk());
+			result = ps.executeQuery();
+			result.next();
+			if (result.getInt(1) > 0){
+				curMealSelection = new MealSelection(result.getInt(2), 
+						result.getInt(3), result.getInt(4), mealselected.getPk(), dailymealselection.getPk());
 
+			}
 
-		if (proceed){
-			try {
-				Connection conn = connectionPool.reserveConnection();
+			result.close();
+			ps.close();
 
+			curMealOption = null;
+
+			if (!(curMealSelection == null)){
+				ps = conn.prepareStatement("SELECT count(*), pk, position, initial, literal, ownedBy FROM MealOption" + " " +
+						"WHERE pk = ?");
+				ps.setInt(1, curMealSelection.getMealOption());
+				result = ps.executeQuery();
+				result.next();
+				if (result.getInt(1) > 0){
+					curMealOption = new MealOption(result.getInt(2), 
+							result.getInt(3), result.getString(4), result.getString(5), mealselected.getPk());
+				}
+			}
+
+			/**
+			 * Get the SELECTED meal option, which may be null, i.e., the undefined value in the combo-box
+			 */
+
+			selMealOption = (MealOption) event.getProperty().getValue();
+
+			Boolean proceed = false;
+			if ((curMealOption == null) & (selMealOption == null)) {
+				proceed = false; 
+			}
+			else if ((curMealOption == null) & !(selMealOption == null)){
+				proceed = true ; 
+			}
+			else if (!(curMealOption == null) & (selMealOption == null)) {
+				proceed = true;
+			}
+			else if (!(curMealOption == null) & !(selMealOption == null)) {
+				proceed = !(curMealOption.getPk() == selMealOption.getPk());
+			}
+
+			/*
+			if (curMealOption == null){
+				Notification.show("null");
+			} else {
+				Notification.show(curMealOption.getInitial());
+			}
+			*/
+
+			if (proceed){
+
+				String foodregime;
+				/** PREPARED FOOD REGIME */
+				if (activeregime == null ){
+					foodregime = "NULL";
+				} else {
+					foodregime = Integer.valueOf(activeregime.getPk()).toString();
+				}
 
 				/**
 				 * Check that the selection is AUTHORIZED
@@ -156,33 +200,34 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 					ps.close();			
 				}
 
-
 				if (checkDeadlines(curOptionDeadline, selOptionDeadline)){
 
 					if (!(curMealSelection == null)) {
-						ps = conn.prepareStatement("UPDATE MealSelection SET mealoption = ? where pk = ?");
 						if (!(selMealOption == null)){
+							ps = conn.prepareStatement("UPDATE MealSelection SET mealoption = ?, foodregime= ? where pk = ?");
 							ps.setInt(1, selMealOption.getPk());
-							ps.setInt(2, curMealSelection.getPk());
+							ps.setString(2, foodregime);
+							ps.setInt(3, curMealSelection.getPk());
 							ps.executeUpdate();
+							ps.close();
+
 						} else {
-							//Notification.show("THERE!");
-							//ps.setString(1, "NULL");
-							//ps.setInt(2, curMealSelection.getPk());
-							Notification.show("WHAT?");
 							ps = conn.prepareStatement("DELETE FROM MealSelection where pk = ?");
 							ps.setInt(1, curMealSelection.getPk());
 							ps.executeUpdate();
+							ps.close();
 						}
-						
+
 					} 
 					else {	
 						/** Note that, in this case, selMealOption cannot be null */
-						ps = conn.prepareStatement("INSERT INTO MealSelection" + " " + 	"(mealOption,meal, ownedBy) values (?,?,?)");
+						ps = conn.prepareStatement("INSERT INTO MealSelection" + " " + 	"(mealOption, foodregime, meal, ownedBy) values (?,?,?,?)");
 						ps.setInt(1, selMealOption.getPk());
-						ps.setInt(2, mealselected.getPk());
-						ps.setInt(3, dailymealselection.getPk());
+						ps.setString(2, foodregime);
+						ps.setInt(3, mealselected.getPk());
+						ps.setInt(4, dailymealselection.getPk());
 						ps.executeUpdate();
+						ps.close();
 
 						ps = conn.prepareStatement("INSERT INTO DailyMealSelection_selections__MealSelection_ownedBy" + " " +  
 								"(DailyMealSelection_selections,MealSelection_ownedBy) values (?,LAST_INSERT_ID())");
@@ -198,130 +243,119 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 					}
 					ps.close();
 					conn.commit();
+					conn.close();
+					connectionPool.releaseConnection(conn);
 					Notification.show("DONE!");
 
 				} 
 				else { 
-
-					/** WORKING HERE **/
+					conn.close();
+					connectionPool.releaseConnection(conn);
 					refreshMealSelection();
-					Notification.show("MESSAGE: Sorry, you are late.");
-					/**
-							Notification.show(Integer.valueOf(deadline.get(Calendar.DAY_OF_MONTH)).toString()
-									+ " " 
-									+ Integer.valueOf(deadline.get(Calendar.HOUR_OF_DAY)).toString()
-									+ ":"
-									+ Integer.valueOf(deadline.get(Calendar.MINUTE)).toString()
-									+ " < "
-									+ Integer.valueOf(current.get(Calendar.DAY_OF_MONTH)).toString()
-									+ " " 
-									+ Integer.valueOf(current.get(Calendar.HOUR_OF_DAY)).toString()
-									+ ":" 
-									+ Integer.valueOf(current.get(Calendar.MINUTE)).toString(),	
-									Notification.Type.WARNING_MESSAGE);	
-					 */						
+					Notification.show("MESSAGE: Sorry, you are late.");					
 
 				}
 
-				connectionPool.releaseConnection(conn);
+				//connectionPool.releaseConnection(conn);
 
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} 
+		}
+		catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+
+	private void refreshMealSelection(){
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps;
+			ResultSet result;
+			ps = conn.prepareStatement("SELECT count(*), mealoption FROM MealSelection" + " " +
+					"WHERE meal = ? and pk in " + " " +
+					"(SELECT * FROM" + " " + 
+					"(SELECT MealSelection_ownedBy from DailyMealSelection_selections__MealSelection_ownedBy" + " " +
+					"WHERE DailyMealSelection_selections = " + " " +
+					"(SELECT pk from DailyMealSelection" + " " +  
+					"WHERE Date(date) = ?  and selectedBy = ?)) AS TEMP)");
+			ps.setInt(1, mealselected.getPk());
+			ps.setDate(2, new java.sql.Date(dayselected.getTime()));
+			ps.setInt(3, curUser.getPk());
+			result = ps.executeQuery();
+			result.next();
+			/** RECALL that the stored value may be NULL, i.e., different from all meal options **/
+			if (result.getInt(1) > 0){
+				MealOption row;
+				for (Iterator<MealOption> k = (Iterator<MealOption>) combobox.getContainerDataSource().getItemIds().iterator(); k.hasNext();) {
+					row = k.next();
+					if (row.getPk() == result.getInt(2)){
+						combobox.setValue(row);				
+					}
+				}			
+			} else {
+				combobox.setValue(null);
 			}
+			result.close();
+			ps.close();	
+			connectionPool.releaseConnection(conn);
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
-	}
+	}	
 
 
-private void refreshMealSelection(){
-	try {
-		Connection conn = connectionPool.reserveConnection();
-		PreparedStatement ps;
-		ResultSet result;
-		ps = conn.prepareStatement("SELECT count(*), mealoption FROM MealSelection" + " " +
-				"WHERE meal = ? and pk in " + " " +
-				"(SELECT * FROM" + " " + 
-				"(SELECT MealSelection_ownedBy from DailyMealSelection_selections__MealSelection_ownedBy" + " " +
-				"WHERE DailyMealSelection_selections = " + " " +
-				"(SELECT pk from DailyMealSelection" + " " +  
-				"WHERE Date(date) = ?  and selectedBy = ?)) AS TEMP)");
-		ps.setInt(1, mealselected.getPk());
-		ps.setDate(2, new java.sql.Date(dayselected.getTime()));
-		ps.setInt(3, curUser.getPk());
-		result = ps.executeQuery();
-		result.next();
-		/** RECALL that the stored value may be NULL, i.e., different from all meal options **/
-		if (result.getInt(1) > 0){
-			MealOption row;
-			for (Iterator<MealOption> k = (Iterator<MealOption>) combobox.getContainerDataSource().getItemIds().iterator(); k.hasNext();) {
-				row = k.next();
-				if (row.getPk() == result.getInt(2)){
-					combobox.setValue(row);				
-				}
-			}			
-		} else {
-			combobox.setValue(null);
+	private Boolean checkDeadlines(MealOptionDeadline curOption, MealOptionDeadline selOption){
+		final String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
+		final Calendar current = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+		Calendar curDeadline = null;
+		Calendar selDeadline = null;
+		Boolean check = false;
+
+
+		if (!(curOption == null)){
+			curDeadline = Calendar.getInstance(TimeZone.getTimeZone(timezone));	
+			curDeadline.setTimeInMillis(dayselected.getTime());
+			curDeadline.set(curDeadline.get(Calendar.YEAR), 
+					curDeadline.get(Calendar.MONDAY), 
+					curDeadline.get(Calendar.DAY_OF_MONTH), 
+					0, 0, 0);
+			curDeadline.add(Calendar.MILLISECOND, - curDeadline.get(Calendar.MILLISECOND));
+			curDeadline.add(Calendar.DAY_OF_MONTH, - curOption.getCday());
+			curDeadline.add(Calendar.HOUR_OF_DAY, + curOption.getChour());
+			curDeadline.add(Calendar.MINUTE, + curOption.getCminute());
 		}
-		result.close();
-		ps.close();	
-		connectionPool.releaseConnection(conn);
 
-	} catch (SQLException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		if (!(selOption == null)){
+			selDeadline = Calendar.getInstance(TimeZone.getTimeZone(timezone));	
+			selDeadline.setTimeInMillis(dayselected.getTime());
+			selDeadline.set(selDeadline.get(Calendar.YEAR), 
+					selDeadline.get(Calendar.MONDAY), 
+					selDeadline.get(Calendar.DAY_OF_MONTH), 
+					0, 0, 0);
+			selDeadline.add(Calendar.MILLISECOND, - selDeadline.get(Calendar.MILLISECOND));
+			selDeadline.add(Calendar.DAY_OF_MONTH, - selOption.getCday());
+			selDeadline.add(Calendar.HOUR_OF_DAY, + selOption.getChour());
+			selDeadline.add(Calendar.MINUTE, + selOption.getCminute());
+		}
+
+		if ((curOption == null) & (selOption == null)) {
+			check = true; }
+		else if ((curOption == null) & !(selOption == null)){
+			check = current.before(selDeadline); 
+		}
+		else if (!(curOption == null) & (selOption == null)) {
+			check = current.before(curDeadline);
+		}
+		else if (!(curOption == null) & !(selOption == null)) {
+			check = current.before(curDeadline) & current.before(selDeadline);
+		}
+		return check;
 	}
 
-}	
-
-
-private Boolean checkDeadlines(MealOptionDeadline curOption, MealOptionDeadline selOption){
-	final String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
-	final Calendar current = Calendar.getInstance(TimeZone.getTimeZone(timezone));
-	Calendar curDeadline = null;
-	Calendar selDeadline = null;
-	Boolean check = false;
-
-
-	if (!(curOption == null)){
-		curDeadline = Calendar.getInstance(TimeZone.getTimeZone(timezone));	
-		curDeadline.setTimeInMillis(dayselected.getTime());
-		curDeadline.set(curDeadline.get(Calendar.YEAR), 
-				curDeadline.get(Calendar.MONDAY), 
-				curDeadline.get(Calendar.DAY_OF_MONTH), 
-				0, 0, 0);
-		curDeadline.add(Calendar.MILLISECOND, - curDeadline.get(Calendar.MILLISECOND));
-		curDeadline.add(Calendar.DAY_OF_MONTH, - curOption.getCday());
-		curDeadline.add(Calendar.HOUR_OF_DAY, + curOption.getChour());
-		curDeadline.add(Calendar.MINUTE, + curOption.getCminute());
-	}
-
-	if (!(selOption == null)){
-		selDeadline = Calendar.getInstance(TimeZone.getTimeZone(timezone));	
-		selDeadline.setTimeInMillis(dayselected.getTime());
-		selDeadline.set(selDeadline.get(Calendar.YEAR), 
-				selDeadline.get(Calendar.MONDAY), 
-				selDeadline.get(Calendar.DAY_OF_MONTH), 
-				0, 0, 0);
-		selDeadline.add(Calendar.MILLISECOND, - selDeadline.get(Calendar.MILLISECOND));
-		selDeadline.add(Calendar.DAY_OF_MONTH, - selOption.getCday());
-		selDeadline.add(Calendar.HOUR_OF_DAY, + selOption.getChour());
-		selDeadline.add(Calendar.MINUTE, + selOption.getCminute());
-	}
-
-	if ((curOption == null) & (selOption == null)) {
-		check = true; }
-	else if ((curOption == null) & !(selOption == null)){
-		check = current.before(selDeadline); 
-	}
-	else if (!(curOption == null) & (selOption == null)) {
-		check = current.before(curDeadline);
-	}
-	else if (!(curOption == null) & !(selOption == null)) {
-		check = current.before(curDeadline) & current.before(selDeadline);
-	}
-	return check;
-}
-	
 
 }

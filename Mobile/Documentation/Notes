@@ -1,0 +1,5 @@
+- Currently, we use MySQL WEEKDAYS() for key operations.
+This means that we MUST follow the WEEKDAYS specification:
+"MySQL WEEKDAY() returns the index of the day in a week for 
+a given date (0 for Monday, 1 for Tuesday and ......6 for Sunday)."
+

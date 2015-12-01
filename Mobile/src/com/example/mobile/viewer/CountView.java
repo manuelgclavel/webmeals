@@ -82,6 +82,7 @@ public class CountView extends VerticalComponentGroup {
 			}
 			result.close();
 			ps.close();
+			
 
 			BeanItemContainer<MealCount> mealcounts;
 			mealcounts = new BeanItemContainer<MealCount>(MealCount.class);

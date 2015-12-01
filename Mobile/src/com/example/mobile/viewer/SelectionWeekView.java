@@ -98,7 +98,8 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 		
 		Calendar c = new GregorianCalendar();
 		c.set(Calendar.WEEK_OF_YEAR, currentpos);
-		c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+		//c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+		c.set(Calendar.DAY_OF_WEEK, 2);
 		
 		for (int i=1; i<=7; i++){ 
 			String thisdate = new SimpleDateFormat("EEE, MMM d, ''yy").format(c.getTime());
