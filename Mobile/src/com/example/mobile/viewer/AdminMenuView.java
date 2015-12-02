@@ -53,11 +53,17 @@ public class AdminMenuView extends NavigationView {
 			new NavigationButton("Meals", new MealEditView());
 	editmeals.setTargetViewCaption("Meals");
 	
+	NavigationButton checks =
+			new NavigationButton("Checks", new DatabaseCheckView());
+	editmeals.setTargetViewCaption("Database checks");
+	
+	
 	
 	layout.addComponent(mealcount);
 	layout.addComponent(editusers);
 	layout.addComponent(editguests);
 	layout.addComponent(editmeals);
+	layout.addComponent(checks);
 	
 	
 	setContent(layout);

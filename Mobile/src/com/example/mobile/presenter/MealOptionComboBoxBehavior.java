@@ -251,7 +251,18 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 				else { 
 					conn.close();
 					connectionPool.releaseConnection(conn);
-					refreshMealSelection();
+					if (!(curMealSelection == null)){
+						
+						for (Iterator<MealOption> k = (Iterator<MealOption>) combobox.getItemIds().iterator(); k.hasNext();) {
+							MealOption row = k.next();
+							if (row.getPk() == curMealOption.getPk()){
+								combobox.setValue(row);
+							}
+						}
+					} else{
+						combobox.setValue(null);
+					}
+					//refreshMealSelection();
 					Notification.show("MESSAGE: Sorry, you are late.");					
 
 				}
@@ -268,6 +279,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	}
 
 
+	/**
 	private void refreshMealSelection(){
 		try {
 			Connection conn = connectionPool.reserveConnection();
@@ -285,7 +297,6 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 			ps.setInt(3, curUser.getPk());
 			result = ps.executeQuery();
 			result.next();
-			/** RECALL that the stored value may be NULL, i.e., different from all meal options **/
 			if (result.getInt(1) > 0){
 				MealOption row;
 				for (Iterator<MealOption> k = (Iterator<MealOption>) combobox.getContainerDataSource().getItemIds().iterator(); k.hasNext();) {
@@ -307,7 +318,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 		}
 
 	}	
-
+*/
 
 	private Boolean checkDeadlines(MealOptionDeadline curOption, MealOptionDeadline selOption){
 		final String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();

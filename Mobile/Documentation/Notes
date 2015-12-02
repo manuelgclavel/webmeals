@@ -3,3 +3,12 @@ This means that we MUST follow the WEEKDAYS specification:
 "MySQL WEEKDAY() returns the index of the day in a week for 
 a given date (0 for Monday, 1 for Tuesday and ......6 for Sunday)."
 
+
+12/1/2015
+- very complicated bug. when changing a meal option and then changing it again,
+and then changing it again to the original selection, it did not work (basically,
+"combo-box" variables where not updated accordingly.
+---- FIX: no more "combo box" variables: when needed, the database is looked again.
+
+- very stupid bug. pass an argument as a parameter that you want to "change" ... but
+you assigned the parameter to ato a NEW object... that's it!
