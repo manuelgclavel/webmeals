@@ -59,5 +59,6 @@ public class DailyMealSelection {
 	public void setOfferedTo(int offeredTo){
 		this.offeredTo = offeredTo;
 	}
+	
 
 }

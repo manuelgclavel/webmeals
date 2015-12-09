@@ -5,17 +5,22 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.DailyMealSelection;
+import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Guest;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealSelection;
+import com.example.mobile.data.MealSelectionPlus;
 import com.example.mobile.data.Residence;
 import com.example.mobile.data.Role;
 import com.example.mobile.data.User;
@@ -152,6 +157,27 @@ public class MobileUI extends UI {
 		}
 	}
 	
+	public void populateDailyMeals(JDBCConnectionPool connectionPool, 
+			BeanItemContainer<DailyMealSelection> dailymeals, Date dayselected){
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT * FROM DailyMealSelection where date = Date(?)");
+			ps.setDate(1, new java.sql.Date(dayselected.getTime()));
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				dailymeals.addItem(new DailyMealSelection(result.getInt(1), result.getDate(2), result.getInt(3),
+						result.getInt(4)));
+			}
+			result.close();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	public void populateUsers(JDBCConnectionPool connectionPool, 
 			BeanItemContainer<User> users){
 		try {
@@ -214,6 +240,75 @@ public class MobileUI extends UI {
 			e.printStackTrace();
 		}
 	}
+	
+	public void populateMealSelections(JDBCConnectionPool connectionPool, 
+			BeanItemContainer<MealSelection> mealselections,
+			Date dayselected){
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT MealSelection.pk, mealOption, foodRegime, meal, ownedBy FROM MealSelection" + " " +
+							"RIGHT JOIN " + " " +
+							"(SELECT * from DailyMealSelection where Date(date) = Date(?)) AS Temp" + " " +
+							"ON MealSelection.ownedBy = Temp.pk");
+			ps.setDate(1, new java.sql.Date(dayselected.getTime()));
+			ResultSet result = ps.executeQuery();
+			//List<Integer> pks = new ArrayList<Integer>();
+			//for (Iterator<DailyMealSelection> i = dailymeals.getItemIds().iterator(); i.hasNext();) {
+			//	DailyMealSelection dailymeal = i.next();
+			//	pks.add(dailymeal.getPk());
+			//}
+			while (result.next()){
+				//if (pks.contains(result.getInt(1))){
+					mealselections.addItem(new MealSelection(result.getInt(1), result.getInt(2), 
+						result.getInt(3), result.getInt(4), result.getInt(5)));
+				//}
+			}
+			result.close();
+			ps.close();	
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			//Notification.show(Integer.valueOf(guests.size()).toString());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void populateMealSelectionsPlus(JDBCConnectionPool connectionPool, 
+			BeanItemContainer<MealSelectionPlus> mealselections,
+			Date dayselected){
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT MealSelection.pk, mealOption, foodRegime, meal, ownedBy, selectedBy, offeredTo  FROM MealSelection" + " " +
+							"INNER JOIN " + " " +
+							"(SELECT * from DailyMealSelection where Date(date) = Date(?)) AS Temp" + " " +
+							"ON MealSelection.ownedBy = Temp.pk");
+			ps.setDate(1, new java.sql.Date(dayselected.getTime()));
+			ResultSet result = ps.executeQuery();
+			//List<Integer> pks = new ArrayList<Integer>();
+			//for (Iterator<DailyMealSelection> i = dailymeals.getItemIds().iterator(); i.hasNext();) {
+			//	DailyMealSelection dailymeal = i.next();
+			//	pks.add(dailymeal.getPk());
+			//}
+			while (result.next()){
+				//if (pks.contains(result.getInt(1))){
+					mealselections.addItem(new MealSelectionPlus(result.getInt(1), result.getInt(2), 
+						result.getInt(3), result.getInt(4), result.getInt(5), result.getInt(6), result.getInt(7)));
+				//}
+			}
+			result.close();
+			ps.close();	
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			//Notification.show(Integer.valueOf(guests.size()).toString());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public void populateMeals(JDBCConnectionPool connectionPool, 
 			BeanItemContainer<Meal> meals){
 		try {
@@ -254,6 +349,27 @@ public class MobileUI extends UI {
 			e.printStackTrace();
 		}
 	}
+	
+	public void populateFoodRegimes(JDBCConnectionPool connectionPool, 
+			BeanItemContainer<FoodRegime> foodregimes){
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM FoodRegime");
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				foodregimes.addItem(new FoodRegime(result.getInt(1), result.getString(2), 
+						result.getString(3), result.getInt(4)));
+			}
+			result.close();
+			ps.close();	
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	
 	public boolean isValidMealOption(final int pkmealoption, final int pkmeal, 
 			final BeanItemContainer<MealOption> mealoptions){
