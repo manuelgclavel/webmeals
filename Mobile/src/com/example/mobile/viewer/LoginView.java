@@ -17,17 +17,12 @@ import com.example.mobile.data.Residence;
 import com.example.mobile.data.Role;
 import com.example.mobile.data.User;
 import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
-import com.vaadin.addon.touchkit.ui.NavigationBar;
-import com.vaadin.addon.touchkit.ui.NavigationButton;
-import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickEvent;
-import com.vaadin.addon.touchkit.ui.NavigationButton.NavigationButtonClickListener;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
@@ -119,19 +114,26 @@ import com.vaadin.ui.UI;
 				passwordCookie.setPath(VaadinService.getCurrentRequest() .getContextPath());
 				VaadinService.getCurrentResponse().addCookie(passwordCookie); 
 				
-				/** */
+				/**
+				 * 0 - user
+				 * 1 - director
+				 * 2 - administration
+				 * 3 = system
+				 * */
 			
 				if (currentUI.getRole().getId() == 0){
-					//currentUI.setContent(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
 					getNavigationManager().navigateTo(new UserMenuView());
-					//currentUI.setContent(new UserMenuView());
 				} else { 
 					if (currentUI.getRole().getId() == 1){			
-						//currentUI.getManager().navigateTo(new AdminMenuView());;
-						//currentUI.setContent(new AdminMenuView());
 						getNavigationManager().navigateTo(new AdminMenuView());
-					} else {
-						Notification.show("Unauthorized role.", ERROR_MESSAGE);
+					} 
+					else {
+						if (currentUI.getRole().getId() == 3){
+							getNavigationManager().navigateTo(new SystemMenuView());
+						}
+						else {
+							Notification.show("Unauthorized role.", ERROR_MESSAGE);
+						}
 					}
 				}
 			}
@@ -145,38 +147,37 @@ private void authenticate(String login, String password){
 
 		try {
 			Connection conn = currentUI.getConnectionPool().reserveConnection();
-			PreparedStatement ps = conn.prepareStatement("select count(*),pk,role from User where login = ? and password = ?");
+			PreparedStatement ps = 
+					conn.prepareStatement("select count(*), pk, name, role, surname, residence from User where login = ? and password = ?");
 			ps.setString(1, login);
 			ps.setString(2, password);
 			ResultSet result = ps.executeQuery();
 			result.next();
 			if (result.getInt(1) == 1) {
-				User user = new User(result.getInt(2));
+				User user = new User(result.getInt(2), result.getString(3), result.getInt(4),
+						result.getString(5), login, password, result.getInt(6));
 				currentUI.setUser(user);
 				result.close();
-				ps = conn.prepareStatement("select name, role, surname, residence from User where pk = ?" );
-				ps.setInt(1, user.getPk());
-				result = ps.executeQuery();
-				result.next();
-				user.setName(result.getString(1));
-				user.setRole(result.getInt(2));
-				user.setSurname(result.getString(3));
-				user.setResidence(result.getInt(4));
 				result.close();
 				
+				/** Recall that role cannot be NULL */
 				Role role = new Role(user.getRole());
 				currentUI.setRole(role);
 				
-				Residence residence = new Residence(user.getResidence());
-				currentUI.setResidence(residence);
-				ps = conn.prepareStatement("select name, lang, zone from Residence where pk = ?" );
-				ps.setInt(1, residence.getPk());
-				result = ps.executeQuery();
-				result.next();
-				residence.setName(result.getString(1));
-				residence.setLang(result.getString(2));
-				residence.setZone(result.getString(3));
-				result.close();				
+				if (!(user.getResidence() == 0)){
+					Residence residence = new Residence(user.getResidence());
+					currentUI.setResidence(residence);
+					ps = conn.prepareStatement("select count(*), name, lang, zone from Residence where pk = ?" );
+					ps.setInt(1, residence.getPk());
+					result = ps.executeQuery();
+					result.next();
+					if (result.getInt(1) == 1) {
+						residence.setName(result.getString(2));
+						residence.setLang(result.getString(3));
+						residence.setZone(result.getString(4));
+						result.close();
+						}
+				}
 			}
 			result.close();
 			ps.close();

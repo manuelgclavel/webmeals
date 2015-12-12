@@ -10,6 +10,17 @@ public class Residence {
 	public Residence(int pk){
 		this.pk = pk;
 	}
+	
+
+
+	public Residence(int pk, String name, String lang, String zone) {
+		this.pk = pk;
+		this.name = name;
+		this.lang = lang;
+		this.zone = zone;
+	}
+
+
 
 	public int getPk() {
 		return pk;

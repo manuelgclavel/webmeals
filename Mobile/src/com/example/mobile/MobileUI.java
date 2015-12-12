@@ -384,5 +384,26 @@ public class MobileUI extends UI {
 		}
 		return check;
 	}
+
+
+	public void populateResidences(JDBCConnectionPool connectionPool2, BeanItemContainer<Residence> residences) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM Residence");
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				residences.addItem(new Residence(result.getInt(1), result.getString(2), 
+						result.getString(3), result.getString(4)));
+			}
+			result.close();
+			ps.close();	
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 }

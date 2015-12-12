@@ -8,6 +8,7 @@ import com.example.mobile.data.Guest;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealSelection;
+import com.example.mobile.data.Residence;
 import com.example.mobile.data.User;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
@@ -29,6 +30,7 @@ public class DatabaseCheckView extends NavigationView {
 	final private BeanItemContainer<MealSelection> mealselections;
 	final private BeanItemContainer<Meal> meals;
 	final private BeanItemContainer<MealOption> mealoptions;
+	final private BeanItemContainer<Residence> residences;
 	
 
 	public DatabaseCheckView(){
@@ -46,6 +48,8 @@ public class DatabaseCheckView extends NavigationView {
 		ui.populateMeals(connectionPool, meals);
 		mealoptions = new BeanItemContainer<MealOption>(MealOption.class);
 		ui.populateMealOptions(connectionPool, mealoptions);
+		residences = new BeanItemContainer<Residence>(Residence.class);
+		ui.populateResidences(connectionPool, residences);
 		
 	
 			/** DailyMeal */
@@ -85,6 +89,14 @@ public class DatabaseCheckView extends NavigationView {
 			layout.addComponent(check12);
 			Button check13 = new Button("MealOption-Meals");
 			layout.addComponent(check13);
+			
+			
+			/** User */
+			Button check20 = new Button("User-Roles");
+			layout.addComponent(check20);
+			Button check21 = new Button("User-Residences");
+			layout.addComponent(check21);
+			
 			
 			setContent(layout);
 			
@@ -431,8 +443,54 @@ public class DatabaseCheckView extends NavigationView {
 					}
 					Notification.show(Integer.valueOf(count).toString());
 				}});
+		
 			
-	}
+			/** USERS **/
+	
+			check20.addClickListener(new ClickListener(){
+				/** User-Role */
+				/** Remember that role cannot be NULL **/
+				
+				public void buttonClick(ClickEvent event) {
+					// TODO Auto-generated method stub
+					int count = 0;
+					User user;
+					for (Iterator<User> i = users.getItemIds().iterator(); i.hasNext();){
+						user = (User) i.next();
+						if ((user.getRole() < 0) || (user.getRole() > 3)){
+							count++;
+						}
+					}
+						
+					Notification.show(Integer.valueOf(count).toString());
+				}});
 
+			
+	check21.addClickListener(new ClickListener(){
+		/** User-Residence */
+		/** Remember that if residence is NULL, then getResidence() returns 0 */
+		@Override
+		public void buttonClick(ClickEvent event) {
+			// TODO Auto-generated method stub
+			int count = 0;
+			User user;
+			Residence residence;
+			Boolean found;
+			for (Iterator<User> i = users.getItemIds().iterator(); i.hasNext();){
+				user = (User) i.next();
+				found = false ;
+				for (Iterator<Residence> j = residences.getItemIds().iterator(); j.hasNext();){
+						residence = (Residence) j.next();
+						if (user.getResidence() == residence.getPk()){
+							found = true;
+							break;
+						}
+				}
+				if (found == false) { count++ ; }
+			}
+			Notification.show(Integer.valueOf(count).toString());
+		}});
+
+	}
 
 }
