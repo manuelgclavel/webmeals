@@ -11,4 +11,9 @@ public class CloseSessionView extends CssLayout {
 		Notification.show("Bye!");
 	}
 	
+	public CloseSessionView(String message){
+		this.setSizeFull();
+		Notification.show(message);
+	}
+	
 }

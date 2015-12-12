@@ -386,7 +386,7 @@ public class MobileUI extends UI {
 	}
 
 
-	public void populateResidences(JDBCConnectionPool connectionPool2, BeanItemContainer<Residence> residences) {
+	public void populateResidences(JDBCConnectionPool connectionPool, BeanItemContainer<Residence> residences) {
 		// TODO Auto-generated method stub
 		try {
 			Connection conn = connectionPool.reserveConnection();
@@ -404,6 +404,28 @@ public class MobileUI extends UI {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+
+	public void updateUserPassword(JDBCConnectionPool connectionPool, User user, String value) {
+		// TODO Auto-generated method stub
+			try {
+				Connection conn= connectionPool.reserveConnection();
+				PreparedStatement ps = conn.prepareStatement("UPDATE User SET password=? where pk =?");
+				ps.setString(1, value);
+				ps.setInt(2, user.getPk());
+				ps.executeUpdate();
+				conn.commit();
+				ps.close();
+				conn.close();
+				connectionPool.releaseConnection(conn);
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		
 	}
 	
 }

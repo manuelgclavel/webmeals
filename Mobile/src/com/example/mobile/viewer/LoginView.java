@@ -63,7 +63,7 @@ import com.vaadin.ui.UI;
     	
 		content.addComponent(testA);
     	content.addComponent(testB);
-    	content.addComponent(enterButton);
+    	//content.addComponent(enterButton);
     	HorizontalButtonGroup buttons = new HorizontalButtonGroup();
     	buttons.addComponent(enterButton);
     	content.addComponent(buttons);
