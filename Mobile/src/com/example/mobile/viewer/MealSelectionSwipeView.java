@@ -20,6 +20,7 @@ import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -34,54 +35,60 @@ public class MealSelectionSwipeView extends NavigationManager
 	
   int pos = 0;
   Date dayselected;
-  //NavigationManager manager;
+  int diner;
+  int type = 1;
 
-  public MealSelectionSwipeView(Date selected) {
-	  
+
+  public MealSelectionSwipeView(Date selected, int diner, int type) {
+	  // TODO Auto-generated constructor stub
 	  setCaption("Meal selection (by day)");
 	  //this.manager = getNavigationManager();
 	  this.dayselected= selected;
-      // Set up the initial views
-	  //if (getNavigationManager() == null){Notification.show("PROBLEM");};
-      navigateTo(createView(+pos));
-      setNextComponent(createView(pos+1));
-      setPreviousComponent(createView(pos-1));
-      addNavigationListener((NavigationListener) this);
+	  this.diner = diner;
+	  this.type = type;
+	  navigateTo(createView(+pos));
+	  setNextComponent(createView(pos+1));
+	  setPreviousComponent(createView(pos-1));
+	  addNavigationListener((NavigationListener) this);
   }
 
 
 
-SwipeView createView(int currentpos) {
-	  SwipeView view = new SwipeView();
+private Component createView(int currentpos) {
+	// TODO Auto-generated method stub
+	 SwipeView view = new SwipeView();
 
-
-      // Use an inner layout to center the image
-      VerticalComponentGroup layout = new VerticalComponentGroup();
-      
-      NavigationBar top = new NavigationBar();
-
-      Button menu = new Button("Menu");
-      top.setLeftComponent(menu);
-      Button logout = new Button("Exit");
-      top.setRightComponent(logout);
-
-      menu.addClickListener(new ClickListener(){
-
- 		@Override
- 		public void buttonClick(ClickEvent event) {
- 			// TODO Auto-generated method stub
- 			((MobileUI) UI.getCurrent()).getManager().navigateTo(new UserMenuView());
- 			
- 		}});
-      
-      logout.addClickListener(new ExitBehavior());
+     // Use an inner layout to center the image
+     VerticalComponentGroup layout = new VerticalComponentGroup();
      
-      layout.addComponent(top);
-      
-      
-      //HorizontalLayout datepanel = new HorizontalLayout();
-      //datepanel.setWidth("100%");
-		
+     NavigationBar top = new NavigationBar();
+
+     Button menu = new Button("Menu");
+     top.setLeftComponent(menu);
+     Button logout = new Button("Exit");
+     top.setRightComponent(logout);
+
+     menu.addClickListener(new ClickListener(){
+
+		@Override
+		public void buttonClick(ClickEvent event) {
+			// TODO Auto-generated method stub
+			 switch (type) {
+	            case 1:  ((MobileUI) UI.getCurrent()).getManager().navigateTo(new UserMenuView());
+	                     break;
+	            case 2:  ((MobileUI) UI.getCurrent()).getManager().navigateTo(new AdminMenuView());
+	            		break;
+	            default : break;
+	            
+				}
+			
+		}});
+     
+     logout.addClickListener(new ExitBehavior());
+    
+     layout.addComponent(top);
+     
+     
 		final Button prev = new Button("prev");
 		final Button now = new Button("today");
 		final DateField dateshown =  new DateField();
@@ -96,7 +103,6 @@ SwipeView createView(int currentpos) {
 		dateshown.setValue(c.getTime());
 		dateshown.setDateFormat("EEE, MMM d, ''yy");
 
-		//datepanel.addComponent(dateshown);
 		layout.addComponent(dateshown);
 		
 		HorizontalButtonGroup buttons = new HorizontalButtonGroup();
@@ -104,14 +110,7 @@ SwipeView createView(int currentpos) {
 		buttons.addComponent(prev);
 		buttons.addComponent(next);
 		buttons.addComponent(now);
-		//buttons.addComponent(week);
 		
-		//datepanel.setExpandRatio(prev, 1);
-		//datepanel.setExpandRatio(now, 1);
-		//datepanel.setExpandRatio(next, 1);
-		//datepanel.setExpandRatio(dateshown, 3);
-	
-		//layout.addComponent(datepanel);
 		layout.addComponent(buttons);
 		
 		
@@ -120,7 +119,7 @@ SwipeView createView(int currentpos) {
 		//layout.addComponent(new Label(Integer.valueOf(currentpos).toString()));
 		/** END */
 		
-		layout.addComponent(new SelectionDateView(c.getTime()));
+		layout.addComponent(new SelectionDateView(c.getTime(), diner, type));
 		view.setContent(layout);
 		
 		
@@ -147,9 +146,6 @@ SwipeView createView(int currentpos) {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				//Calendar c = new GregorianCalendar();
-				//c.setTime(dayselected);
-				//c.add(Calendar.DATE, +1);
 				navigateTo(getNextComponent());
 			}
 			
@@ -159,10 +155,6 @@ SwipeView createView(int currentpos) {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
-				//Calendar c = new GregorianCalendar();
-				//c.setTime(dayselected);
-				//c.add(Calendar.DATE, -1);
 				navigateTo(getPreviousComponent());
 			}
 			
@@ -172,7 +164,6 @@ SwipeView createView(int currentpos) {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
 				pos = 0;
 				dayselected = Calendar.getInstance().getTime();
 				setCurrentComponent(createView(+pos));
@@ -182,25 +173,15 @@ SwipeView createView(int currentpos) {
 			
 		});
 		
-		/**
-		week.addClickListener(new ClickListener(){
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
-				Calendar c = new GregorianCalendar();
-				c.setTime(dayselected);
-				//c.add(Calendar.DATE, pos);
-				((MobileUI) UI.getCurrent()).setContent(new SelectionWeekView(c.getTime()));
-				//((MobileUI) UI.getCurrent()).getManager().
-				//navigateTo(new SelectionWeekView(c.getTime()));
-			}
-			
-		});
-		*/
+		
 		return view;
 		
-  }
+
+}
+
+
+
+
   
   
   @Override

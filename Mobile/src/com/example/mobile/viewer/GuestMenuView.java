@@ -10,11 +10,10 @@ import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 
-
 @SuppressWarnings("serial")
-public class UserMenuView extends NavigationView {
+public class GuestMenuView extends NavigationView {
 	
-	public UserMenuView(){
+	public GuestMenuView(int guestpk){
 
 			setCaption("Menu");
 			setSizeFull();
@@ -32,29 +31,19 @@ public class UserMenuView extends NavigationView {
 			
 			NavigationButton dailymeal = 
 					new NavigationButton(
-							new MealSelectionSwipeView(Calendar.getInstance().getTime(),
-									((MobileUI) UI.getCurrent()).getUser().getPk(),
-									1));
+							new MealSelectionSwipeView(Calendar.getInstance().getTime(), 
+									guestpk, 2));
 			dailymeal.setTargetViewCaption("Meal selection (by day)");
-			NavigationButton weeklymeal = 
-					new NavigationButton(new SelectionWeekView(Calendar.getInstance().getTime())); 
-			weeklymeal.setTargetViewCaption("Meal selection (by week)");
-			
-			NavigationButton changepassword = 
-					new NavigationButton(new ChangePasswordView()); 
-			changepassword.setTargetViewCaption("Change password");
+			//NavigationButton weeklymeal = 
+			//		new NavigationButton(new SelectionWeekView(Calendar.getInstance().getTime())); 
+			//weeklymeal.setTargetViewCaption("Meal selection (by week)");
 			
 			
 			
 			content.addComponent(dailymeal);
-			content.addComponent(weeklymeal);
-			content.addComponent(changepassword);
-			
+			//content.addComponent(weeklymeal);
+		
 			setContent(content);
-			
-			
+				
 	}
-
 }
-
-
