@@ -17,6 +17,7 @@ import com.vaadin.addon.touchkit.ui.SwipeView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.navigator.Navigator;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -30,14 +31,13 @@ import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
 public class MealSelectionSwipeView extends NavigationManager
-//public class MealSelectionSwipeView extends NavigationView
 	implements NavigationListener {
 	
   int pos = 0;
   Date dayselected;
   int diner;
   int type = 1;
-
+ 
 
   public MealSelectionSwipeView(Date selected, int diner, int type) {
 	  // TODO Auto-generated constructor stub
@@ -46,7 +46,8 @@ public class MealSelectionSwipeView extends NavigationManager
 	  this.dayselected= selected;
 	  this.diner = diner;
 	  this.type = type;
-	  navigateTo(createView(+pos));
+	  //navigateTo(createView(+pos));
+	  setCurrentComponent(createView(+pos));
 	  setNextComponent(createView(pos+1));
 	  setPreviousComponent(createView(pos-1));
 	  addNavigationListener((NavigationListener) this);
@@ -63,11 +64,26 @@ private Component createView(int currentpos) {
      
      NavigationBar top = new NavigationBar();
 
-     Button menu = new Button("Menu");
+     String menutype;
+     switch (type) {
+     case 1:  
+    	 menutype = "User menu";
+    	 break;
+     case 2:  
+    	 menutype = "Guest menu";
+    	 break;
+     default : 
+    	 menutype = "Menu";
+    	 break;
+		}
+     
+     
+     Button menu = new Button(menutype);
      top.setLeftComponent(menu);
      Button logout = new Button("Exit");
      top.setRightComponent(logout);
 
+     
      menu.addClickListener(new ClickListener(){
 
 		@Override
@@ -76,14 +92,14 @@ private Component createView(int currentpos) {
 			 switch (type) {
 	            case 1:  ((MobileUI) UI.getCurrent()).getManager().navigateTo(new UserMenuView());
 	                     break;
-	            case 2:  ((MobileUI) UI.getCurrent()).getManager().navigateTo(new AdminMenuView());
+	            case 2:  ((MobileUI) UI.getCurrent()).getManager().navigateTo(new GuestMenuView(diner));
 	            		break;
 	            default : break;
 	            
 				}
 			
 		}});
-     
+    
      logout.addClickListener(new ExitBehavior());
     
      layout.addComponent(top);

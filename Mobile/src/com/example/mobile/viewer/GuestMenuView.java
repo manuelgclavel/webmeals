@@ -8,6 +8,8 @@ import com.vaadin.addon.touchkit.ui.NavigationButton;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
@@ -15,7 +17,7 @@ public class GuestMenuView extends NavigationView {
 	
 	public GuestMenuView(int guestpk){
 
-			setCaption("Menu");
+			setCaption("Guest menu");
 			setSizeFull();
 			VerticalComponentGroup content = new VerticalComponentGroup();
 			
@@ -24,10 +26,16 @@ public class GuestMenuView extends NavigationView {
 			setRightComponent(logout);
 			logout.addClickListener(new ExitBehavior());
 			
-			Button fake = new Button();
-			fake.setCaption("");
-			setLeftComponent(fake);
-			logout.addClickListener(new ExitBehavior());
+			Button back = new Button();
+			back.setCaption("Guest list");
+			setLeftComponent(back);
+			back.addClickListener(new ClickListener(){
+
+				@Override
+				public void buttonClick(ClickEvent event) {
+					// TODO Auto-generated method stub
+					((MobileUI) UI.getCurrent()).getManager().navigateTo(new GuestEditView());
+				} });
 			
 			NavigationButton dailymeal = 
 					new NavigationButton(
