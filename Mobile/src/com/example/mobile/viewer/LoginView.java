@@ -161,7 +161,9 @@ private void authenticate(String login, String password){
 				result.close();
 				
 				/** Recall that role cannot be NULL */
+				//Role role = new Role(user.getRole());
 				Role role = new Role(user.getRole());
+				
 				currentUI.setRole(role);
 				
 				if (!(user.getResidence() == 0)){

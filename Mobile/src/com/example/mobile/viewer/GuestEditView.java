@@ -48,6 +48,9 @@ public class GuestEditView extends NavigationView {
 		ui.populateGuests(connectionPool, guests);
 
 		Table guestsTable = new Table("",guests);
+		guestsTable.setVisibleColumns("surname", "name");
+		guestsTable.sort(new Object[] {"surname", "name"}, new boolean[] {true, true});
+		guestsTable.setPageLength(guestsTable.size());
 		content.addComponent(guestsTable);		
 		
 		/** edit-a-guest */

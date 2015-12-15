@@ -22,6 +22,10 @@ public class UserEditView extends NavigationView {
 		ui.populateUsers(connectionPool, users);
 
 		Table usersTable = new Table("",users);
+		usersTable.setVisibleColumns("surname", "name", "login", "role");
+		usersTable.sort(new Object[] {"surname", "name"}, new boolean[] {true, true});
+		usersTable.setPageLength(usersTable.size());
+		
 		content.addComponent(usersTable);
 		setContent(content);
 	}

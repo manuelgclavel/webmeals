@@ -33,7 +33,8 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
   public MealCountSwipeView(Date selected) {
 	  this.dayselected= selected;
       // Set up the initial views
-      navigateTo(createView(+pos));
+      //navigateTo(createView(+pos));
+	  setCurrentComponent(createView(+pos));
       setNextComponent(createView(pos+1));
       setPreviousComponent(createView(pos-1));
       addNavigationListener((NavigationListener) this);
@@ -46,7 +47,6 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 
  
       NavigationBar top = new NavigationBar();
-
      Button menu = new Button("Menu");
      top.setLeftComponent(menu);
      Button logout = new Button("Exit");

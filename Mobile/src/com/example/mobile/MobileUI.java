@@ -178,6 +178,14 @@ public class MobileUI extends UI {
 			e.printStackTrace();
 		}
 	}
+	
+	public void populateRoles(BeanItemContainer<Role> roles){
+		roles.addItem(new Role(0));
+		roles.addItem(new Role(1));
+		roles.addItem(new Role(2));
+		roles.addItem(new Role(3));
+	}
+	
 	public void populateUsers(JDBCConnectionPool connectionPool, 
 			BeanItemContainer<User> users){
 		try {
@@ -427,5 +435,91 @@ public class MobileUI extends UI {
 			
 		
 	}
+	
+	
+	
+	public boolean existsLogin(BeanItemContainer<User> users, String login){
+		boolean found = false;
+		User user;
+		for (Iterator<User> i = users.getItemIds().iterator(); i.hasNext();){
+			user = i.next();
+			if (user.getLogin().equals(login)){
+				found = true;
+				break;
+			}
+		}
+		return found;
+	}
+
+
+	public void createUser(String name, String surname, String login, String password, int role, int residence) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn= connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("INSERT User (name, surname, login, password, role, residence)" + " " +
+							"VALUES (?,?,?,?,?,?)");
+			ps.setString(1, name);
+			ps.setString(2,  surname);
+			ps.setString(3, login);
+			ps.setString(4,  password);
+			ps.setInt(5, role);
+			ps.setInt(6, residence);
+			ps.executeUpdate();
+			conn.commit();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	
+}
+
+
+	public boolean existsGuest(BeanItemContainer<Guest> guests, String name, String surname) {
+		// TODO Auto-generated method stub
+		boolean found = false;
+		Guest guest;
+		for (Iterator<Guest> i = guests.getItemIds().iterator(); i.hasNext();){
+			guest = i.next();
+			if (guest.getName().equals(name) && guest.getSurname().equals(surname)){
+				found = true;
+				break;
+			}
+		}
+		return found;
+	}
+
+
+	public void createGuest(String name, String surname, int residence) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn= connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("INSERT Guest (name, surname, residence)" + " " +
+							"VALUES (?,?,?)");
+			ps.setString(1, name);
+			ps.setString(2,  surname);
+			ps.setInt(3, residence);
+			ps.executeUpdate();
+			conn.commit();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
+	
 	
 }

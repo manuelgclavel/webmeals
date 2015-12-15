@@ -1,4 +1,7 @@
 package com.example.mobile.data;
+import java.util.Iterator;
+
+import com.vaadin.data.util.BeanItemContainer;
 
 public class User {
 	private int pk ;
@@ -97,4 +100,8 @@ public class User {
 	public void setResidence(int residence){
 		this.residence = residence;
 	}
+	
+	
 }
+
+

@@ -41,13 +41,23 @@ public class AdminMenuView extends NavigationView {
 	NavigationButton mealcount = 
 			new NavigationButton("Meal count", new MealCountSwipeView(Calendar.getInstance().getTime()));
 	mealcount.setTargetViewCaption("Meal count");
+	
+	NavigationButton createusers =
+			new NavigationButton("Create users", new CreateUserView());
+	createusers.setTargetViewCaption("Create users");
+	
 	NavigationButton editusers =
-			new NavigationButton("Users", new UserEditView());
-	editusers.setTargetViewCaption("Users");
+			new NavigationButton("Edit users", new UserEditView());
+	editusers.setTargetViewCaption("Edit users");
+	
+	
+	NavigationButton createguests =
+			new NavigationButton("Create guests", new CreateGuestView());
+	createguests.setTargetViewCaption("Create guests");
 	
 	NavigationButton editguests =
-			new NavigationButton("Guests", new GuestEditView());
-	editguests.setTargetViewCaption("Guests");
+			new NavigationButton("Edit guests", new GuestEditView());
+	editguests.setTargetViewCaption("Edit guests");
 	
 	NavigationButton editmeals =
 			new NavigationButton("Meals", new MealEditView());
@@ -61,7 +71,9 @@ public class AdminMenuView extends NavigationView {
 	
 	
 	layout.addComponent(mealcount);
+	layout.addComponent(createusers);
 	layout.addComponent(editusers);
+	layout.addComponent(createguests);
 	layout.addComponent(editguests);
 	layout.addComponent(editmeals);
 	//layout.addComponent(checks);
