@@ -3,6 +3,7 @@ package com.example.mobile.viewer;
 import java.util.Iterator;
 
 import com.example.mobile.MobileUI;
+import com.example.mobile.data.Contract;
 import com.example.mobile.data.DailyMealSelection;
 import com.example.mobile.data.Guest;
 import com.example.mobile.data.Meal;
@@ -10,6 +11,7 @@ import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealSelection;
 import com.example.mobile.data.Residence;
 import com.example.mobile.data.User;
+import com.example.mobile.presenter.ExitBehavior;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.util.BeanItemContainer;
@@ -31,10 +33,26 @@ public class DatabaseCheckView extends NavigationView {
 	final private BeanItemContainer<Meal> meals;
 	final private BeanItemContainer<MealOption> mealoptions;
 	final private BeanItemContainer<Residence> residences;
-	
+	final private BeanItemContainer<Contract> contracts;
 
 	public DatabaseCheckView(){
 		VerticalComponentGroup layout = new VerticalComponentGroup();
+		Button logout = new Button();
+		logout.setCaption("Exit");
+		setRightComponent(logout);
+		logout.addClickListener(new ExitBehavior());
+
+		Button back = new Button();
+		back.setCaption("System menu");
+		setLeftComponent(back);
+		back.addClickListener(new ClickListener(){
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO Auto-generated method stub
+				((MobileUI) UI.getCurrent()).getManager().navigateTo(new SystemMenuView());
+			} });
+		
 
 		dailymeals = new BeanItemContainer<DailyMealSelection>(DailyMealSelection.class);
 		ui.populateDailyMeals(connectionPool, dailymeals);
@@ -50,6 +68,8 @@ public class DatabaseCheckView extends NavigationView {
 		ui.populateMealOptions(connectionPool, mealoptions);
 		residences = new BeanItemContainer<Residence>(Residence.class);
 		ui.populateResidences(connectionPool, residences);
+		contracts = new BeanItemContainer<Contract>(Contract.class);
+		ui.populateContracts(connectionPool, contracts);
 		
 	
 			/** DailyMeal */
@@ -96,6 +116,12 @@ public class DatabaseCheckView extends NavigationView {
 			layout.addComponent(check20);
 			Button check21 = new Button("User-Residences");
 			layout.addComponent(check21);
+			
+			/** Contract */
+			Button check30 = new Button("Contract-Unique-Name");
+			layout.addComponent(check30);
+			Button check31 = new Button("Contract-Residences");
+			layout.addComponent(check31);
 			
 			
 			setContent(layout);
@@ -450,7 +476,7 @@ public class DatabaseCheckView extends NavigationView {
 			check20.addClickListener(new ClickListener(){
 				/** User-Role */
 				/** Remember that role cannot be NULL **/
-				
+
 				public void buttonClick(ClickEvent event) {
 					// TODO Auto-generated method stub
 					int count = 0;
@@ -461,35 +487,88 @@ public class DatabaseCheckView extends NavigationView {
 							count++;
 						}
 					}
-						
+
 					Notification.show(Integer.valueOf(count).toString());
 				}});
 
-			
-	check21.addClickListener(new ClickListener(){
-		/** User-Residence */
-		/** Remember that if residence is NULL, then getResidence() returns 0 */
-		@Override
-		public void buttonClick(ClickEvent event) {
-			// TODO Auto-generated method stub
-			int count = 0;
-			User user;
-			Residence residence;
-			Boolean found;
-			for (Iterator<User> i = users.getItemIds().iterator(); i.hasNext();){
-				user = (User) i.next();
-				found = false ;
-				for (Iterator<Residence> j = residences.getItemIds().iterator(); j.hasNext();){
-						residence = (Residence) j.next();
-						if (user.getResidence() == residence.getPk()){
-							found = true;
-							break;
+
+			check21.addClickListener(new ClickListener(){
+				/** User-Residence */
+				/** Remember that if residence is NULL, then getResidence() returns 0 */
+				@Override
+				public void buttonClick(ClickEvent event) {
+					// TODO Auto-generated method stub
+					int count = 0;
+					User user;
+					Residence residence;
+					Boolean found;
+					for (Iterator<User> i = users.getItemIds().iterator(); i.hasNext();){
+						user = (User) i.next();
+						found = false ;
+						for (Iterator<Residence> j = residences.getItemIds().iterator(); j.hasNext();){
+							residence = (Residence) j.next();
+							if (user.getResidence() == residence.getPk()){
+								found = true;
+								break;
+							}
 						}
-				}
-				if (found == false) { count++ ; }
-			}
-			Notification.show(Integer.valueOf(count).toString());
-		}});
+						if (found == false) { count++ ; }
+					}
+					Notification.show(Integer.valueOf(count).toString());
+				}});
+			
+			/** Contracts **/
+			
+			check30.addClickListener(new ClickListener(){
+				/** Contract-Unique-Name */
+				@Override
+				public void buttonClick(ClickEvent event) {
+					// TODO Auto-generated method stub
+					//Notification.show(Integer.valueOf(guests.size()).toString());
+					int count = 0;
+					Contract contract1;
+					Contract contract2;
+					for (Iterator<Contract> i = contracts.getItemIds().iterator(); i.hasNext();){
+						contract1 = (Contract) i.next();
+						for (Iterator<Contract> j = contracts.getItemIds().iterator(); j.hasNext();){
+							contract2 = (Contract) j.next();
+							if (!(contract1.getPk() == contract2.getPk()) 
+									&& (contract1.getName() == contract2.getName())) { 
+								count++ ; 
+								break;
+							}
+							
+						}
+					}
+					Notification.show(Integer.valueOf(count).toString());
+				}});
+			
+			
+			check31.addClickListener(new ClickListener(){
+				/** Contract-Residence */
+				/** Remember that if residence is NULL, then getResidence() returns 0 */
+				@Override
+				public void buttonClick(ClickEvent event) {
+					// TODO Auto-generated method stub
+					int count = 0;
+					Contract contract;
+					Residence residence;
+					Boolean found;
+					for (Iterator<Contract> i = contracts.getItemIds().iterator(); i.hasNext();){
+						contract = (Contract) i.next();
+						found = false ;
+						for (Iterator<Residence> j = residences.getItemIds().iterator(); j.hasNext();){
+							residence = (Residence) j.next();
+							if (contract.getResidence() == residence.getPk()){
+								found = true;
+								break;
+							}
+						}
+						if (found == false) { count++ ; }
+					}
+					Notification.show(Integer.valueOf(count).toString());
+				}});
+			
 
 	}
 

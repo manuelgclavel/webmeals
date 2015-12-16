@@ -14,6 +14,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 
 import com.example.mobile.MobileUI;
+import com.example.mobile.data.Contract;
+import com.example.mobile.data.ContractOption;
+import com.example.mobile.data.ContractResidency;
 import com.example.mobile.data.DailyMealSelection;
 import com.example.mobile.data.DeadlineDay;
 import com.example.mobile.data.FoodRegime;
@@ -506,6 +509,73 @@ public class MobileUI extends UI {
 		}
 	}
 	
+	public void populateContracts(JDBCConnectionPool connectionPool, BeanItemContainer<Contract> contracts) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT * FROM Contract");
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				contracts.addItem(new Contract(result.getInt(1), result.getString(2), result.getInt(3))); 
+			}
+			result.close();
+			ps.close();
+			
+			result.close();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void populateContractOptions(JDBCConnectionPool connectionPool, BeanItemContainer<ContractOption> contractoptions) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT * FROM ContractOption");
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				contractoptions.addItem(new ContractOption(result.getInt(1), result.getInt(2), result.getInt(3))); 
+			}
+			result.close();
+			ps.close();
+			
+			result.close();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void populateContractResidency(JDBCConnectionPool connectionPool, BeanItemContainer<ContractResidency> contractperiods) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT * FROM Contract_ownedBy__Residency_contract");
+			ResultSet result = ps.executeQuery();
+			
+			while (result.next()){
+				contractperiods.addItem(new ContractResidency(result.getInt(1), result.getInt(2))); 
+			}
+			result.close();
+			ps.close();	
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	
 	
 
