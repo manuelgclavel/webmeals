@@ -14,6 +14,7 @@ import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealOptionDeadline;
 import com.example.mobile.data.MealOptionResidency;
 import com.example.mobile.data.Residency;
+import com.example.mobile.presenter.ExitBehavior;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.Container.Filter;
@@ -27,103 +28,143 @@ import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 
 @SuppressWarnings("serial")
 public class MealEditView extends NavigationView {
-	private JDBCConnectionPool connectionPool ;
+	
+	private MobileUI ui = ((MobileUI) UI.getCurrent());
+	private JDBCConnectionPool connectionPool = ui.getConnectionPool();
 	
 	private BeanItemContainer<Meal> meals;
 	private BeanItemContainer<MealOption> mealoptions;
 	private BeanItemContainer<Residency> periods; 
-	private BeanItemContainer<MealOptionResidency> mealoptionresidencies;
-	private BeanItemContainer<MealOptionDeadline> deadlines; 
+	private BeanItemContainer<MealOptionResidency> mealoptionperiods;
+	private BeanItemContainer<MealOptionDeadline> mealoptiondeadlines; 
 	private BeanItemContainer<MealOptionDeadline> filterdeadlines; 
 	private BeanItemContainer<DeadlineDay> deadlinedays;
 	private IndexedContainer deadlinesinfo;
 	
 	public MealEditView(){
 		VerticalComponentGroup content = new VerticalComponentGroup();	
-		connectionPool = ((MobileUI) UI.getCurrent()).getConnectionPool();
+		Button logout = new Button();
+		logout.setCaption("Exit");
+		setRightComponent(logout);
+		logout.addClickListener(new ExitBehavior());
 		
-			Connection conn;
-			try {
-				conn = connectionPool.reserveConnection();
-				meals = new BeanItemContainer<Meal>(Meal.class);
-				PreparedStatement ps = conn.prepareStatement("SELECT * FROM Meal");
-				ResultSet result = ps.executeQuery();
-				while (result.next()){
-					meals.addItem(new Meal(result.getInt(1), result.getInt(2), result.getString(3),
-							result.getInt(4)));
-				}
-				result.close();
-				ps.close();
+		Button back = new Button();
+		back.setCaption("Admin menu");
+		setLeftComponent(back);
+		back.addClickListener(new ClickListener(){
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO Auto-generated method stub
+				((MobileUI) UI.getCurrent()).getManager().navigateTo(new AdminMenuView());
+			} });
+		
+		meals = new BeanItemContainer<Meal>(Meal.class);
+		ui.populateMeals(connectionPool, meals);
+		
+		mealoptions = new BeanItemContainer<MealOption>(MealOption.class);
+		ui.populateMealOptions(connectionPool, mealoptions);
+		
+		periods = new BeanItemContainer<Residency>(Residency.class);
+		ui.populateResidency(connectionPool, periods);
+		
+		mealoptionperiods = new BeanItemContainer<MealOptionResidency>(MealOptionResidency.class);
+		ui.populateMealOptionResidency(connectionPool, mealoptionperiods);
+		
+		mealoptiondeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
+		ui.populateMealOptionDeadlines(connectionPool, mealoptiondeadlines);
+		
+		filterdeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
+		
+		deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
+		ui.populateDeadlineDays(connectionPool, deadlinedays);
+		
+		//Connection conn;
+			
+			//try {
+			//	conn = connectionPool.reserveConnection();
+				//meals = new BeanItemContainer<Meal>(Meal.class);
+				//PreparedStatement ps = conn.prepareStatement("SELECT * FROM Meal");
+				//ResultSet result = ps.executeQuery();
+				//while (result.next()){
+				//	meals.addItem(new Meal(result.getInt(1), result.getInt(2), result.getString(3),
+				//			result.getInt(4)));
+				//}
+				//result.close();
+				//ps.close();
 				
-				mealoptions = new BeanItemContainer<MealOption>(MealOption.class);
-				ps = conn.prepareStatement("SELECT * FROM MealOption");
-				result = ps.executeQuery();
-				while (result.next()){
-					mealoptions.addItem(new MealOption(result.getInt(1), result.getInt(2), result.getString(3),
-							result.getString(4), result.getInt(5)));
-				}
-				result.close();
-				ps.close();
+				//mealoptions = new BeanItemContainer<MealOption>(MealOption.class);
+				//ps = conn.prepareStatement("SELECT * FROM MealOption");
+				//result = ps.executeQuery();
+				//while (result.next()){
+				//	mealoptions.addItem(new MealOption(result.getInt(1), result.getInt(2), result.getString(3),
+				//			result.getString(4), result.getInt(5)));
+				//}
+				//result.close();
+				//ps.close();
 				
 
-				periods = new BeanItemContainer<Residency>(Residency.class);
-				ps = conn.prepareStatement("SELECT * FROM Residency");
-				result = ps.executeQuery();
-				while (result.next()){
-					periods.addItem(new Residency(result.getInt(1), result.getDate(2), result.getDate(3),
-							result.getInt(4), result.getInt(5), result.getInt(6), result.getInt(7),
-							result.getInt(8), result.getInt(9))); 
-				}
-				result.close();
-				ps.close();
+				//periods = new BeanItemContainer<Residency>(Residency.class);
+				//ps = conn.prepareStatement("SELECT * FROM Residency");
+				//result = ps.executeQuery();
+				//while (result.next()){
+				//	periods.addItem(new Residency(result.getInt(1), result.getDate(2), result.getDate(3),
+				//			result.getInt(4), result.getInt(5), result.getInt(6), result.getInt(7),
+				//			result.getInt(8), result.getInt(9))); 
+				//}
+				//result.close();
+				//ps.close();
 				
-				mealoptionresidencies = new BeanItemContainer<MealOptionResidency>(MealOptionResidency.class);
-				ps = conn.prepareStatement("SELECT MealOptionDeadline_ownedBy as ownedBy, Residency_deadlines as deadlines FROM MealOptionDeadline_ownedBy__Residency_deadlines");
-				result = ps.executeQuery();
-				while (result.next()){
-					mealoptionresidencies.addItem(new MealOptionResidency(result.getInt(1), result.getInt(2))); 
-				}
-				result.close();
-				ps.close();
+				//mealoptionresidencies = new BeanItemContainer<MealOptionResidency>(MealOptionResidency.class);
+				//ps = conn.prepareStatement("SELECT MealOptionDeadline_ownedBy as ownedBy, Residency_deadlines as deadlines FROM MealOptionDeadline_ownedBy__Residency_deadlines");
+				//result = ps.executeQuery();
+				//while (result.next()){
+				//	mealoptionresidencies.addItem(new MealOptionResidency(result.getInt(1), result.getInt(2))); 
+				//}
+				//result.close();
+				//ps.close();
 				
 				//Notification.show(Integer.valueOf(mealoptionresidencies.size()).toString());
 				
 				
 				
-				deadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
-				ps = conn.prepareStatement("SELECT pk, cday, chour, cminute, literal, ownedBy FROM MealOptionDeadline");
-				result = ps.executeQuery();
-				while (result.next()){
-					deadlines.addItem(new MealOptionDeadline(result.getInt(1), result.getInt(2), result.getInt(3),
-							result.getInt(4), result.getString(5), result.getInt(6))); 
-				}
-				result.close();
-				ps.close();
+				//deadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
+				//ps = conn.prepareStatement("SELECT pk, cday, chour, cminute, literal, ownedBy FROM MealOptionDeadline");
+				//result = ps.executeQuery();
+				//while (result.next()){
+				//	deadlines.addItem(new MealOptionDeadline(result.getInt(1), result.getInt(2), result.getInt(3),
+				//			result.getInt(4), result.getString(5), result.getInt(6))); 
+				//}
+				//result.close();
+				//ps.close();
 				
-				filterdeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
+				//filterdeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
 				
-				deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
-				ps = conn.prepareStatement("SELECT * FROM MealOptionDeadline_days");
-				result = ps.executeQuery();
-				while (result.next()){
-					deadlinedays.addItem(new DeadlineDay(result.getInt(1), result.getInt(2))); 
-				}
-				result.close();
-				ps.close();
-				
-				
-				
-				
-				connectionPool.releaseConnection(conn);
+				//deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
+				//ps = conn.prepareStatement("SELECT * FROM MealOptionDeadline_days");
+				//result = ps.executeQuery();
+				//while (result.next()){
+				//	deadlinedays.addItem(new DeadlineDay(result.getInt(1), result.getInt(2))); 
+				//}
+				//result.close();
+				//ps.close();
+				//connectionPool.releaseConnection(conn);
+			//} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			//}	
 				
 				Table mealsTable = new Table("",meals);
 				mealsTable.setSortContainerPropertyId("position");
@@ -221,17 +262,17 @@ public class MealEditView extends NavigationView {
 					@Override
 					public void itemClick(ItemClickEvent event) {
 						// TODO Auto-generated method stub
-						mealoptionresidencies.removeAllContainerFilters();
+						mealoptionperiods.removeAllContainerFilters();
 						filterdeadlines.removeAllItems();
 						deadlinesinfo.removeAllItems();
 						Residency periodselected = (Residency) event.getItemId();
 						Filter filterbyPeriod = 
 								new Compare.Equal("residency", periodselected.getPk());
-						mealoptionresidencies.addContainerFilter(filterbyPeriod);
+						mealoptionperiods.addContainerFilter(filterbyPeriod);
 						/** */
-						for (Iterator<MealOptionDeadline> j = deadlines.getItemIds().iterator(); j.hasNext();){
+						for (Iterator<MealOptionDeadline> j = mealoptiondeadlines.getItemIds().iterator(); j.hasNext();){
 							MealOptionDeadline deadline = (MealOptionDeadline) j.next();
-							for (Iterator<MealOptionResidency> i = mealoptionresidencies.getItemIds().iterator(); i.hasNext();) {
+							for (Iterator<MealOptionResidency> i = mealoptionperiods.getItemIds().iterator(); i.hasNext();) {
 								MealOptionResidency period = (MealOptionResidency) i.next();
 								if (deadline.getOwnedBy() == period.getResidency()){
 									filterdeadlines.addItem(deadline);
@@ -249,10 +290,7 @@ public class MealEditView extends NavigationView {
 				setContent(content);
 				
 				
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}		
+				
 	}
 	
 	

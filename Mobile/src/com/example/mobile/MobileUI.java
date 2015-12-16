@@ -15,13 +15,17 @@ import javax.servlet.http.Cookie;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.DailyMealSelection;
+import com.example.mobile.data.DeadlineDay;
 import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Guest;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
+import com.example.mobile.data.MealOptionDeadline;
+import com.example.mobile.data.MealOptionResidency;
 import com.example.mobile.data.MealSelection;
 import com.example.mobile.data.MealSelectionPlus;
 import com.example.mobile.data.Residence;
+import com.example.mobile.data.Residency;
 import com.example.mobile.data.Role;
 import com.example.mobile.data.User;
 import com.example.mobile.viewer.LoginView;
@@ -414,6 +418,96 @@ public class MobileUI extends UI {
 		}
 	}
 
+	public void populateResidency(JDBCConnectionPool connectionPool, BeanItemContainer<Residency> periods) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM Residency");
+			ResultSet result = ps.executeQuery();
+			
+			while (result.next()){
+				periods.addItem(new Residency(result.getInt(1), result.getDate(2), result.getDate(3),
+						result.getInt(4), result.getInt(5), result.getInt(6), result.getInt(7),
+						result.getInt(8), result.getInt(9)));
+			}
+			result.close();
+			ps.close();	
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void populateMealOptionResidency(JDBCConnectionPool connectionPool, BeanItemContainer<MealOptionResidency> mealoptionperiods) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT MealOptionDeadline_ownedBy as ownedBy, Residency_deadlines as deadlines FROM MealOptionDeadline_ownedBy__Residency_deadlines");
+			ResultSet result = ps.executeQuery();
+			
+			while (result.next()){
+				mealoptionperiods.addItem(new MealOptionResidency(result.getInt(1), result.getInt(2))); 
+			}
+			result.close();
+			ps.close();	
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void populateMealOptionDeadlines(JDBCConnectionPool connectionPool, BeanItemContainer<MealOptionDeadline> mealoptiondeadlines) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps =
+					conn.prepareStatement("SELECT pk, cday, chour, cminute, literal, ownedBy FROM MealOptionDeadline");
+			ResultSet result = ps.executeQuery();
+			
+			while (result.next()){
+				mealoptiondeadlines.addItem(new MealOptionDeadline(result.getInt(1), result.getInt(2), result.getInt(3),
+						result.getInt(4), result.getString(5), result.getInt(6))); 
+			}
+			result.close();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void populateDeadlineDays(JDBCConnectionPool connectionPool, BeanItemContainer<DeadlineDay> deadlinedays) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT * FROM MealOptionDeadline_days");
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				deadlinedays.addItem(new DeadlineDay(result.getInt(1), result.getInt(2))); 
+			}
+			result.close();
+			ps.close();
+			
+			result.close();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
 
 	public void updateUserPassword(JDBCConnectionPool connectionPool, User user, String value) {
 		// TODO Auto-generated method stub
