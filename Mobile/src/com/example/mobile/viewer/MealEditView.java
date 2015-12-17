@@ -131,7 +131,7 @@ public class MealEditView extends NavigationView {
 		int myfirstdayofweek = h.getFirstDayOfWeek();
 		h.set(Calendar.DAY_OF_WEEK, myfirstdayofweek);
 		for (int i = 0; i <= 6; i++){
-			mydeadlinesTable.addContainerProperty(displayDay(h.get(Calendar.DAY_OF_WEEK)), Label.class, null);
+			mydeadlinesTable.addContainerProperty(ui.displayDay(h.get(Calendar.DAY_OF_WEEK)), Label.class, null);
 			h.add(Calendar.DATE, 1);
 		}
 		mydeadlinesTable.addContainerProperty("-Days", Label.class, null);
@@ -240,7 +240,7 @@ public class MealEditView extends NavigationView {
 			c.set(Calendar.DAY_OF_WEEK, firstdayofweek);
 
 			for (int i = 0; i <= 6; i++){
-				Property<Label> day = item.getItemProperty(displayDay(c.get(Calendar.DAY_OF_WEEK)));
+				Property<Label> day = item.getItemProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)));
 				for (Iterator<DeadlineDay> j = deadlinedays.getItemIds().iterator(); j.hasNext();){
 					DeadlineDay deadlineday = (DeadlineDay) j.next();
 					if (deadlineday.getDeadline() == deadline.getPk()){
@@ -256,7 +256,9 @@ public class MealEditView extends NavigationView {
 	}
 
 
-	private String displayDay(int dayofweek) {
+	/**
+	 private String displayDay(int dayofweek) {
+	 
 		// TODO Auto-generated method stub
 		String day = "";
 		switch (dayofweek) {
@@ -284,6 +286,7 @@ public class MealEditView extends NavigationView {
 		}
 		return day;
 	}
+	*/
 
 
 }

@@ -16,6 +16,7 @@ import javax.servlet.http.Cookie;
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.Contract;
 import com.example.mobile.data.ContractOption;
+import com.example.mobile.data.ContractOptionDay;
 import com.example.mobile.data.ContractResidency;
 import com.example.mobile.data.DailyMealSelection;
 import com.example.mobile.data.DeadlineDay;
@@ -575,6 +576,29 @@ public class MobileUI extends UI {
 			e.printStackTrace();
 		}
 	}
+	
+	public void populateContractOptionDays(JDBCConnectionPool connectionPool, BeanItemContainer<ContractOptionDay> contractoptiondays) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT * FROM ContractOption_days");
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				contractoptiondays.addItem(new ContractOptionDay(result.getInt(1), result.getInt(2))); 
+			}
+			result.close();
+			ps.close();
+			
+			result.close();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	
 	
@@ -683,6 +707,37 @@ public class MobileUI extends UI {
 		
 		
 	}
+	
+	public String displayDay(int dayofweek) {
+		// TODO Auto-generated method stub
+		String day = "";
+		switch (dayofweek) {
+		case (1):
+			day = "Mon";
+		break;
+		case (2):
+			day = "Tue";
+		break;
+		case (3): 
+			day = "Wed";
+		break;
+		case (4):
+			day = "Thu";
+		break;
+		case (5):
+			day = "Fri";
+		break;
+		case (6):
+			day = "Sat";
+		break;
+		case (7):
+			day = "Sun";
+		break;
+		}
+		return day;
+	}
+
+
 	
 	
 	
