@@ -126,11 +126,6 @@ public class MobileUI extends UI {
 
 
 	
-	
-	//public java.sql.Timestamp getCurrentTimeStamp() {
-	//	java.util.Date today = new java.util.Date();
-	//	return new java.sql.Timestamp(today.getTime());
-	//}	
 	public Cookie getCookieByName(String name) { 
 		// Fetch all cookies from the request 
 		Cookie[] cookies = VaadinService.getCurrentRequest().getCookies();
@@ -387,20 +382,7 @@ public class MobileUI extends UI {
 	}
 	
 	
-	public boolean isValidMealOption(final int pkmealoption, final int pkmeal, 
-			final BeanItemContainer<MealOption> mealoptions){
-		boolean check = false;
-		MealOption mealoption;
-		for (Iterator<MealOption> i = mealoptions.getItemIds().iterator(); i.hasNext();){
-			mealoption = (MealOption) i.next();
-			if (pkmealoption == mealoption.getPk() && pkmeal == mealoption.getOwnedBy()){
-				check = true;
-				break;
-			}
-		}
-		return check;
-	}
-
+	
 
 	public void populateResidences(JDBCConnectionPool connectionPool, BeanItemContainer<Residence> residences) {
 		// TODO Auto-generated method stub
@@ -626,18 +608,6 @@ public class MobileUI extends UI {
 	
 	
 	
-	public boolean existsLogin(BeanItemContainer<User> users, String login){
-		boolean found = false;
-		User user;
-		for (Iterator<User> i = users.getItemIds().iterator(); i.hasNext();){
-			user = i.next();
-			if (user.getLogin().equals(login)){
-				found = true;
-				break;
-			}
-		}
-		return found;
-	}
 
 
 	public void createUser(String name, String surname, String login, String password, int role, int residence) {
@@ -668,19 +638,7 @@ public class MobileUI extends UI {
 }
 
 
-	public boolean existsGuest(BeanItemContainer<Guest> guests, String name, String surname) {
-		// TODO Auto-generated method stub
-		boolean found = false;
-		Guest guest;
-		for (Iterator<Guest> i = guests.getItemIds().iterator(); i.hasNext();){
-			guest = i.next();
-			if (guest.getName().equals(name) && guest.getSurname().equals(surname)){
-				found = true;
-				break;
-			}
-		}
-		return found;
-	}
+	
 
 
 	public void createGuest(String name, String surname, int residence) {
@@ -703,10 +661,105 @@ public class MobileUI extends UI {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+	}
+	
+	public void insertContractMealOptionDay(MealOption mealoption, Contract selected, int day){
+		PreparedStatement ps;
+		ResultSet result;
+		Connection conn;
+		int newcontractoption;
+		try {
+			conn= connectionPool.reserveConnection();
+			ps = conn.prepareStatement("INSERT ContractOption (mealOption, includedIn)" + " " +
+							"VALUES (?,?)");
+			ps.setInt(1, mealoption.getPk());
+			ps.setInt(2,  selected.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			
+			ps = conn.prepareStatement("SELECT LAST_INSERT_ID()");
+			result = ps.executeQuery();
+			result.next();
+			newcontractoption = result.getInt(1);
+			
+			ps = conn.prepareStatement("INSERT ContractOption_days (entity, elements)" + " " +
+					"VALUES (?,?)");
+			ps.setInt(1, newcontractoption);
+			ps.setInt(2,  day);
+			ps.executeUpdate();
+			conn.commit();
+			
+			ps = conn.prepareStatement("INSERT ContractOption_includedIn__Contract_options (ContractOption_includedIn, Contract_options)" + " " +
+					"VALUES (?,?)");
+			ps.setInt(1, newcontractoption);
+			ps.setInt(2,  selected.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			
+			result.close();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		
 	}
+	
+	public void insertContractMealOptionOnlyDay(Contract selected, ContractOption contractoption, int day){
+		PreparedStatement ps;
+		Connection conn;
+		try {
+			conn= connectionPool.reserveConnection();
+			
+			ps = conn.prepareStatement("INSERT ContractOption_days (entity, elements)" + " " +
+					"VALUES (?,?)");
+			ps.setInt(1, contractoption.getPk());
+			ps.setInt(2,  day);
+			ps.executeUpdate();
+			conn.commit();
+			
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	public void deleteContractMealOptionOnlyDay(Contract selected, ContractOption contractoption, int day){
+		PreparedStatement ps;
+		Connection conn;
+		try {
+			conn= connectionPool.reserveConnection();
+			
+			ps = conn.prepareStatement("DELETE FROM ContractOption_days" + " " +
+					"WHERE entity = ? and elements = ?");
+			ps.setInt(1, contractoption.getPk());
+			ps.setInt(2,  day);
+			ps.executeUpdate();
+			conn.commit();
+			
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
+	
 	
 	public String displayDay(int dayofweek) {
 		// TODO Auto-generated method stub
@@ -737,8 +790,62 @@ public class MobileUI extends UI {
 		return day;
 	}
 
+	
 
+	public boolean existsLogin(BeanItemContainer<User> users, String login){
+		boolean found = false;
+		User user;
+		for (Iterator<User> i = users.getItemIds().iterator(); i.hasNext();){
+			user = i.next();
+			if (user.getLogin().equals(login)){
+				found = true;
+				break;
+			}
+		}
+		return found;
+	}
 	
+	public boolean existsGuest(BeanItemContainer<Guest> guests, String name, String surname) {
+		// TODO Auto-generated method stub
+		boolean found = false;
+		Guest guest;
+		for (Iterator<Guest> i = guests.getItemIds().iterator(); i.hasNext();){
+			guest = i.next();
+			if (guest.getName().equals(name) && guest.getSurname().equals(surname)){
+				found = true;
+				break;
+			}
+		}
+		return found;
+	}
 	
+	public Meal findMealOfMealOption(BeanItemContainer<Meal> meals, MealOption mealoption) {
+		// TODO Auto-generated method stub
+		Meal result = null;
+		Meal meal;
+		for (Iterator<Meal> i = meals.getItemIds().iterator(); i.hasNext();){
+			meal = i.next();
+			if (mealoption.getOwnedBy() == meal.getPk()){
+				result = meal;
+				break;
+			}
+		}
+		return result;
+	}
+	
+	public boolean isValidMealOption(final int pkmealoption, final int pkmeal, 
+			final BeanItemContainer<MealOption> mealoptions){
+		boolean check = false;
+		MealOption mealoption;
+		for (Iterator<MealOption> i = mealoptions.getItemIds().iterator(); i.hasNext();){
+			mealoption = (MealOption) i.next();
+			if (pkmealoption == mealoption.getPk() && pkmeal == mealoption.getOwnedBy()){
+				check = true;
+				break;
+			}
+		}
+		return check;
+	}
+
 	
 }
