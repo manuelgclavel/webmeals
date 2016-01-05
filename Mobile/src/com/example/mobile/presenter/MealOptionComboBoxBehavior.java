@@ -6,6 +6,7 @@ import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.TimeZone;
@@ -263,8 +264,13 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 						combobox.setValue(null);
 					}
 					//refreshMealSelection();
-					Notification.show("MESSAGE: Sorry, you are late.");					
-
+					String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
+					Calendar current = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+					
+					SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
+					isoFormat.setTimeZone(TimeZone.getTimeZone(timezone));
+					Notification.show("MESSAGE: Sorry, you are late." + " : " +
+						isoFormat.format(current.getTime()));	
 				}
 
 				//connectionPool.releaseConnection(conn);
@@ -279,46 +285,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	}
 
 
-	/**
-	private void refreshMealSelection(){
-		try {
-			Connection conn = connectionPool.reserveConnection();
-			PreparedStatement ps;
-			ResultSet result;
-			ps = conn.prepareStatement("SELECT count(*), mealoption FROM MealSelection" + " " +
-					"WHERE meal = ? and pk in " + " " +
-					"(SELECT * FROM" + " " + 
-					"(SELECT MealSelection_ownedBy from DailyMealSelection_selections__MealSelection_ownedBy" + " " +
-					"WHERE DailyMealSelection_selections = " + " " +
-					"(SELECT pk from DailyMealSelection" + " " +  
-					"WHERE Date(date) = ?  and selectedBy = ?)) AS TEMP)");
-			ps.setInt(1, mealselected.getPk());
-			ps.setDate(2, new java.sql.Date(dayselected.getTime()));
-			ps.setInt(3, curUser.getPk());
-			result = ps.executeQuery();
-			result.next();
-			if (result.getInt(1) > 0){
-				MealOption row;
-				for (Iterator<MealOption> k = (Iterator<MealOption>) combobox.getContainerDataSource().getItemIds().iterator(); k.hasNext();) {
-					row = k.next();
-					if (row.getPk() == result.getInt(2)){
-						combobox.setValue(row);				
-					}
-				}			
-			} else {
-				combobox.setValue(null);
-			}
-			result.close();
-			ps.close();	
-			connectionPool.releaseConnection(conn);
-
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}	
-*/
+	
 
 	private Boolean checkDeadlines(MealOptionDeadline curOption, MealOptionDeadline selOption){
 		final String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();

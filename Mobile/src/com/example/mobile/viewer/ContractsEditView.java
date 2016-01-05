@@ -2,6 +2,7 @@ package com.example.mobile.viewer;
 
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.viewer.ContractOptionDayCheckBox;
@@ -51,6 +52,8 @@ public class ContractsEditView extends NavigationView {
 	private BeanItemContainer<MealOption> mealoptions;
 	private IndexedContainer contractmealoptions;
 	
+	String timezone = ui.getResidence().getZone();
+	
 
 	public ContractsEditView(){
 		VerticalComponentGroup content = new VerticalComponentGroup();	
@@ -99,7 +102,7 @@ public class ContractsEditView extends NavigationView {
 		Table contractmealoptionsTable = new Table("", contractmealoptions);
 		/** */
 		contractmealoptionsTable.setPageLength(contractmealoptionsTable.size());
-		Calendar h = Calendar.getInstance();
+		Calendar h = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 		int myfirstdayofweek = h.getFirstDayOfWeek();
 		h.set(Calendar.DAY_OF_WEEK, myfirstdayofweek);
 		contractmealoptionsTable.addContainerProperty("Meal", Label.class, null);
@@ -145,7 +148,7 @@ public class ContractsEditView extends NavigationView {
 			mealproperty.setValue(new Label(meal.getLiteral()));
 			mealoptionproperty.setValue(new Label(mealoption.getInitial()));
 			
-			Calendar c = Calendar.getInstance();
+			Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 			int firstdayofweek = c.getFirstDayOfWeek();
 			c.set(Calendar.DAY_OF_WEEK, firstdayofweek);
 

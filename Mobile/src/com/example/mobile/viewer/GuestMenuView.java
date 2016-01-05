@@ -39,7 +39,7 @@ public class GuestMenuView extends NavigationView {
 			
 			NavigationButton dailymeal = 
 					new NavigationButton(
-							new MealSelectionSwipeView(Calendar.getInstance().getTime(), 
+							new MealSelectionSwipeView( 
 									guestpk, 2));
 			dailymeal.setTargetViewCaption("Meal selection (by day)");
 			//NavigationButton weeklymeal = 

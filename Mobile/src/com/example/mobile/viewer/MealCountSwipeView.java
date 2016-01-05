@@ -1,9 +1,11 @@
 package com.example.mobile.viewer;
 
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
@@ -28,10 +30,15 @@ import com.vaadin.ui.Button.ClickListener;
 public class MealCountSwipeView extends NavigationManager implements NavigationListener {
 	
   int pos = 0;
+  boolean show;
   Date dayselected;
+  String timezone;
 
-  public MealCountSwipeView(Date selected) {
-	  this.dayselected= selected;
+  public MealCountSwipeView(boolean showusers) {
+	  timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
+	 Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+	  this.dayselected= c.getTime();
+	  this.show = showusers;
       // Set up the initial views
       //navigateTo(createView(+pos));
 	  setCurrentComponent(createView(+pos));
@@ -57,7 +64,11 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 		@Override
 		public void buttonClick(ClickEvent event) {
 			// TODO Auto-generated method stub
-			((MobileUI) UI.getCurrent()).getManager().navigateTo(new AdminMenuView());
+			if (show){
+				((MobileUI) UI.getCurrent()).getManager().navigateTo(new AdminMenuView());
+			} else {
+				((MobileUI) UI.getCurrent()).getManager().navigateTo(new CookMenuView());
+			}
 			
 		}});
      
@@ -73,12 +84,14 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 		final Button next = new Button("next");
 		
 
-		Calendar c = new GregorianCalendar();
+		Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 		c.setTime(dayselected);
 		c.add(Calendar.DATE, currentpos);
-		
 		dateshown.setValue(c.getTime());
-		dateshown.setDateFormat("EEE, MMM d, ''yy");
+		
+		SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd");
+		isoFormat.setTimeZone(TimeZone.getTimeZone(timezone));
+		dateshown.setDateFormat(isoFormat.format(c.getTime()));
 
 		layout.addComponent(dateshown);
 		
@@ -95,14 +108,14 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 		//layout.addComponent(new Label(Integer.valueOf(currentpos).toString()));
 		/** END */
 
-		layout.addComponent(new CountView(c.getTime()));
+		layout.addComponent(new CountView(c.getTime(), show));
 		view.setContent(layout);
 		
 		
 		dateshown.addValueChangeListener(new ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				Calendar c = new GregorianCalendar();
+				Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 				c.setTime(((Date) event.getProperty().getValue()));
 				c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 
 						c.get(Calendar.DATE), 0, 0, 0);
@@ -122,9 +135,9 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				Calendar c = new GregorianCalendar();
-				c.setTime(dayselected);
-				c.add(Calendar.DATE, +1);
+				//Calendar c = new GregorianCalendar();
+				//c.setTime(dayselected);
+				//c.add(Calendar.DATE, +1);
 				navigateTo(getNextComponent());
 			}
 			
@@ -135,9 +148,9 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				Calendar c = new GregorianCalendar();
-				c.setTime(dayselected);
-				c.add(Calendar.DATE, -1);
+				//Calendar c = new GregorianCalendar();
+				//c.setTime(dayselected);
+				//c.add(Calendar.DATE, -1);
 				
 				navigateTo(getPreviousComponent());
 			}
@@ -150,7 +163,9 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				pos = 0;
-				dayselected = Calendar.getInstance().getTime();
+				Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+				dayselected= c.getTime();
+				
 				setCurrentComponent(createView(+pos));
 				setNextComponent(createView(pos+1));
 			    setPreviousComponent(createView(pos-1));

@@ -32,12 +32,13 @@ public class UserMenuView extends NavigationView {
 			
 			NavigationButton dailymeal = 
 					new NavigationButton(
-							new MealSelectionSwipeView(Calendar.getInstance().getTime(),
+							new MealSelectionSwipeView(
 									((MobileUI) UI.getCurrent()).getUser().getPk(),
 									1));
 			dailymeal.setTargetViewCaption("Meal selection (by day)");
 			NavigationButton weeklymeal = 
-					new NavigationButton(new SelectionWeekView(Calendar.getInstance().getTime())); 
+					new NavigationButton(new SelectionWeekView()); 
+					//new NavigationButton(new SelectionWeekView()); 
 			weeklymeal.setTargetViewCaption("Meal selection (by week)");
 			
 			NavigationButton changepassword = 

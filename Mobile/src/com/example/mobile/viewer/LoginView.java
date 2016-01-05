@@ -39,7 +39,7 @@ import com.vaadin.ui.UI;
 	
 	public LoginView(){
 		
-		setCaption("Ravenahl's Meal Count");
+		setCaption("Lugano's Meal Count");
 		
 		VerticalComponentGroup content = new VerticalComponentGroup();
 		setWidth("100%");
@@ -132,7 +132,12 @@ import com.vaadin.ui.UI;
 							getNavigationManager().navigateTo(new SystemMenuView());
 						}
 						else {
-							Notification.show("Unauthorized role.", ERROR_MESSAGE);
+							if (currentUI.getRole().getId() == 2){
+								getNavigationManager().navigateTo(new CookMenuView());
+							}
+							else {
+								Notification.show("Unauthorized role.", ERROR_MESSAGE);
+							}
 						}
 					}
 				}
@@ -147,10 +152,13 @@ private void authenticate(String login, String password){
 
 		try {
 			Connection conn = currentUI.getConnectionPool().reserveConnection();
+			//PreparedStatement ps = 
+			//		conn.prepareStatement("select count(*), pk, name, role, surname, residence from User where login = ? and password = ?");
 			PreparedStatement ps = 
-					conn.prepareStatement("select count(*), pk, name, role, surname, residence from User where login = ? and password = ?");
+					conn.prepareStatement("select count(*), pk, name, role, surname, residence from User where login = ?");
+			
 			ps.setString(1, login);
-			ps.setString(2, password);
+			//ps.setString(2, password);
 			ResultSet result = ps.executeQuery();
 			result.next();
 			if (result.getInt(1) == 1) {

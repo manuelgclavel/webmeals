@@ -31,7 +31,7 @@ public class ContractOptionDayCheckBox extends CheckBox {
 			BeanItemContainer<ContractOptionDay> contractoptiondays){
 		this.contractoptions = contractoptions;
 		this.contractoptiondays = contractoptiondays;
-		//syncronize();
+
 		
 		setValue(contractmealoptiondayisincluded(mealoption, selected, day));
 		

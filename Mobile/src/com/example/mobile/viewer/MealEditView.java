@@ -24,6 +24,7 @@ import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
@@ -44,6 +45,8 @@ public class MealEditView extends NavigationView {
 	private BeanItemContainer<MealOptionDeadline> filterdeadlines; 
 	private BeanItemContainer<DeadlineDay> deadlinedays;
 	private IndexedContainer deadlinesinfo;
+	
+	private Residency periodselected;
 
 	public MealEditView(){
 		VerticalComponentGroup content = new VerticalComponentGroup();	
@@ -83,6 +86,7 @@ public class MealEditView extends NavigationView {
 		deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
 		ui.populateDeadlineDays(connectionPool, deadlinedays);
 
+		periodselected = null;
 
 		Table mealsTable = new Table("",meals);
 		mealsTable.setSortContainerPropertyId("position");
@@ -131,7 +135,7 @@ public class MealEditView extends NavigationView {
 		int myfirstdayofweek = h.getFirstDayOfWeek();
 		h.set(Calendar.DAY_OF_WEEK, myfirstdayofweek);
 		for (int i = 0; i <= 6; i++){
-			mydeadlinesTable.addContainerProperty(ui.displayDay(h.get(Calendar.DAY_OF_WEEK)), Label.class, null);
+			mydeadlinesTable.addContainerProperty(ui.displayDay(h.get(Calendar.DAY_OF_WEEK)), CheckBox.class, null);
 			h.add(Calendar.DATE, 1);
 		}
 		mydeadlinesTable.addContainerProperty("-Days", Label.class, null);
@@ -183,39 +187,29 @@ public class MealEditView extends NavigationView {
 				mealoptionperiods.removeAllContainerFilters();
 				filterdeadlines.removeAllItems();
 				deadlinesinfo.removeAllItems();
-				Residency periodselected = (Residency) event.getItemId();
-				Filter filterbyPeriod = 
-						new Compare.Equal("residency", periodselected.getPk());
-				mealoptionperiods.addContainerFilter(filterbyPeriod);
-				/** */
-				for (Iterator<MealOptionDeadline> j = mealoptiondeadlines.getItemIds().iterator(); j.hasNext();){
-					MealOptionDeadline deadline = (MealOptionDeadline) j.next();
-					for (Iterator<MealOptionResidency> i = mealoptionperiods.getItemIds().iterator(); i.hasNext();) {
-						MealOptionResidency period = (MealOptionResidency) i.next();
-						if (deadline.getOwnedBy() == period.getResidency()){
-							filterdeadlines.addItem(deadline);
-						}
-					}
-
-				}	
-				refreshDeadlinesInfo();
+				refreshDeadlinesInfo((Residency) event.getItemId());
 
 			}});
 
 
-
-
 		setContent(content);
-
-
 
 	}
 
 
-	protected void refreshDeadlinesInfo() {
+
+	protected void refreshDeadlinesInfo(Residency periodselected) {
 		// TODO Auto-generated method stub
+		MealOptionDeadline deadline;
+		for (Iterator<MealOptionDeadline> i = mealoptiondeadlines.getItemIds().iterator(); i.hasNext();){
+			deadline =  i.next();
+			if (deadline.getOwnedBy() == periodselected.getPk()){
+					filterdeadlines.addItem(deadline);
+				}
+			}	
+		
 		for (Iterator<MealOptionDeadline> h = filterdeadlines.getItemIds().iterator(); h.hasNext();) {
-			MealOptionDeadline deadline = (MealOptionDeadline) h.next();
+			deadline = (MealOptionDeadline) h.next();
 
 			// Create an item
 			Object itemId = deadlinesinfo.addItem();
@@ -238,55 +232,15 @@ public class MealEditView extends NavigationView {
 			Calendar c = Calendar.getInstance();
 			int firstdayofweek = c.getFirstDayOfWeek();
 			c.set(Calendar.DAY_OF_WEEK, firstdayofweek);
-
+			
+			
 			for (int i = 0; i <= 6; i++){
-				Property<Label> day = item.getItemProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)));
-				for (Iterator<DeadlineDay> j = deadlinedays.getItemIds().iterator(); j.hasNext();){
-					DeadlineDay deadlineday = (DeadlineDay) j.next();
-					if (deadlineday.getDeadline() == deadline.getPk()){
-						if (deadlineday.getDay() == i){
-							//day.setValue(new Label(Integer.valueOf(deadlineday.getDay()).toString()));
-							day.setValue(new Label("X"));
-						}
-					}
-				}
+				//Property<Label> day = item.getItemProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)));
+				Property<CheckBox> day = item.getItemProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)));
+				DeadlineDayCheckBox checkbox = new DeadlineDayCheckBox(deadline, i, periodselected, deadlinedays);			
+				day.setValue(checkbox);
 				c.add(Calendar.DATE, 1);
 			}
 		}
 	}
-
-
-	/**
-	 private String displayDay(int dayofweek) {
-	 
-		// TODO Auto-generated method stub
-		String day = "";
-		switch (dayofweek) {
-		case (1):
-			day = "Mon";
-		break;
-		case (2):
-			day = "Tue";
-		break;
-		case (3): 
-			day = "Wed";
-		break;
-		case (4):
-			day = "Thu";
-		break;
-		case (5):
-			day = "Fri";
-		break;
-		case (6):
-			day = "Sat";
-		break;
-		case (7):
-			day = "Sun";
-		break;
-		}
-		return day;
-	}
-	*/
-
-
 }

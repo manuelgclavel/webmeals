@@ -39,7 +39,7 @@ public class AdminMenuView extends NavigationView {
      
   
 	NavigationButton mealcount = 
-			new NavigationButton("Meal count", new MealCountSwipeView(Calendar.getInstance().getTime()));
+			new NavigationButton("Meal count", new MealCountSwipeView(true));
 	mealcount.setTargetViewCaption("Meal count");
 	
 	NavigationButton createusers =
@@ -81,7 +81,7 @@ public class AdminMenuView extends NavigationView {
 	layout.addComponent(editusers);
 	layout.addComponent(createguests);
 	layout.addComponent(editguests);
-	layout.addComponent(editmeals);
+	//layout.addComponent(editmeals);
 	layout.addComponent(contractsedit);
 	//layout.addComponent(checks);
 	

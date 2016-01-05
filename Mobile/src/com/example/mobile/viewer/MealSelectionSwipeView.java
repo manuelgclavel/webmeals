@@ -1,8 +1,11 @@
 package com.example.mobile.viewer;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
@@ -35,15 +38,18 @@ public class MealSelectionSwipeView extends NavigationManager
 	
   int pos = 0;
   Date dayselected;
+  String timezone;
   int diner;
   int type = 1;
  
 
-  public MealSelectionSwipeView(Date selected, int diner, int type) {
+  public MealSelectionSwipeView(int diner, int type) {
 	  // TODO Auto-generated constructor stub
 	  setCaption("Meal selection (by day)");
 	  //this.manager = getNavigationManager();
-	  this.dayselected= selected;
+	  timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
+	  Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+	  this.dayselected= c.getTime();
 	  this.diner = diner;
 	  this.type = type;
 	  //navigateTo(createView(+pos));
@@ -111,13 +117,16 @@ private Component createView(int currentpos) {
 		final Button next = new Button("next");
 		//final Button week = new Button("week");
 		
-
-		Calendar c = new GregorianCalendar();
+		Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 		c.setTime(dayselected);
 		c.add(Calendar.DATE, currentpos);
-		
 		dateshown.setValue(c.getTime());
-		dateshown.setDateFormat("EEE, MMM d, ''yy");
+		
+		SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd");
+		isoFormat.setTimeZone(TimeZone.getTimeZone(timezone));
+		dateshown.setDateFormat(isoFormat.format(c.getTime()));
+		
+		
 
 		layout.addComponent(dateshown);
 		
@@ -142,7 +151,7 @@ private Component createView(int currentpos) {
 		dateshown.addValueChangeListener(new ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				Calendar c = new GregorianCalendar();
+				Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 				c.setTime(((Date) event.getProperty().getValue()));
 				c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 
 						c.get(Calendar.DATE), 0, 0, 0);
@@ -181,7 +190,9 @@ private Component createView(int currentpos) {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				pos = 0;
-				dayselected = Calendar.getInstance().getTime();
+				Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+				dayselected= c.getTime();
+				
 				setCurrentComponent(createView(+pos));
 				setNextComponent(createView(pos+1));
 			    setPreviousComponent(createView(pos-1));

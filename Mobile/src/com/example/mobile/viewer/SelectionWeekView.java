@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
@@ -28,20 +29,21 @@ import com.vaadin.ui.VerticalLayout;
 @SuppressWarnings("serial")
 public class SelectionWeekView extends NavigationManager implements NavigationListener {
 	
-	
-	int pos = 0;
-	Calendar c = new GregorianCalendar();
-	int weekselected= c.get(Calendar.WEEK_OF_YEAR);
+	int weekselected = 0;
 	Date dayselected;
+	String timezone;
 
-	public SelectionWeekView(Date selected){
+	public SelectionWeekView(){
 		setCaption("Meal selection (by week)");
 		// Set up the initial views
-		this.dayselected = selected;
-		//navigateTo(createWeekView(+pos));
-		//
+
+		 timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
+		 Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+		 c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		 this.dayselected = c.getTime();
+		
 		navigateTo(createWeekView(weekselected));
-		setNextComponent(createWeekView(weekselected+1));
+		setNextComponent(createWeekView(weekselected+1)); 
 		setPreviousComponent(createWeekView(weekselected-1));
 		addNavigationListener((NavigationListener) this);
 		
@@ -71,16 +73,9 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 	     
 	      layout.addComponent(top);
 	      
-
-		/**  */
 		final Button prev = new Button("prev");
 		final Button next = new Button("next");
 		final Button now = new Button("today's week");
-		final Button today = new Button("today");
-		
-		Label weekshown =  new Label("Week: " + Integer.valueOf(currentpos).toString());
-		
-		layout.addComponent(weekshown);
 		
 		HorizontalButtonGroup buttons = new HorizontalButtonGroup();
 		
@@ -96,15 +91,17 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 		//layout.addComponent(new Label(Integer.valueOf(currentpos).toString()));
 		/** END */
 		
-		Calendar c = new GregorianCalendar();
-		c.set(Calendar.WEEK_OF_YEAR, currentpos);
-		//c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
-		c.set(Calendar.DAY_OF_WEEK, 2);
+		Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+		c.setTime(dayselected);
+		c.add(Calendar.DATE, currentpos * 7);
+		
 		
 		for (int i=1; i<=7; i++){ 
 			String thisdate = new SimpleDateFormat("EEE, MMM d, ''yy").format(c.getTime());
 			layout.addComponent(new Label("<b>" + thisdate + "</b>",ContentMode.HTML));
-			layout.addComponent(new SelectionDateView(c.getTime()));
+			layout.addComponent(new SelectionDateView(c.getTime(),
+					((MobileUI) UI.getCurrent()).getUser().getPk(),
+					1));
 			c.add(Calendar.DATE, +1);
 		}
 	
@@ -117,10 +114,6 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				navigateTo(getNextComponent());
-				//weekselected = weekselected+1;
-				//navigateTo(createWeekView(weekselected));
-				//setNextComponent(createWeekView(weekselected+1));
-			    //setPreviousComponent(createWeekView(weekselected-1));
 			}
 			
 		});
@@ -131,10 +124,6 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				navigateTo(getPreviousComponent());
-				//weekselected = weekselected-1;
-				//navigateTo(createWeekView(weekselected));
-				//setNextComponent(createWeekView(weekselected+1));
-			    //setPreviousComponent(createWeekView(weekselected-1));
 			}
 			
 		});
@@ -144,33 +133,18 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				pos = 0;
-				Calendar c = new GregorianCalendar();
+				weekselected = 0;
+				//timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
+				Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 				c.setTime(dayselected);
-				//c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
-				//dayselected = c.getTime();
-				weekselected= c.get(Calendar.WEEK_OF_YEAR);
 				
-				setCurrentComponent(createWeekView(+weekselected));
+				setCurrentComponent(createWeekView(weekselected));
 				setNextComponent(createWeekView(weekselected+1));
 			    setPreviousComponent(createWeekView(weekselected-1));
 			}
 			
 		});
-		
-		//today.addClickListener(new ClickListener(){
-
-		//	@Override
-		//	public void buttonClick(ClickEvent event) {
-				// TODO Auto-generated method stub
-				//Notification.show("HERE");
-				//navigateBack();
-				//navigateTo(new UserMenuView());
-				//setNextComponent(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
-				//navigateTo(new MealSelectionSwipeView(Calendar.getInstance().getTime()));
-		//	}
-			
-		//});
+	
 		view.setContent(layout);
 		return view;
 	}
@@ -185,22 +159,11 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 		         case FORWARD: {
 		        	 weekselected = weekselected+1;
 	                 setNextComponent(createWeekView(weekselected+1));
-		        	 //navigateTo(createWeekView(weekselected));
-		        	 //setNextComponent(createWeekView(weekselected+1));
-		        	 //setPreviousComponent(createWeekView(weekselected-1));
-		     
-		        	 		        	 
-		             
 		         }
 		             break;
 		         case BACK: {  
 		        	 weekselected = weekselected-1;
 		        	 setPreviousComponent(createWeekView(weekselected-1));
-		        	 //navigateTo(createWeekView(weekselected));
-		        	 //setNextComponent(createWeekView(weekselected+1));
-		        	 //setPreviousComponent(createWeekView(weekselected-1));
-		     
-		        	
 		       	 
 		         }}}
 }

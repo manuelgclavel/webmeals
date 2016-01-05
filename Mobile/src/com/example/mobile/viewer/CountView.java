@@ -28,7 +28,7 @@ public class CountView extends VerticalComponentGroup {
 	private BeanItemContainer<FoodRegime> regimenes = new BeanItemContainer<FoodRegime>(FoodRegime.class);
 	
 	
-	public CountView (Date selected){
+	public CountView (Date selected, boolean showusers){
 		ui.populateMeals(connectionPool, meals);
 		ui.populateMealOptions(connectionPool, mealoptions);
 		ui.populateFoodRegimes(connectionPool, regimenes);
@@ -49,7 +49,9 @@ public class CountView extends VerticalComponentGroup {
 						HorizontalLayout rowMealCount = new HorizontalLayout();
 						rowMealCount.setSpacing(true);
 						Button popup = new Button (mealoption.getInitial() + " : " + Integer.valueOf(optionCount).toString());	
-						popup.addClickListener(new UserPopupBehavior(selectedmealselections));		
+						if (showusers){
+							popup.addClickListener(new UserPopupBehavior(selectedmealselections));
+						}
 						rowMealCount.addComponent(popup);
 						
 						HorizontalLayout regimenesPanel = new HorizontalLayout();
@@ -64,7 +66,9 @@ public class CountView extends VerticalComponentGroup {
 								HorizontalLayout rowRegimeCount = new HorizontalLayout();
 								rowRegimeCount.setSpacing(true);
 								Button regimepopup = new Button ("#" + regime.getName() + " (" + Integer.valueOf(regimeCount).toString() + ")");
-								regimepopup.addClickListener(new UserPopupBehavior(selectedmealselections));	
+								if (showusers){
+									regimepopup.addClickListener(new UserPopupBehavior(selectedmealselections));	
+								}
 								regimenesPanel.addComponent(regimepopup);	
 							}
 						}
