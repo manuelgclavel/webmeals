@@ -183,7 +183,7 @@ public class MobileUI extends UI {
 	}
 	
 	public void populateRoles(BeanItemContainer<Role> roles){
-		roles.addItem(new Role(0));
+		roles.addItem(new Role(0)); 
 		roles.addItem(new Role(1));
 		roles.addItem(new Role(2));
 		roles.addItem(new Role(3));
@@ -209,6 +209,22 @@ public class MobileUI extends UI {
 			e.printStackTrace();
 		}
 	}
+	
+	public BeanItemContainer<User> selectResidents(BeanItemContainer<User> users){
+		BeanItemContainer<User> residents = new BeanItemContainer<User>(User.class);
+		User user;
+		for (Iterator<User> i = users.getItemIds().iterator(); i.hasNext();){
+			user = (User) i.next();
+			if (user.getRole() == 0){
+				residents.addItem(user);
+			}
+		}		
+		return residents;
+		
+	}
+	
+	
+	
 	
 	public void populateGuests(JDBCConnectionPool connectionPool, 
 			BeanItemContainer<Guest> guests){
@@ -298,27 +314,73 @@ public class MobileUI extends UI {
 							"ON MealSelection.ownedBy = Temp.pk");
 			ps.setDate(1, new java.sql.Date(dayselected.getTime()));
 			ResultSet result = ps.executeQuery();
-			//List<Integer> pks = new ArrayList<Integer>();
-			//for (Iterator<DailyMealSelection> i = dailymeals.getItemIds().iterator(); i.hasNext();) {
-			//	DailyMealSelection dailymeal = i.next();
-			//	pks.add(dailymeal.getPk());
-			//}
 			while (result.next()){
-				//if (pks.contains(result.getInt(1))){
-					mealselections.addItem(new MealSelectionPlus(result.getInt(1), result.getInt(2), 
+				mealselections.addItem(new MealSelectionPlus(result.getInt(1), result.getInt(2), 
 						result.getInt(3), result.getInt(4), result.getInt(5), result.getInt(6), result.getInt(7)));
-				//}
 			}
 			result.close();
 			ps.close();	
 			conn.close();
 			connectionPool.releaseConnection(conn);
-			//Notification.show(Integer.valueOf(guests.size()).toString());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+	public void populateMealSelectionsPlusPlus(JDBCConnectionPool connectionPool, 
+			BeanItemContainer<MealSelectionPlus> mealselections,
+			Date startselected, Date endselected){
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT MealSelection.pk, mealOption, foodRegime, meal, ownedBy, selectedBy, offeredTo  FROM MealSelection" + " " +
+							"INNER JOIN " + " " +
+							"(SELECT * from DailyMealSelection where Date(date) >= Date(?) and Date(date) <= Date(?)) AS Temp" + " " +
+							"ON MealSelection.ownedBy = Temp.pk");
+			ps.setDate(1, new java.sql.Date(startselected.getTime()));
+			ps.setDate(2, new java.sql.Date(endselected.getTime()));
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				mealselections.addItem(new MealSelectionPlus(result.getInt(1), result.getInt(2), 
+						result.getInt(3), result.getInt(4), result.getInt(5), result.getInt(6), result.getInt(7)));
+			}
+			result.close();
+			ps.close();	
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public BeanItemContainer<MealSelectionPlus> selectMealOption(BeanItemContainer<MealSelectionPlus> mealselections, MealOption mealoption){
+		BeanItemContainer<MealSelectionPlus> selectedBy = new BeanItemContainer<MealSelectionPlus>(MealSelectionPlus.class);
+		MealSelectionPlus mealselection;
+		for (Iterator<MealSelectionPlus> i = mealselections.getItemIds().iterator(); i.hasNext();){
+			mealselection = (MealSelectionPlus) i.next();
+			if (mealselection.getMealOption() == mealoption.getPk()){
+				selectedBy.addItem(mealselection);
+			}
+		}		
+		return selectedBy;
+	
+	}
+	
+	public BeanItemContainer<MealSelectionPlus> selectSelectedBy(BeanItemContainer<MealSelectionPlus> mealselections, User user){
+		BeanItemContainer<MealSelectionPlus> selectedBy = new BeanItemContainer<MealSelectionPlus>(MealSelectionPlus.class);
+		MealSelectionPlus mealselection;
+		for (Iterator<MealSelectionPlus> i = mealselections.getItemIds().iterator(); i.hasNext();){
+			mealselection = (MealSelectionPlus) i.next();
+			if (mealselection.getSelectedBy() == user.getPk()){
+				selectedBy.addItem(mealselection);
+			}
+		}		
+		return selectedBy;
+	
+	}
+	
 	
 	public void populateMeals(JDBCConnectionPool connectionPool, 
 			BeanItemContainer<Meal> meals){

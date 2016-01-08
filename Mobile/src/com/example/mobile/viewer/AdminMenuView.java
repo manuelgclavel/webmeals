@@ -67,6 +67,9 @@ public class AdminMenuView extends NavigationView {
 			new NavigationButton("Contracts", new ContractsEditView());
 	contractsedit.setTargetViewCaption("Contract");
 	
+	NavigationButton summaries =
+			new NavigationButton("Summaries", new SummariesView());
+	contractsedit.setTargetViewCaption("Summaries");
 	
 	/**
 	NavigationButton checks =
@@ -83,6 +86,7 @@ public class AdminMenuView extends NavigationView {
 	layout.addComponent(editguests);
 	//layout.addComponent(editmeals);
 	layout.addComponent(contractsedit);
+	layout.addComponent(summaries);
 	//layout.addComponent(checks);
 	
 	
