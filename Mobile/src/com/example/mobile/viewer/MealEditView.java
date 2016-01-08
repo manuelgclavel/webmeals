@@ -47,6 +47,12 @@ public class MealEditView extends NavigationView {
 	private IndexedContainer deadlinesinfo;
 	
 	private Residency periodselected;
+	
+	private Table mealsTable;
+	private Table mealoptionsTable;
+	private Table periodsTable;
+	
+	
 
 	public MealEditView(){
 		VerticalComponentGroup content = new VerticalComponentGroup();	
@@ -88,7 +94,7 @@ public class MealEditView extends NavigationView {
 
 		periodselected = null;
 
-		Table mealsTable = new Table("",meals);
+		mealsTable = new Table("",meals);
 		mealsTable.setSortContainerPropertyId("position");
 		mealsTable.setSortAscending(true);
 		//mealsTable.setSizeFull();
@@ -99,7 +105,7 @@ public class MealEditView extends NavigationView {
 
 
 
-		Table mealoptionsTable = new Table("",mealoptions);
+		mealoptionsTable = new Table("",mealoptions);
 		mealoptionsTable.setSortContainerPropertyId("position");
 		mealoptionsTable.setSortAscending(true);
 		//mealsTable.setSizeFull();
@@ -112,7 +118,7 @@ public class MealEditView extends NavigationView {
 		mealoptionsTable.setPageLength(mealoptionsTable.size());
 
 
-		Table periodsTable = new Table("",periods);
+		periodsTable = new Table("",periods);
 		periodsTable.setSortContainerPropertyId("start");
 		periodsTable.setSortAscending(true);
 		//mealsTable.setSizeFull();
@@ -153,15 +159,18 @@ public class MealEditView extends NavigationView {
 			public void itemClick(ItemClickEvent event) {
 				// TODO Auto-generated method stub
 				mealoptions.removeAllContainerFilters();
-				Meal mealselected = (Meal) event.getItemId();
-				Filter filterbyMeal = 
-						//new Compare.Equal("ownedBy", Integer.valueOf(mealselected.getPk()).toString());
-						new Compare.Equal("ownedBy", mealselected.getPk());
-				mealoptions.addContainerFilter(filterbyMeal);
 				periods.addContainerFilter(noneFilter);
 				filterdeadlines.removeAllItems();
 				deadlinesinfo.removeAllItems();
-
+				if (!(mealsTable.isSelected(event.getItemId()))){
+					Filter filterbyMeal = 
+							new Compare.Equal("ownedBy", ((Meal) event.getItemId()).getPk());
+					mealoptions.addContainerFilter(filterbyMeal);
+					
+				} else {
+					mealoptions.addContainerFilter(noneFilter);
+				}
+				
 			}});
 
 		mealoptionsTable.addItemClickListener(new ItemClickListener(){
@@ -169,13 +178,19 @@ public class MealEditView extends NavigationView {
 			@Override
 			public void itemClick(ItemClickEvent event) {
 				// TODO Auto-generated method stub
+				//periods.removeAllItems();
 				periods.removeAllContainerFilters();
-				MealOption mealoptionselected = (MealOption) event.getItemId();
-				Filter filterbyMealOption = 
-						new Compare.Equal("ownedByOption", mealoptionselected.getPk());
-				periods.addContainerFilter(filterbyMealOption);		
 				filterdeadlines.removeAllItems();
 				deadlinesinfo.removeAllItems();
+				if (!(mealoptionsTable.isSelected(event.getItemId()))){
+					Filter filterbyMealOption = 
+							new Compare.Equal("ownedByOption", ((MealOption) event.getItemId()).getPk());
+					periods.addContainerFilter(filterbyMealOption);		
+				} else{
+					periods.addContainerFilter(noneFilter);
+				}
+					
+				
 
 			}});
 
@@ -187,7 +202,9 @@ public class MealEditView extends NavigationView {
 				mealoptionperiods.removeAllContainerFilters();
 				filterdeadlines.removeAllItems();
 				deadlinesinfo.removeAllItems();
-				refreshDeadlinesInfo((Residency) event.getItemId());
+				if (!(periodsTable.isSelected(event.getItemId()))){
+					refreshDeadlinesInfo((Residency) event.getItemId());
+				}
 
 			}});
 

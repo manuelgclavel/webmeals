@@ -39,7 +39,7 @@ import com.vaadin.ui.UI;
 	
 	public LoginView(){
 		
-		setCaption("Lugano's Meal Count");
+		setCaption("Ravenahl´s Meal Count");
 		
 		VerticalComponentGroup content = new VerticalComponentGroup();
 		setWidth("100%");

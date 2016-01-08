@@ -84,7 +84,7 @@ public class AdminMenuView extends NavigationView {
 	layout.addComponent(editusers);
 	layout.addComponent(createguests);
 	layout.addComponent(editguests);
-	//layout.addComponent(editmeals);
+	layout.addComponent(editmeals);
 	layout.addComponent(contractsedit);
 	layout.addComponent(summaries);
 	//layout.addComponent(checks);

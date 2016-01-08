@@ -27,21 +27,20 @@ public class DeadlineDayCheckBox extends CheckBox {
 		
 	public DeadlineDayCheckBox  (
 		final MealOptionDeadline deadline, final int day, Residency period,
-		BeanItemContainer<DeadlineDay> deadlinedays){
+		final BeanItemContainer<DeadlineDay> deadlinedays){
+		this.deadlinedays = deadlinedays;
 		
-		//this.deadlinedays = deadlinedays;
-		setValue(true);
-		//HERE!!!
-		//setValue(deadlinemealoptiondayisincluded(deadline, day));
+		setValue(deadlinemealoptiondayisincluded(deadline, day));
 	
+	}
 	
-	addValueChangeListener(new ValueChangeListener(){
+	//addValueChangeListener(new ValueChangeListener(){
 
-		@Override
-		public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
+		//@Override
+		//public void valueChange(com.vaadin.data.Property.ValueChangeEvent event) {
 			// TODO Auto-generated method stub
-			syncronize();
-			boolean chosen = (boolean) event.getProperty().getValue();
+			//syncronize();
+			//boolean chosen = (boolean) event.getProperty().getValue();
 			//int status = deadlinemealoptiondayisincluded(deadline, day);
 			
 			/**
@@ -87,9 +86,9 @@ public class DeadlineDayCheckBox extends CheckBox {
 			}
 			*/
 
-		} });
+		//} });
 		
-}
+//}
 
 
 
@@ -102,7 +101,6 @@ private Boolean deadlinemealoptiondayisincluded(MealOptionDeadline deadline, int
 		deadlineday = (DeadlineDay) j.next();
 		if (deadlineday.getDeadline() == deadline.getPk()){
 			if (deadlineday.getDay() == day){
-				//day.setValue(new Label(Integer.valueOf(deadlineday.getDay()).toString()));
 				included = true;
 				break;
 			}
