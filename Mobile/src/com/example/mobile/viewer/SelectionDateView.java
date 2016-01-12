@@ -11,8 +11,11 @@ import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.DailyMealSelection;
+import com.example.mobile.data.DeadlineDay;
 import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
+import com.example.mobile.data.MealOptionDeadline;
+import com.example.mobile.data.Residency;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -31,6 +34,10 @@ import com.vaadin.ui.UI;
 public class SelectionDateView extends VerticalComponentGroup {
 	final private MobileUI mobile;
 	final private JDBCConnectionPool connectionPool;
+	private BeanItemContainer<Residency> periods ;
+	private BeanItemContainer<MealOptionDeadline> mealoptiondeadlines ;
+	private BeanItemContainer<DeadlineDay> deadlinedays ;
+	
 	
 	
 	
@@ -39,6 +46,7 @@ public class SelectionDateView extends VerticalComponentGroup {
 		// TODO Auto-generated constructor stub
 		this.mobile = ((MobileUI) UI.getCurrent());
 		this.connectionPool = mobile.getConnectionPool();
+		
 		
 		PreparedStatement ps;
 		ResultSet result;
@@ -135,14 +143,22 @@ public class SelectionDateView extends VerticalComponentGroup {
 
 
 				/** Create a combobox for this meal */
+				periods = new BeanItemContainer<Residency>(Residency.class);
+				mobile.populateResidency(connectionPool, periods);
+				
+				mealoptiondeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
+				mobile.populateMealOptionDeadlines(connectionPool, mealoptiondeadlines);
+				
+				deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
+				mobile.populateDeadlineDays(connectionPool, deadlinedays);
+				
+				
 				for (Iterator<Meal> j = meals.getItemIds().iterator(); j.hasNext();) {
 					//Notification.show("HERE");
 					Meal meal = j.next();
-					//ComboBox options = new MealOptionComboBox(meal, dayselected, mobile.getUser(), dailymealselection, connectionPool);
-					//NativeSelect options = new MealOptionComboBox(meal, dayselected, dailymealselection);
-					NativeSelect options = new MealOptionComboBox(meal, regime, date, dailymealselection);	
+					NativeSelect options = 
+							new MealOptionComboBox(meal, regime, date, dailymealselection, periods, mealoptiondeadlines, deadlinedays);	
 					addComponent(options);
-					//combogroup.addComponent(new Label(meal.getLiteral()));
 				}
 
 			

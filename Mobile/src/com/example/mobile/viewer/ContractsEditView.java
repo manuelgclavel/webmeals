@@ -102,14 +102,10 @@ public class ContractsEditView extends NavigationView {
 		Table contractmealoptionsTable = new Table("", contractmealoptions);
 		/** */
 		contractmealoptionsTable.setPageLength(contractmealoptionsTable.size());
-		Calendar h = Calendar.getInstance(TimeZone.getTimeZone(timezone));
-		int myfirstdayofweek = h.getFirstDayOfWeek();
-		h.set(Calendar.DAY_OF_WEEK, myfirstdayofweek);
 		contractmealoptionsTable.addContainerProperty("Meal", Label.class, null);
 		contractmealoptionsTable.addContainerProperty("Meal option", Label.class, null);
 		for (int i = 0; i <= 6; i++){
-			contractmealoptionsTable.addContainerProperty(ui.displayDay(h.get(Calendar.DAY_OF_WEEK)), CheckBox.class, null);
-			h.add(Calendar.DATE, 1);
+			contractmealoptionsTable.addContainerProperty(ui.displayDay(i), CheckBox.class, null);
 		}
 		
 		contractsTable.addItemClickListener(new ItemClickListener(){
@@ -148,18 +144,12 @@ public class ContractsEditView extends NavigationView {
 			mealproperty.setValue(new Label(meal.getLiteral()));
 			mealoptionproperty.setValue(new Label(mealoption.getInitial()));
 			
-			Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
-			int firstdayofweek = c.getFirstDayOfWeek();
-			c.set(Calendar.DAY_OF_WEEK, firstdayofweek);
-
-			
 			for (int i = 0; i <= 6; i++){
-				Property<CheckBox> day = item.getItemProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)));
+				Property<CheckBox> day = item.getItemProperty(ui.displayDay(i));
 				ContractOptionDayCheckBox checkbox = new ContractOptionDayCheckBox(mealoption,selected,i,
 						contractoptions, contractoptiondays
 						);				
 				day.setValue(checkbox);
-				c.add(Calendar.DATE, 1);
 			}
 		}
 	}

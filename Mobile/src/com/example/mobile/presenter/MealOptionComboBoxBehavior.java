@@ -13,22 +13,24 @@ import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.DailyMealSelection;
+import com.example.mobile.data.DeadlineDay;
 import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealOptionDeadline;
 import com.example.mobile.data.MealSelection;
+import com.example.mobile.data.Residency;
 import com.example.mobile.data.User;
 import com.example.mobile.viewer.MealOptionComboBox;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
 public class MealOptionComboBoxBehavior implements ValueChangeListener {
-
 	final private JDBCConnectionPool connectionPool = ((MobileUI) UI.getCurrent()).getConnectionPool();
 	final private User curUser = ((MobileUI) UI.getCurrent()).getUser();
 	final private java.util.Date dayselected;
@@ -44,7 +46,8 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	public MealOptionComboBoxBehavior(Date dayselected, 
 			DailyMealSelection dailymealselection, 
 			FoodRegime regime,
-			Meal mealselected, MealOptionComboBox combobox){
+			Meal mealselected, 
+			MealOptionComboBox combobox){
 
 		this.dayselected = dayselected;
 		this.mealselected = mealselected;
@@ -120,13 +123,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 				proceed = !(curMealOption.getPk() == selMealOption.getPk());
 			}
 
-			/*
-			if (curMealOption == null){
-				Notification.show("null");
-			} else {
-				Notification.show(curMealOption.getInitial());
-			}
-			*/
+			
 
 			if (proceed){
 
@@ -148,6 +145,12 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 				 */
 				MealOptionDeadline curOptionDeadline = null;
 				if (!(curMealOption == null)){
+					curOptionDeadline = combobox.ui.selectMealOptionDeadlineByDay(combobox.deadlinedays, combobox.dayselected,
+							combobox.ui.selectMealOptionDeadlineByPeriod(combobox.mealoptiondeadlines, 
+									combobox.ui.selectPeriodsByDateAndMealOption(combobox.periods, combobox.dayselected, curMealOption)));
+
+					
+					/**
 					ps = conn.prepareStatement("select count(*), pk, cday, chour, cminute, literal, ownedBy from MealOptionDeadline where pk in" + " " +
 							"(select entity from MealOptionDeadline_days" + " " +
 							"where elements = WEEKDAY(Date(?)) and entity in (" + " " +
@@ -170,12 +173,19 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 					}
 					result.close();
 					ps.close();
+					**/
+					
 				}
 				/**
 				 * Get the deadline for the given meal option and day of the week
 				 */
 				MealOptionDeadline selOptionDeadline = null;
 				if (!(selMealOption == null)){
+					selOptionDeadline = combobox.ui.selectMealOptionDeadlineByDay(combobox.deadlinedays, combobox.dayselected,
+							combobox.ui.selectMealOptionDeadlineByPeriod(combobox.mealoptiondeadlines, 
+									combobox.ui.selectPeriodsByDateAndMealOption(combobox.periods, combobox.dayselected, selMealOption)));
+
+					/**
 					ps = conn.prepareStatement("select count(*), pk, cday, chour, cminute, literal, ownedBy from MealOptionDeadline where pk in" + " " +
 							"(select entity from MealOptionDeadline_days" + " " +
 							"where elements = WEEKDAY(Date(?)) and entity in (" + " " +
@@ -198,8 +208,11 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 								result.getInt(4), result.getInt(5), result.getString(6), result.getInt(7));
 					}
 					result.close();
-					ps.close();			
+					ps.close();
+					**/
+					
 				}
+				
 
 				if (checkDeadlines(curOptionDeadline, selOptionDeadline)){
 
@@ -273,7 +286,6 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 						isoFormat.format(current.getTime()));	
 				}
 
-				//connectionPool.releaseConnection(conn);
 
 			} 
 		}
@@ -294,12 +306,11 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 		Calendar selDeadline = null;
 		Boolean check = false;
 
-
 		if (!(curOption == null)){
 			curDeadline = Calendar.getInstance(TimeZone.getTimeZone(timezone));	
-			curDeadline.setTimeInMillis(dayselected.getTime());
+			curDeadline.setTime(dayselected);
 			curDeadline.set(curDeadline.get(Calendar.YEAR), 
-					curDeadline.get(Calendar.MONDAY), 
+					curDeadline.get(Calendar.MONTH), 
 					curDeadline.get(Calendar.DAY_OF_MONTH), 
 					0, 0, 0);
 			curDeadline.add(Calendar.MILLISECOND, - curDeadline.get(Calendar.MILLISECOND));
@@ -310,9 +321,9 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 
 		if (!(selOption == null)){
 			selDeadline = Calendar.getInstance(TimeZone.getTimeZone(timezone));	
-			selDeadline.setTimeInMillis(dayselected.getTime());
+			selDeadline.setTime(dayselected);
 			selDeadline.set(selDeadline.get(Calendar.YEAR), 
-					selDeadline.get(Calendar.MONDAY), 
+					selDeadline.get(Calendar.MONTH), 
 					selDeadline.get(Calendar.DAY_OF_MONTH), 
 					0, 0, 0);
 			selDeadline.add(Calendar.MILLISECOND, - selDeadline.get(Calendar.MILLISECOND));
@@ -322,12 +333,31 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 		}
 
 		if ((curOption == null) & (selOption == null)) {
-			check = true; }
+			if (!(curMealOption ==  null) || !(selMealOption == null)){
+				// one of the two has no deadline rule assigned
+				check = false;
+			} else {
+				// no change
+				check = true; 
+			}
+		}
 		else if ((curOption == null) & !(selOption == null)){
-			check = current.before(selDeadline); 
+			if (!(curMealOption == null)){
+				// curMealOption has no deadline rule assigned
+				check = false;
+			} else {
+				// curMealOption was not assigned yet
+				check = current.before(selDeadline); 
+			}
 		}
 		else if (!(curOption == null) & (selOption == null)) {
-			check = current.before(curDeadline);
+			if (!(selMealOption == null)){
+				// selMealOption has no deadline rule assigned
+				check = false;
+			} else {
+				// selMealOption was not assigned yet
+				check = current.before(curDeadline);
+			} 
 		}
 		else if (!(curOption == null) & !(selOption == null)) {
 			check = current.before(curDeadline) & current.before(selDeadline);

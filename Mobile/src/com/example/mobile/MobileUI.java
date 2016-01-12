@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Calendar;
+
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
@@ -796,6 +798,58 @@ public class MobileUI extends UI {
 		
 	}
 	
+	public void insertMealOptionDeadline(Residency selected) {
+		// TODO Auto-generated method stub
+		PreparedStatement ps;
+		Connection conn;
+		try {
+			conn= connectionPool.reserveConnection();
+			
+			ps = conn.prepareStatement("INSERT MealOptionDeadline (cday,cminute,chour,ownedBy)" + " " +
+					"VALUES (0,0,0,?)");
+			ps.setInt(1, selected.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	
+	public void insertMealOptionDeadlineDay(MealOptionDeadline deadline, int day) {
+		// TODO Auto-generated method stub
+		PreparedStatement ps;
+		Connection conn;
+		try {
+			conn= connectionPool.reserveConnection();
+			
+			ps = conn.prepareStatement("INSERT MealOptionDeadline_days (entity, elements)" + " " +
+					"VALUES (?,?)");
+			ps.setInt(1, deadline.getPk());
+			ps.setInt(2,  day);
+			ps.executeUpdate();
+			conn.commit();
+			
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+
+	
 	public void deleteContractMealOptionOnlyDay(Contract selected, ContractOption contractoption, int day){
 		PreparedStatement ps;
 		Connection conn;
@@ -821,37 +875,141 @@ public class MobileUI extends UI {
 		
 	}
 	
+
+	public void deleteMealOptionDeadline(MealOptionDeadline mealoptiondeadline) {
+		// TODO Auto-generated method stub
+		PreparedStatement ps;
+		Connection conn;
+		try {
+			conn= connectionPool.reserveConnection();
+			
+			ps = conn.prepareStatement("DELETE FROM MealOptionDeadline_days" + " " +
+					"WHERE entity = ?");
+			ps.setInt(1, mealoptiondeadline.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			
+			ps = conn.prepareStatement("DELETE FROM MealOptionDeadline" + " " +
+					"WHERE pk = ?");
+			ps.setInt(1, mealoptiondeadline.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+
+
+	public void deleteMealOptionDeadlineDay(MealOptionDeadline deadline, int day) {
+		// TODO Auto-generated method stub
+		PreparedStatement ps;
+		Connection conn;
+		try {
+			conn= connectionPool.reserveConnection();
+			
+			ps = conn.prepareStatement("DELETE FROM MealOptionDeadline_days" + " " +
+					"WHERE entity = ? and elements = ?");
+			ps.setInt(1, deadline.getPk());
+			ps.setInt(2,  day);
+			ps.executeUpdate();
+			conn.commit();
+			
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+
+	public void deleteMealOptionDeadlineDay(BeanItemContainer<MealOptionDeadline> filterdeadlines, int day) {
+		// TODO Auto-generated method stub
+		MealOptionDeadline mealoptiondeadline;
+		for (Iterator<MealOptionDeadline> i = filterdeadlines.getItemIds().iterator(); i.hasNext();){
+			mealoptiondeadline = (MealOptionDeadline) i.next();
+			deleteMealOptionDeadlineDay(mealoptiondeadline, day);
+		}
+	}
+
 	
 	
-	public String displayDay(int dayofweek) {
+	
+	
+	public String displayDay(int i) {
 		// TODO Auto-generated method stub
 		String day = "";
-		switch (dayofweek) {
-		case (1):
+		switch (i) {
+		case (0):
 			day = "Mon";
 		break;
-		case (2):
+		case (1):
 			day = "Tue";
 		break;
-		case (3): 
+		case (2): 
 			day = "Wed";
 		break;
-		case (4):
+		case (3):
 			day = "Thu";
 		break;
-		case (5):
+		case (4):
 			day = "Fri";
 		break;
-		case (6):
+		case (5):
 			day = "Sat";
 		break;
-		case (7):
+		case (6):
 			day = "Sun";
 		break;
 		}
 		return day;
 	}
 
+
+	public Integer getDayOfWeek(Date date) {
+		// TODO Auto-generated method stub
+		Integer day = null;
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		
+		switch (c.get(Calendar.DAY_OF_WEEK)) {	
+		case (Calendar.MONDAY):
+			day = 0;
+		break;
+		case (Calendar.TUESDAY): 
+			day = 1;
+		break;
+		case (Calendar.WEDNESDAY):
+			day = 2;
+		break;
+		case (Calendar.THURSDAY):
+			day = 3;
+		break;
+		case (Calendar.FRIDAY):
+			day = 4;
+		break;
+		case (Calendar.SATURDAY):
+			day = 5;
+		break;
+		case (Calendar.SUNDAY):
+			day = 6;
+		break;
+		}
+		return day;
+	}
+
+	
 	
 
 	public boolean existsLogin(BeanItemContainer<User> users, String login){
@@ -909,5 +1067,127 @@ public class MobileUI extends UI {
 		return check;
 	}
 
+
+	public Residency selectPeriodsByDateAndMealOption(BeanItemContainer<Residency> periods, Date date, MealOption mealoption) {
+		// TODO Auto-generated method stub
+		Residency selectedBy = null;
+		Residency period;
+		for (Iterator<Residency> i = periods.getItemIds().iterator(); i.hasNext();){
+			period = (Residency) i.next();
+			if (period.getOwnedByOption() == mealoption.getPk()){
+				if (period.getStart().before(date) && period.getEnd().after(date)){
+				selectedBy = period;
+				break;
+			}
+			}
+		}		
+		return selectedBy;
+	}
+
+
+	public BeanItemContainer<MealOptionDeadline> selectMealOptionDeadlineByPeriod(BeanItemContainer<MealOptionDeadline> mealoptiondeadlines,
+			Residency period) {
+		BeanItemContainer<MealOptionDeadline> selectedBy = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
+		if (!(period == null)){
+			MealOptionDeadline mealoptiondeadline;
+			for (Iterator<MealOptionDeadline> i = mealoptiondeadlines.getItemIds().iterator(); i.hasNext();){
+				mealoptiondeadline = (MealOptionDeadline) i.next();
+				if (mealoptiondeadline.getOwnedBy() == period.getPk()){
+					selectedBy.addItem(mealoptiondeadline);
+				}
+			}
+		}
+		return selectedBy;
+		
+		
+	}
+
+
+	public MealOptionDeadline selectMealOptionDeadlineByDay(BeanItemContainer<DeadlineDay> deadlinedays, Date date,
+			BeanItemContainer<MealOptionDeadline> mealoptiondeadlines) {
+		MealOptionDeadline selectedBy = null;
+		MealOptionDeadline mealoptiondeadline;
+		DeadlineDay deadlineday;
+		for (Iterator<MealOptionDeadline> i = mealoptiondeadlines.getItemIds().iterator(); i.hasNext();){
+			mealoptiondeadline = (MealOptionDeadline) i.next();
+			for (Iterator<DeadlineDay> j = deadlinedays.getItemIds().iterator(); j.hasNext();){
+				deadlineday = (DeadlineDay) j.next();
+				if (deadlineday.getDeadline() == mealoptiondeadline.getPk()
+						&& deadlineday.getDay() == getDayOfWeek(date)){
+					selectedBy = mealoptiondeadline;
+					break;
+					}
+			}
+		}
+		
+		return selectedBy;
+		
+		
+	}
+
+
+	public void updateMealOptionDeadlineMinutes(JDBCConnectionPool connectionPool, MealOptionDeadline mealoptiondeadline, 
+			Integer minutes) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn= connectionPool.reserveConnection();
+			PreparedStatement ps = conn.prepareStatement("UPDATE MealOptionDeadline SET cminute=? where pk =?");
+			ps.setInt(1, minutes);
+			ps.setInt(2, mealoptiondeadline.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
+	public void updateMealOptionDeadlineDays(JDBCConnectionPool connectionPool, MealOptionDeadline mealoptiondeadline,
+			Integer days) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn= connectionPool.reserveConnection();
+			PreparedStatement ps = conn.prepareStatement("UPDATE MealOptionDeadline SET cday=? where pk =?");
+			ps.setInt(1, days);
+			ps.setInt(2, mealoptiondeadline.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
+	public void updateMealOptionDeadlineHours(JDBCConnectionPool connectionPool, MealOptionDeadline mealoptiondeadline,
+			Integer hours) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn= connectionPool.reserveConnection();
+			PreparedStatement ps = conn.prepareStatement("UPDATE MealOptionDeadline SET chour=? where pk =?");
+			ps.setInt(1, hours);
+			ps.setInt(2, mealoptiondeadline.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+
+
+
 }

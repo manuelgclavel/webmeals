@@ -11,6 +11,7 @@ import com.example.mobile.data.MealOptionDeadline;
 import com.example.mobile.data.MealOptionResidency;
 import com.example.mobile.data.Residency;
 import com.example.mobile.presenter.ExitBehavior;
+import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.Container.Filter;
@@ -28,6 +29,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 
@@ -40,17 +42,14 @@ public class MealEditView extends NavigationView {
 	private BeanItemContainer<Meal> meals;
 	private BeanItemContainer<MealOption> mealoptions;
 	private BeanItemContainer<Residency> periods; 
-	private BeanItemContainer<MealOptionResidency> mealoptionperiods;
 	private BeanItemContainer<MealOptionDeadline> mealoptiondeadlines; 
 	private BeanItemContainer<MealOptionDeadline> filterdeadlines; 
-	private BeanItemContainer<DeadlineDay> deadlinedays;
 	private IndexedContainer deadlinesinfo;
-	
-	private Residency periodselected;
 	
 	private Table mealsTable;
 	private Table mealoptionsTable;
 	private Table periodsTable;
+	private Table deadlinesTable;
 	
 	
 
@@ -77,28 +76,18 @@ public class MealEditView extends NavigationView {
 
 		mealoptions = new BeanItemContainer<MealOption>(MealOption.class);
 		ui.populateMealOptions(connectionPool, mealoptions);
+		
+		mealoptiondeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
 
 		periods = new BeanItemContainer<Residency>(Residency.class);
 		ui.populateResidency(connectionPool, periods);
-
-		mealoptionperiods = new BeanItemContainer<MealOptionResidency>(MealOptionResidency.class);
-		ui.populateMealOptionResidency(connectionPool, mealoptionperiods);
-
-		mealoptiondeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
-		ui.populateMealOptionDeadlines(connectionPool, mealoptiondeadlines);
-
+	
 		filterdeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
 
-		deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
-		ui.populateDeadlineDays(connectionPool, deadlinedays);
-
-		periodselected = null;
-
+		
 		mealsTable = new Table("",meals);
 		mealsTable.setSortContainerPropertyId("position");
 		mealsTable.setSortAscending(true);
-		//mealsTable.setSizeFull();
-		//mealsTable.setImmediate(true);
 		mealsTable.setSelectable(true);
 		mealsTable.setVisibleColumns(new Object[] {"literal"});
 		mealsTable.setPageLength(mealsTable.size());
@@ -108,8 +97,6 @@ public class MealEditView extends NavigationView {
 		mealoptionsTable = new Table("",mealoptions);
 		mealoptionsTable.setSortContainerPropertyId("position");
 		mealoptionsTable.setSortAscending(true);
-		//mealsTable.setSizeFull();
-		//mealoptionsTable.setImmediate(true);
 		mealoptionsTable.setSelectable(true);
 		mealoptionsTable.setVisibleColumns(new Object[] {"initial", "literal"});
 		final Filter noneFilter = 
@@ -121,8 +108,6 @@ public class MealEditView extends NavigationView {
 		periodsTable = new Table("",periods);
 		periodsTable.setSortContainerPropertyId("start");
 		periodsTable.setSortAscending(true);
-		//mealsTable.setSizeFull();
-		//periodsTable.setImmediate(true);
 		periodsTable.setSelectable(true);
 		periodsTable.setVisibleColumns(new Object[] {"start", "end"});
 		periods.addContainerFilter(noneFilter);
@@ -133,23 +118,71 @@ public class MealEditView extends NavigationView {
 		content.addComponent(mealoptionsTable);
 		content.addComponent(periodsTable);
 
-		/** */
-		deadlinesinfo = new IndexedContainer();
-		Table mydeadlinesTable = new Table("", deadlinesinfo);
-		mydeadlinesTable.setPageLength(deadlinesinfo.size());
-		Calendar h = Calendar.getInstance();
-		int myfirstdayofweek = h.getFirstDayOfWeek();
-		h.set(Calendar.DAY_OF_WEEK, myfirstdayofweek);
-		for (int i = 0; i <= 6; i++){
-			mydeadlinesTable.addContainerProperty(ui.displayDay(h.get(Calendar.DAY_OF_WEEK)), CheckBox.class, null);
-			h.add(Calendar.DATE, 1);
-		}
-		mydeadlinesTable.addContainerProperty("-Days", Label.class, null);
-		mydeadlinesTable.addContainerProperty("+Hour", Label.class, null);
-		mydeadlinesTable.addContainerProperty("+Min", Label.class, null);
 
-		content.addComponent(mydeadlinesTable);
-		/** */
+		deadlinesinfo = new IndexedContainer();
+		deadlinesTable = new Table("", deadlinesinfo);
+		deadlinesTable.setSelectable(true);
+		deadlinesTable.setPageLength(deadlinesinfo.size());
+		for (int i = 0; i <= 6; i++){
+			deadlinesTable.addContainerProperty(ui.displayDay(i), CheckBox.class, null);
+		}
+		deadlinesTable.addContainerProperty("MealOptionDeadline", MealOptionDeadline.class, null);
+		deadlinesTable.addContainerProperty("-Days", DayView.class, null);
+		deadlinesTable.addContainerProperty("Hour", HourView.class, null);
+		deadlinesTable.addContainerProperty("Min", MinuteView.class, null);
+		
+		Object[] visiblecolumns = new Object[10];
+		for (int i = 0; i <= 6; i++){
+			visiblecolumns[i] = ui.displayDay(i);
+		}
+		visiblecolumns[7] = "-Days";
+		visiblecolumns[8] = "Hour";
+		visiblecolumns[9] = "Min";
+		deadlinesTable.setVisibleColumns(visiblecolumns);
+		content.addComponent(deadlinesTable);
+		
+		HorizontalButtonGroup rulebuttons = new HorizontalButtonGroup();
+		Button addrule = new Button("Add");
+		Button deleterule = new Button("Delete");
+		rulebuttons.addComponent(addrule);
+		rulebuttons.addComponent(deleterule);
+		
+		addrule.addClickListener(new ClickListener(){
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO Auto-generated method stub
+				Residency selected = (Residency) periodsTable.getValue();
+				if (!(selected == null)){
+					ui.insertMealOptionDeadline(selected);
+					refreshDeadlinesInfo((Residency) selected);
+					
+				} else {
+					Notification.show("Please, select first a period.");
+				}
+			}});
+		
+		deleterule.addClickListener(new ClickListener(){
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// TODO Auto-generated method stub
+				Residency periodselected = (Residency) periodsTable.getValue();
+				if (!(periodselected == null)){
+					Integer selected = (Integer) deadlinesTable.getValue();
+					MealOptionDeadline mealoptiondeadline;
+					if (!(selected == null)){
+						mealoptiondeadline = ((MealOptionDeadline) deadlinesTable.getItem(selected).getItemProperty("MealOptionDeadline").getValue());
+						ui.deleteMealOptionDeadline(mealoptiondeadline);
+						refreshDeadlinesInfo((Residency) periodselected);
+					} else {
+						Notification.show("Please, select first a rule.");
+					}
+				} else {
+					Notification.show("Please, select first a period.");
+				}
+			}});
+		
+		content.addComponent(rulebuttons);
 
 
 
@@ -159,16 +192,22 @@ public class MealEditView extends NavigationView {
 			public void itemClick(ItemClickEvent event) {
 				// TODO Auto-generated method stub
 				mealoptions.removeAllContainerFilters();
-				periods.addContainerFilter(noneFilter);
+				periods.removeAllContainerFilters();
 				filterdeadlines.removeAllItems();
 				deadlinesinfo.removeAllItems();
 				if (!(mealsTable.isSelected(event.getItemId()))){
 					Filter filterbyMeal = 
 							new Compare.Equal("ownedBy", ((Meal) event.getItemId()).getPk());
 					mealoptions.addContainerFilter(filterbyMeal);
+					mealoptionsTable.select(null);
+					periods.addContainerFilter(noneFilter);
+					periodsTable.select(null);
 					
 				} else {
 					mealoptions.addContainerFilter(noneFilter);
+					mealoptionsTable.select(null);
+					periods.addContainerFilter(noneFilter);
+					periodsTable.select(null);
 				}
 				
 			}});
@@ -178,16 +217,18 @@ public class MealEditView extends NavigationView {
 			@Override
 			public void itemClick(ItemClickEvent event) {
 				// TODO Auto-generated method stub
-				//periods.removeAllItems();
 				periods.removeAllContainerFilters();
 				filterdeadlines.removeAllItems();
 				deadlinesinfo.removeAllItems();
 				if (!(mealoptionsTable.isSelected(event.getItemId()))){
 					Filter filterbyMealOption = 
 							new Compare.Equal("ownedByOption", ((MealOption) event.getItemId()).getPk());
-					periods.addContainerFilter(filterbyMealOption);		
+					periods.addContainerFilter(filterbyMealOption);
+					
 				} else{
 					periods.addContainerFilter(noneFilter);
+					periodsTable.select(null);
+					
 				}
 					
 				
@@ -199,11 +240,12 @@ public class MealEditView extends NavigationView {
 			@Override
 			public void itemClick(ItemClickEvent event) {
 				// TODO Auto-generated method stub
-				mealoptionperiods.removeAllContainerFilters();
-				filterdeadlines.removeAllItems();
-				deadlinesinfo.removeAllItems();
+				//mealoptionperiods.removeAllContainerFilters();
 				if (!(periodsTable.isSelected(event.getItemId()))){
 					refreshDeadlinesInfo((Residency) event.getItemId());
+				} else {
+					filterdeadlines.removeAllItems();
+					deadlinesinfo.removeAllItems();
 				}
 
 			}});
@@ -218,6 +260,10 @@ public class MealEditView extends NavigationView {
 	protected void refreshDeadlinesInfo(Residency periodselected) {
 		// TODO Auto-generated method stub
 		MealOptionDeadline deadline;
+		mealoptiondeadlines.removeAllItems();
+		ui.populateMealOptionDeadlines(connectionPool, mealoptiondeadlines);
+		filterdeadlines.removeAllItems();
+		deadlinesinfo.removeAllItems();
 		for (Iterator<MealOptionDeadline> i = mealoptiondeadlines.getItemIds().iterator(); i.hasNext();){
 			deadline =  i.next();
 			if (deadline.getOwnedBy() == periodselected.getPk()){
@@ -235,14 +281,16 @@ public class MealEditView extends NavigationView {
 			Item item = deadlinesinfo.getItem(itemId);
 
 			// Access a property in the item
-			Property<Label> cdays = item.getItemProperty("-Days");
-			Property<Label> chour = item.getItemProperty("+Hour");
-			Property<Label> cmin = item.getItemProperty("+Min");
+			Property<MealOptionDeadline> mealoptiondeadline = item.getItemProperty("MealOptionDeadline");
+			Property<DayView> cdays = item.getItemProperty("-Days");
+			Property<HourView> chour = item.getItemProperty("Hour");
+			Property<MinuteView> cmin = item.getItemProperty("Min");
 
 			// Do something with the property
-			cdays.setValue(new Label(Integer.valueOf(deadline.getCday()).toString()));
-			chour.setValue(new Label(Integer.valueOf(deadline.getChour()).toString()));
-			cmin.setValue(new Label(Integer.valueOf(deadline.getCminute()).toString()));
+			mealoptiondeadline.setValue(deadline);
+			cdays.setValue(new DayView(deadline));
+			chour.setValue(new HourView(deadline));
+			cmin.setValue(new MinuteView(deadline));
 
 
 
@@ -252,11 +300,9 @@ public class MealEditView extends NavigationView {
 			
 			
 			for (int i = 0; i <= 6; i++){
-				//Property<Label> day = item.getItemProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)));
-				Property<CheckBox> day = item.getItemProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)));
-				DeadlineDayCheckBox checkbox = new DeadlineDayCheckBox(deadline, i, periodselected, deadlinedays);			
+				Property<CheckBox> day = item.getItemProperty(ui.displayDay(i));
+				DeadlineDayCheckBox checkbox = new DeadlineDayCheckBox(deadline, i, periodselected, filterdeadlines);			
 				day.setValue(checkbox);
-				c.add(Calendar.DATE, 1);
 			}
 		}
 	}
