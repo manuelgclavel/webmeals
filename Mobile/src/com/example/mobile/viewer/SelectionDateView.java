@@ -137,9 +137,9 @@ public class SelectionDateView extends VerticalComponentGroup {
 				deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
 				mobile.populateDeadlineDays(connectionPool, deadlinedays);
 				
-				Label test = new Label(c.getTime().toString());
+				//Label test = new Label(c.getTime().toString());
 				
-				addComponent(test);
+				//addComponent(test);
 				for (Iterator<Meal> j = meals.getItemIds().iterator(); j.hasNext();) {
 					//Notification.show("HERE");
 					Meal meal = j.next();

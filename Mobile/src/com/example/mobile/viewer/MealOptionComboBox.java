@@ -37,9 +37,9 @@ public class MealOptionComboBox extends NativeSelect {
 	
 	private MealSelection curMealSelection;
 	private MealOption curMealOption;
-	private GregorianCalendar gcalendar;
+	//private GregorianCalendar gcalendar;
 	
-	private String test;
+	//private String test;
 	
 
 	public MealOptionComboBox(Meal meal, FoodRegime regime, GregorianCalendar calendar, DailyMealSelection dailymeal, 
@@ -52,7 +52,7 @@ public class MealOptionComboBox extends NativeSelect {
 		this.periods = periods;
 		this.mealoptiondeadlines = mealoptiondeadlines;
 		this.deadlinedays = deadlinedays;
-		this.setGcalendar(calendar);
+		//this.setGcalendar(calendar);
 		
 		
 		
@@ -147,7 +147,7 @@ public class MealOptionComboBox extends NativeSelect {
 		}
 		
 		addValueChangeListener(new MealOptionComboBoxBehavior(
-				gcalendar, dailymealselection, activeregime, mealselected,
+				calendar, dailymealselection, activeregime, mealselected,
 				this));		
 		
 		
@@ -155,17 +155,5 @@ public class MealOptionComboBox extends NativeSelect {
 	}
 
 
-
-
-	public GregorianCalendar getGcalendar() {
-		return gcalendar;
-	}
-
-
-
-
-	public void setGcalendar(GregorianCalendar gcalendar) {
-		this.gcalendar = gcalendar;
-	}
 
 }	 

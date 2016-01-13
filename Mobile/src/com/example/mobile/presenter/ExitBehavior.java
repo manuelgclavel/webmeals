@@ -17,9 +17,9 @@ public class ExitBehavior implements ClickListener {
 	@Override
 	public void buttonClick(ClickEvent event) {
 		// TODO Auto-generated method stub
-		 ((MobileUI) UI.getCurrent()).setContent(new CloseSessionView());
+		// ((MobileUI) UI.getCurrent()).setContent(new CloseSessionView());
+		//UI.getCurrent().close();
+		UI.getCurrent().getPage().setLocation(VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath());
 		UI.getCurrent().close();
-		//UI.getCurrent().getPage().setLocation(VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath());
-		
 	}
 }

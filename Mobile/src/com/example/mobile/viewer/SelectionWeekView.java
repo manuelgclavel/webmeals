@@ -30,9 +30,9 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 		// Set up the initial views
 
 		navigateTo(createWeekView(weekselected));
-		//setNextComponent(createWeekView(weekselected+1)); 
-		//setPreviousComponent(createWeekView(weekselected-1));
-		//addNavigationListener((NavigationListener) this);
+		setNextComponent(createWeekView(weekselected+1)); 
+		setPreviousComponent(createWeekView(weekselected-1));
+		addNavigationListener((NavigationListener) this);
 		
 	}
 	
@@ -85,7 +85,7 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 		
 		for (int i=0; i<=6; i++){ 
 			//String thisdate = ui.displayDate(c) + ":" + Integer.valueOf(currentpos).toString();
-			String thisdate = c.getTime().toString();
+			String thisdate = ui.displayDate(c);
 			layout.addComponent(new Label("<b>" + thisdate + "</b>",ContentMode.HTML));
 			layout.addComponent(new SelectionDateView(c,
 					((MobileUI) UI.getCurrent()).getUser().getPk(),
@@ -102,7 +102,7 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				//navigateTo(getNextComponent());
+				navigateTo(getNextComponent());
 			}
 			
 		});
@@ -112,7 +112,7 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				//navigateTo(getPreviousComponent());
+				navigateTo(getPreviousComponent());
 			}
 			
 		});
@@ -122,14 +122,14 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				//weekselected = 0;
-				//GregorianCalendar c = ui.createGCalendar();
-				//c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+				weekselected = 0;
+				GregorianCalendar c = ui.createGCalendar();
+				c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
 				
 				
-				//setCurrentComponent(createWeekView(weekselected));
-				//setNextComponent(createWeekView(weekselected+1));
-			    //setPreviousComponent(createWeekView(weekselected-1));
+				setCurrentComponent(createWeekView(weekselected));
+				setNextComponent(createWeekView(weekselected+1));
+			    setPreviousComponent(createWeekView(weekselected-1));
 			}
 			
 		});
@@ -146,13 +146,13 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 			// TODO Auto-generated method stub
 				 switch (event.getDirection()) {
 		         case FORWARD: {
-		        	 //weekselected = weekselected+1;
-	                 //setNextComponent(createWeekView(weekselected+1));
+		        	 weekselected = weekselected+1;
+	                 setNextComponent(createWeekView(weekselected+1));
 		         }
 		             break;
 		         case BACK: {  
-		        	 //weekselected = weekselected-1;
-		        	 //setPreviousComponent(createWeekView(weekselected-1));
+		        	 weekselected = weekselected-1;
+		        	 setPreviousComponent(createWeekView(weekselected-1));
 		       	 
 		         }}}
 }

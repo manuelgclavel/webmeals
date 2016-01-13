@@ -111,6 +111,8 @@ private Component createView(int currentpos) {
 		c.setTime(dayselected);
 		c.add(Calendar.DATE, currentpos);
 		dateshown.setValue(c.getTime());
+		dateshown.setTimeZone(c.getTimeZone());
+		dateshown.setDateFormat("EEE, MMM d, yyyy");
 		
 		
 		layout.addComponent(dateshown);

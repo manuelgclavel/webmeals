@@ -5,11 +5,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Calendar;
 
@@ -81,7 +83,11 @@ public class MobileUI extends UI {
     protected void init(VaadinRequest request)  {
     	
     	try {
-			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","admin");	
+			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/schweidt","root","4Meaningful");	
+			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/allenmoos","root","4Meaningful");
+			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/lugano","root","4Meaningful");	
+			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","4Meaningful");	
+
 			manager = new NavigationManager(new LoginView());
 			setContent(manager);
 			//setContent(new LoginView());
@@ -390,7 +396,7 @@ public class MobileUI extends UI {
 			BeanItemContainer<Meal> meals){
 		try {
 			Connection conn = connectionPool.reserveConnection();
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM Meal");
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM Meal ORDER BY position");
 			ResultSet result = ps.executeQuery();
 			while (result.next()){
 				meals.addItem(new Meal(result.getInt(1), result.getInt(2), 
@@ -410,7 +416,7 @@ public class MobileUI extends UI {
 			BeanItemContainer<MealOption> mealoptions){
 		try {
 			Connection conn = connectionPool.reserveConnection();
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM MealOption");
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM MealOption ORDER BY position");
 			ResultSet result = ps.executeQuery();
 			while (result.next()){
 				mealoptions.addItem(new MealOption(result.getInt(1), result.getInt(2), 
@@ -1273,6 +1279,10 @@ public class MobileUI extends UI {
 		//Wed, Jul 4, '01
 		//Wed, 4 Jul 2001 12:08:56 -0700
 		String showdate = "";
+		
+		//SimpleDateFormat formatter=new SimpleDateFormat("EEE, MMM d, yyyy");
+		//showdate = formatter.format(c.getTime());
+		//formatter.setTimeZone(c.getTimeZone());
 		showdate = displayDay(c.get(Calendar.DAY_OF_WEEK)) + "," + " " +
 				c.get(Calendar.DAY_OF_MONTH) + " " +
 				displayMonth(c.get(Calendar.MONTH)) + " " +  " " + 
@@ -1285,6 +1295,10 @@ public class MobileUI extends UI {
 		//Wed, Jul 4, '01
 		//Wed, 4 Jul 2001 12:08:56 -0700
 		String showdate = "";
+		//SimpleDateFormat formatter=new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
+		//formatter.setTimeZone(c.getTimeZone());
+		//showdate = formatter.format(c.getTime());
+	
 		showdate = displayDay(c.get(Calendar.DAY_OF_WEEK)) + "," + " " +
 				c.get(Calendar.DAY_OF_MONTH) + " " +
 				displayMonth(c.get(Calendar.MONTH)) + " " +  
@@ -1310,9 +1324,11 @@ public class MobileUI extends UI {
 	
 	public GregorianCalendar createGCalendar(){
 		GregorianCalendar calendar;
-		calendar = new GregorianCalendar(TimeZone.getTimeZone(this.getResidence().getZone()));
-		calendar.setFirstDayOfWeek(Calendar.MONDAY);
-		calendar.setMinimalDaysInFirstWeek(4);
+		calendar = new GregorianCalendar(TimeZone.getTimeZone(this.getResidence().getZone()), 
+										new Locale(this.getResidence().getLang()));
+		//calendar = new GregorianCalendar(TimeZone.getTimeZone(this.getResidence().getZone()));
+		//calendar.setFirstDayOfWeek(Calendar.MONDAY);
+		//calendar.setMinimalDaysInFirstWeek(4);
 		//calendar = new GregorianCalendar(TimeZone.getTimeZone("Europe/Madrid"));
 		return calendar;
 	}

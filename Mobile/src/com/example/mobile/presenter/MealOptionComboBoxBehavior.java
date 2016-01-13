@@ -255,41 +255,41 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 					conn.commit();
 					conn.close();
 					connectionPool.releaseConnection(conn);
-					Notification.show("DONE!" + " : " + ui.displayDate(gcalendar));
+					Notification.show("DONE!");
 
 				} 
 				else { 
 					/** */
 					 GregorianCalendar current = ui.createGCalendar();
-					GregorianCalendar curDeadline = null;
-					GregorianCalendar selDeadline = null;
+					GregorianCalendar curDeadline = ui.createGCalendar();
+					GregorianCalendar selDeadline = ui.createGCalendar();
 					
 					if (!(curOptionDeadline == null)){
-						curDeadline = ui.createGCalendar();
+						//curDeadline = ui.createGCalendar();
 						curDeadline.setTime(gcalendar.getTime());
 						curDeadline.set(curDeadline.get(Calendar.YEAR), 
 							curDeadline.get(Calendar.MONTH), 
 							curDeadline.get(Calendar.DAY_OF_MONTH), 
 							0, 0, 0);
 						curDeadline.add(Calendar.MILLISECOND, - curDeadline.get(Calendar.MILLISECOND));
-						curDeadline.add(Calendar.DAY_OF_MONTH, - curOptionDeadline.getCday());
+						curDeadline.add(Calendar.DATE, - curOptionDeadline.getCday());
 						curDeadline.add(Calendar.HOUR_OF_DAY, + curOptionDeadline.getChour());
 						curDeadline.add(Calendar.MINUTE, + curOptionDeadline.getCminute());
 					}
 					if  (!(selOptionDeadline == null)){
-						selDeadline = ui.createGCalendar();
+						//selDeadline = ui.createGCalendar();
 						selDeadline.setTime(gcalendar.getTime());
 						selDeadline.set(selDeadline.get(Calendar.YEAR), 
 								selDeadline.get(Calendar.MONTH), 
 								selDeadline.get(Calendar.DAY_OF_MONTH), 
 								0, 0, 0);
 						selDeadline.add(Calendar.MILLISECOND, - selDeadline.get(Calendar.MILLISECOND));
-						selDeadline.add(Calendar.DAY_OF_MONTH, - selOptionDeadline.getCday());
+						selDeadline.add(Calendar.DATE, - selOptionDeadline.getCday());
 						selDeadline.add(Calendar.HOUR_OF_DAY, + selOptionDeadline.getChour());
 						selDeadline.add(Calendar.MINUTE, + selOptionDeadline.getCminute());
 					}
 					
-			
+					String preNote = "The selected day is: " + ui.displayDate(gcalendar) + ". ";
 					String currentNote = "Now is: " + ui.displayFullDate(current) + ". ";
 					String previousNote = "";
 					if (!(curMealOption == null)){
@@ -306,7 +306,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 						}
 					} 
 					Notification.show("MESSAGE: Sorry. " + 
-					currentNote + previousNote + nextNote);
+					preNote + currentNote + previousNote + nextNote);
 					
 					
 					
