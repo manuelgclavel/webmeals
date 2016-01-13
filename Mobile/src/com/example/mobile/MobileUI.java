@@ -7,8 +7,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.Calendar;
 
 
@@ -951,37 +953,110 @@ public class MobileUI extends UI {
 		// TODO Auto-generated method stub
 		String day = "";
 		switch (i) {
-		case (0):
+		case (1):
+			day = "Sun";
+		break;
+		case (2):
 			day = "Mon";
 		break;
-		case (1):
+		case (3):
 			day = "Tue";
 		break;
-		case (2): 
+		case (4): 
 			day = "Wed";
 		break;
-		case (3):
+		case (5):
 			day = "Thu";
 		break;
-		case (4):
+		case (6):
 			day = "Fri";
 		break;
-		case (5):
+		case (7):
 			day = "Sat";
 		break;
+		default: day = "-1";
+		}
+		return day;
+	}
+
+	public String displayMonth(int i) {
+		// TODO Auto-generated method stub
+		String day = "";
+		switch (i) {
+		case (0):
+			day = "Jan";
+		break;
+		case (1):
+			day = "Feb";
+		break;
+		case (2): 
+			day = "Mar";
+		break;
+		case (3):
+			day = "Apr";
+		break;
+		case (4):
+			day = "May";
+		break;
+		case (5):
+			day = "Jun";
+		break;
 		case (6):
-			day = "Sun";
+			day = "Jul";
+		break;
+		case (7):
+			day = "Aug";
+		break;
+		case (8):
+			day = "Sep";
+		break;
+		case (9):
+			day = "Oct";
+		break;
+		case (10):
+			day = "Nov";
+		break;
+		case (11):
+			day = "Dec";
+		break;	
+		}
+		return day;
+	}
+	
+	public int encodeDay(int i) {
+		// TODO Auto-generated method stub
+		Integer day = null;
+		
+		switch (i) {	
+		case (Calendar.MONDAY):
+			day = 0;
+		break;
+		case (Calendar.TUESDAY): 
+			day = 1;
+		break;
+		case (Calendar.WEDNESDAY):
+			day = 2;
+		break;
+		case (Calendar.THURSDAY):
+			day = 3;
+		break;
+		case (Calendar.FRIDAY):
+			day = 4;
+		break;
+		case (Calendar.SATURDAY):
+			day = 5;
+		break;
+		case (Calendar.SUNDAY):
+			day = 6;
 		break;
 		}
 		return day;
 	}
 
-
-	public Integer getDayOfWeek(Date date) {
+	/**
+	public Integer getDayOfWeek(GregorianCalendar c) {
 		// TODO Auto-generated method stub
 		Integer day = null;
-		Calendar c = Calendar.getInstance();
-		c.setTime(date);
 		
 		switch (c.get(Calendar.DAY_OF_WEEK)) {	
 		case (Calendar.MONDAY):
@@ -1009,7 +1084,7 @@ public class MobileUI extends UI {
 		return day;
 	}
 
-	
+	**/
 	
 
 	public boolean existsLogin(BeanItemContainer<User> users, String login){
@@ -1068,14 +1143,18 @@ public class MobileUI extends UI {
 	}
 
 
-	public Residency selectPeriodsByDateAndMealOption(BeanItemContainer<Residency> periods, Date date, MealOption mealoption) {
+	public Residency selectPeriodsByDateAndMealOption(BeanItemContainer<Residency> periods, GregorianCalendar dayselected, MealOption mealoption) {
 		// TODO Auto-generated method stub
 		Residency selectedBy = null;
 		Residency period;
+		GregorianCalendar start = this.createGCalendar();
+		GregorianCalendar end = this.createGCalendar();
 		for (Iterator<Residency> i = periods.getItemIds().iterator(); i.hasNext();){
 			period = (Residency) i.next();
+			start.setTime(period.getStart());
+			end.setTime(period.getEnd());
 			if (period.getOwnedByOption() == mealoption.getPk()){
-				if (period.getStart().before(date) && period.getEnd().after(date)){
+				if (start.before(dayselected) && end.after(dayselected)){
 				selectedBy = period;
 				break;
 			}
@@ -1103,7 +1182,7 @@ public class MobileUI extends UI {
 	}
 
 
-	public MealOptionDeadline selectMealOptionDeadlineByDay(BeanItemContainer<DeadlineDay> deadlinedays, Date date,
+	public MealOptionDeadline selectMealOptionDeadlineByDay(BeanItemContainer<DeadlineDay> deadlinedays, GregorianCalendar dayselected,
 			BeanItemContainer<MealOptionDeadline> mealoptiondeadlines) {
 		MealOptionDeadline selectedBy = null;
 		MealOptionDeadline mealoptiondeadline;
@@ -1113,7 +1192,8 @@ public class MobileUI extends UI {
 			for (Iterator<DeadlineDay> j = deadlinedays.getItemIds().iterator(); j.hasNext();){
 				deadlineday = (DeadlineDay) j.next();
 				if (deadlineday.getDeadline() == mealoptiondeadline.getPk()
-						&& deadlineday.getDay() == getDayOfWeek(date)){
+						&& deadlineday.getDay() == encodeDay(dayselected.get(Calendar.DAY_OF_WEEK))){
+						//&& deadlineday.getDay() == date.get(Calendar.DAY_OF_WEEK)){
 					selectedBy = mealoptiondeadline;
 					break;
 					}
@@ -1186,6 +1266,58 @@ public class MobileUI extends UI {
 			e.printStackTrace();
 		}
 	}
+
+
+	public String displayDate(GregorianCalendar c) {
+		// TODO Auto-generated method stub
+		//Wed, Jul 4, '01
+		//Wed, 4 Jul 2001 12:08:56 -0700
+		String showdate = "";
+		showdate = displayDay(c.get(Calendar.DAY_OF_WEEK)) + "," + " " +
+				c.get(Calendar.DAY_OF_MONTH) + " " +
+				displayMonth(c.get(Calendar.MONTH)) + " " +  " " + 
+				c.get(Calendar.YEAR);
+		return showdate;
+	}
+	
+	public String displayFullDate(GregorianCalendar c) {
+		// TODO Auto-generated method stub
+		//Wed, Jul 4, '01
+		//Wed, 4 Jul 2001 12:08:56 -0700
+		String showdate = "";
+		showdate = displayDay(c.get(Calendar.DAY_OF_WEEK)) + "," + " " +
+				c.get(Calendar.DAY_OF_MONTH) + " " +
+				displayMonth(c.get(Calendar.MONTH)) + " " +  
+				Integer.valueOf(c.get(Calendar.YEAR)).toString() + ", " + " " +
+				displayTwoDecimalDigit(c.get(Calendar.HOUR_OF_DAY)) + ":" +
+				displayTwoDecimalDigit(c.get(Calendar.MINUTE)) + ":" +
+				displayTwoDecimalDigit(c.get(Calendar.SECOND));
+		return showdate;
+	}
+	
+	public String displayTwoDecimalDigit(int i){
+		String twodigit;
+		if (i < 10){ 
+			twodigit = "0" + Integer.valueOf(i).toString();
+		} else {
+			twodigit = Integer.valueOf(i).toString();
+		}
+		
+		return twodigit;
+	}
+	
+	
+	
+	public GregorianCalendar createGCalendar(){
+		GregorianCalendar calendar;
+		calendar = new GregorianCalendar(TimeZone.getTimeZone(this.getResidence().getZone()));
+		calendar.setFirstDayOfWeek(Calendar.MONDAY);
+		calendar.setMinimalDaysInFirstWeek(4);
+		//calendar = new GregorianCalendar(TimeZone.getTimeZone("Europe/Madrid"));
+		return calendar;
+	}
+
+
 	
 
 

@@ -1,40 +1,30 @@
 package com.example.mobile.viewer;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
-import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
-import com.example.mobile.viewer.ContractOptionDayCheckBox;
 import com.example.mobile.data.Contract;
 import com.example.mobile.data.ContractOption;
 import com.example.mobile.data.ContractOptionDay;
-import com.example.mobile.data.ContractResidency;
-import com.example.mobile.data.DeadlineDay;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
-import com.example.mobile.data.MealOptionDeadline;
-import com.example.mobile.data.Residency;
 import com.example.mobile.presenter.ExitBehavior;
 import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
-import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
-import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.data.util.filter.Compare;
-import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 
@@ -104,8 +94,13 @@ public class ContractsEditView extends NavigationView {
 		contractmealoptionsTable.setPageLength(contractmealoptionsTable.size());
 		contractmealoptionsTable.addContainerProperty("Meal", Label.class, null);
 		contractmealoptionsTable.addContainerProperty("Meal option", Label.class, null);
+		
+		GregorianCalendar c = ui.createGCalendar();
+		c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+		
 		for (int i = 0; i <= 6; i++){
-			contractmealoptionsTable.addContainerProperty(ui.displayDay(i), CheckBox.class, null);
+			contractmealoptionsTable.addContainerProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)), CheckBox.class, null);
+			c.add(Calendar.DATE, 1);
 		}
 		
 		contractsTable.addItemClickListener(new ItemClickListener(){
@@ -144,12 +139,16 @@ public class ContractsEditView extends NavigationView {
 			mealproperty.setValue(new Label(meal.getLiteral()));
 			mealoptionproperty.setValue(new Label(mealoption.getInitial()));
 			
+			GregorianCalendar c = ui.createGCalendar();
+			c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
+			
 			for (int i = 0; i <= 6; i++){
-				Property<CheckBox> day = item.getItemProperty(ui.displayDay(i));
-				ContractOptionDayCheckBox checkbox = new ContractOptionDayCheckBox(mealoption,selected,i,
+				Property<CheckBox> day = item.getItemProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)));
+				ContractOptionDayCheckBox checkbox = new ContractOptionDayCheckBox(mealoption,selected,ui.encodeDay(c.get(Calendar.DAY_OF_WEEK)),
 						contractoptions, contractoptiondays
 						);				
 				day.setValue(checkbox);
+				c.add(Calendar.DATE, 1);
 			}
 		}
 	}

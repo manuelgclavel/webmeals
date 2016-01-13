@@ -1,59 +1,53 @@
 package com.example.mobile.presenter;
 
 import java.sql.Connection;
-//import java.sql.Date;
-import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
-import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.DailyMealSelection;
-import com.example.mobile.data.DeadlineDay;
 import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealOptionDeadline;
 import com.example.mobile.data.MealSelection;
-import com.example.mobile.data.Residency;
 import com.example.mobile.data.User;
 import com.example.mobile.viewer.MealOptionComboBox;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
 public class MealOptionComboBoxBehavior implements ValueChangeListener {
-	final private JDBCConnectionPool connectionPool = ((MobileUI) UI.getCurrent()).getConnectionPool();
-	final private User curUser = ((MobileUI) UI.getCurrent()).getUser();
-	final private java.util.Date dayselected;
-	final private DailyMealSelection dailymealselection;
-	final private Meal mealselected;
+	private MobileUI ui = (MobileUI) UI.getCurrent();
+	private JDBCConnectionPool connectionPool = ui.getConnectionPool();
+	private User curUser = ui.getUser();
+	private DailyMealSelection dailymealselection;
+	private Meal mealselected;
 	private MealSelection curMealSelection;
 	private MealOption curMealOption;
-	final private FoodRegime activeregime;
+	private FoodRegime activeregime;
 	private MealOptionComboBox combobox;
 
 	private MealOption selMealOption;
+	private GregorianCalendar gcalendar = ui.createGCalendar();
 
-	public MealOptionComboBoxBehavior(Date dayselected, 
-			DailyMealSelection dailymealselection, 
+	public MealOptionComboBoxBehavior(GregorianCalendar calendar, DailyMealSelection dailymealselection, 
 			FoodRegime regime,
 			Meal mealselected, 
-			MealOptionComboBox combobox){
+			MealOptionComboBox component){
 
-		this.dayselected = dayselected;
 		this.mealselected = mealselected;
 		this.dailymealselection = dailymealselection;
 		this.activeregime = regime;
-		this.combobox = combobox;
+		this.combobox = component;
+		this.gcalendar.setTime(calendar.getTime());;
 
 	}
 
@@ -61,7 +55,9 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	@Override
 	public void valueChange (ValueChangeEvent event) {
 		// TODO Auto-generated method stub
-
+		
+		//Notification.show(gcalendar.getTime().toString());
+		
 		try{
 			Connection conn = connectionPool.reserveConnection();
 			PreparedStatement ps;
@@ -108,7 +104,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 			 */
 
 			selMealOption = (MealOption) event.getProperty().getValue();
-
+			
 			Boolean proceed = false;
 			if ((curMealOption == null) & (selMealOption == null)) {
 				proceed = false; 
@@ -145,9 +141,9 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 				 */
 				MealOptionDeadline curOptionDeadline = null;
 				if (!(curMealOption == null)){
-					curOptionDeadline = combobox.ui.selectMealOptionDeadlineByDay(combobox.deadlinedays, combobox.dayselected,
+					curOptionDeadline = combobox.ui.selectMealOptionDeadlineByDay(combobox.deadlinedays, gcalendar,
 							combobox.ui.selectMealOptionDeadlineByPeriod(combobox.mealoptiondeadlines, 
-									combobox.ui.selectPeriodsByDateAndMealOption(combobox.periods, combobox.dayselected, curMealOption)));
+									combobox.ui.selectPeriodsByDateAndMealOption(combobox.periods, gcalendar, curMealOption)));
 
 					
 					/**
@@ -181,9 +177,9 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 				 */
 				MealOptionDeadline selOptionDeadline = null;
 				if (!(selMealOption == null)){
-					selOptionDeadline = combobox.ui.selectMealOptionDeadlineByDay(combobox.deadlinedays, combobox.dayselected,
+					selOptionDeadline = combobox.ui.selectMealOptionDeadlineByDay(combobox.deadlinedays,gcalendar,
 							combobox.ui.selectMealOptionDeadlineByPeriod(combobox.mealoptiondeadlines, 
-									combobox.ui.selectPeriodsByDateAndMealOption(combobox.periods, combobox.dayselected, selMealOption)));
+									combobox.ui.selectPeriodsByDateAndMealOption(combobox.periods, gcalendar, selMealOption)));
 
 					/**
 					ps = conn.prepareStatement("select count(*), pk, cday, chour, cminute, literal, ownedBy from MealOptionDeadline where pk in" + " " +
@@ -259,10 +255,62 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 					conn.commit();
 					conn.close();
 					connectionPool.releaseConnection(conn);
-					Notification.show("DONE!");
+					Notification.show("DONE!" + " : " + ui.displayDate(gcalendar));
 
 				} 
 				else { 
+					/** */
+					 GregorianCalendar current = ui.createGCalendar();
+					GregorianCalendar curDeadline = null;
+					GregorianCalendar selDeadline = null;
+					
+					if (!(curOptionDeadline == null)){
+						curDeadline = ui.createGCalendar();
+						curDeadline.setTime(gcalendar.getTime());
+						curDeadline.set(curDeadline.get(Calendar.YEAR), 
+							curDeadline.get(Calendar.MONTH), 
+							curDeadline.get(Calendar.DAY_OF_MONTH), 
+							0, 0, 0);
+						curDeadline.add(Calendar.MILLISECOND, - curDeadline.get(Calendar.MILLISECOND));
+						curDeadline.add(Calendar.DAY_OF_MONTH, - curOptionDeadline.getCday());
+						curDeadline.add(Calendar.HOUR_OF_DAY, + curOptionDeadline.getChour());
+						curDeadline.add(Calendar.MINUTE, + curOptionDeadline.getCminute());
+					}
+					if  (!(selOptionDeadline == null)){
+						selDeadline = ui.createGCalendar();
+						selDeadline.setTime(gcalendar.getTime());
+						selDeadline.set(selDeadline.get(Calendar.YEAR), 
+								selDeadline.get(Calendar.MONTH), 
+								selDeadline.get(Calendar.DAY_OF_MONTH), 
+								0, 0, 0);
+						selDeadline.add(Calendar.MILLISECOND, - selDeadline.get(Calendar.MILLISECOND));
+						selDeadline.add(Calendar.DAY_OF_MONTH, - selOptionDeadline.getCday());
+						selDeadline.add(Calendar.HOUR_OF_DAY, + selOptionDeadline.getChour());
+						selDeadline.add(Calendar.MINUTE, + selOptionDeadline.getCminute());
+					}
+					
+			
+					String currentNote = "Now is: " + ui.displayFullDate(current) + ". ";
+					String previousNote = "";
+					if (!(curMealOption == null)){
+						if (!(curOptionDeadline == null)){
+							previousNote = "Previous selection can only be changed before: " + ui.displayFullDate(curDeadline) + ". ";
+						}
+					}
+					String nextNote = "";
+					if (!(selMealOption == null)){
+						if (!(selOptionDeadline == null)){
+							nextNote = "New selection can only be chosen before: "	+ ui.displayFullDate(selDeadline) + ".";
+						} else {
+							nextNote = "New selection cannot be chosen for the selected day.";
+						}
+					} 
+					Notification.show("MESSAGE: Sorry. " + 
+					currentNote + previousNote + nextNote);
+					
+					
+					
+					
 					conn.close();
 					connectionPool.releaseConnection(conn);
 					if (!(curMealSelection == null)){
@@ -276,14 +324,11 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 					} else{
 						combobox.setValue(null);
 					}
-					//refreshMealSelection();
-					String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
-					Calendar current = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 					
-					SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss");
-					isoFormat.setTimeZone(TimeZone.getTimeZone(timezone));
-					Notification.show("MESSAGE: Sorry, you are late." + " : " +
-						isoFormat.format(current.getTime()));	
+					
+					
+					//
+					//
 				}
 
 
@@ -300,15 +345,16 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	
 
 	private Boolean checkDeadlines(MealOptionDeadline curOption, MealOptionDeadline selOption){
-		final String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
-		final Calendar current = Calendar.getInstance(TimeZone.getTimeZone(timezone));
-		Calendar curDeadline = null;
-		Calendar selDeadline = null;
+		//final String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
+		//final Calendar current = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+		GregorianCalendar current = ui.createGCalendar();
+		GregorianCalendar curDeadline = null;
+		GregorianCalendar selDeadline = null;
 		Boolean check = false;
 
 		if (!(curOption == null)){
-			curDeadline = Calendar.getInstance(TimeZone.getTimeZone(timezone));	
-			curDeadline.setTime(dayselected);
+			curDeadline = ui.createGCalendar();
+			curDeadline.setTime(gcalendar.getTime());
 			curDeadline.set(curDeadline.get(Calendar.YEAR), 
 					curDeadline.get(Calendar.MONTH), 
 					curDeadline.get(Calendar.DAY_OF_MONTH), 
@@ -320,8 +366,8 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 		}
 
 		if (!(selOption == null)){
-			selDeadline = Calendar.getInstance(TimeZone.getTimeZone(timezone));	
-			selDeadline.setTime(dayselected);
+			selDeadline = ui.createGCalendar();
+			selDeadline.setTime(gcalendar.getTime());
 			selDeadline.set(selDeadline.get(Calendar.YEAR), 
 					selDeadline.get(Calendar.MONTH), 
 					selDeadline.get(Calendar.DAY_OF_MONTH), 

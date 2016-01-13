@@ -1,14 +1,13 @@
 package com.example.mobile.viewer;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 
 import com.example.mobile.MobileUI;
-import com.example.mobile.data.DeadlineDay;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealOptionDeadline;
-import com.example.mobile.data.MealOptionResidency;
 import com.example.mobile.data.Residency;
 import com.example.mobile.presenter.ExitBehavior;
 import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
@@ -25,10 +24,9 @@ import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
@@ -118,22 +116,33 @@ public class MealEditView extends NavigationView {
 		content.addComponent(mealoptionsTable);
 		content.addComponent(periodsTable);
 
+		
 
 		deadlinesinfo = new IndexedContainer();
 		deadlinesTable = new Table("", deadlinesinfo);
 		deadlinesTable.setSelectable(true);
 		deadlinesTable.setPageLength(deadlinesinfo.size());
+		
+		GregorianCalendar d = ui.createGCalendar();
+		d.set(Calendar.DAY_OF_WEEK, d.getFirstDayOfWeek());
+		
 		for (int i = 0; i <= 6; i++){
-			deadlinesTable.addContainerProperty(ui.displayDay(i), CheckBox.class, null);
+			deadlinesTable.addContainerProperty(ui.displayDay(d.get(Calendar.DAY_OF_WEEK)), CheckBox.class, null);
+			d.add(Calendar.DATE, 1);
 		}
 		deadlinesTable.addContainerProperty("MealOptionDeadline", MealOptionDeadline.class, null);
 		deadlinesTable.addContainerProperty("-Days", DayView.class, null);
 		deadlinesTable.addContainerProperty("Hour", HourView.class, null);
 		deadlinesTable.addContainerProperty("Min", MinuteView.class, null);
 		
+		
+		
+		
 		Object[] visiblecolumns = new Object[10];
+		d.set(Calendar.DAY_OF_WEEK, d.getFirstDayOfWeek());
 		for (int i = 0; i <= 6; i++){
-			visiblecolumns[i] = ui.displayDay(i);
+			visiblecolumns[i] = ui.displayDay(d.get(Calendar.DAY_OF_WEEK));
+			d.add(Calendar.DATE, 1);
 		}
 		visiblecolumns[7] = "-Days";
 		visiblecolumns[8] = "Hour";
@@ -294,15 +303,16 @@ public class MealEditView extends NavigationView {
 
 
 
-			Calendar c = Calendar.getInstance();
-			int firstdayofweek = c.getFirstDayOfWeek();
-			c.set(Calendar.DAY_OF_WEEK, firstdayofweek);
+			GregorianCalendar c = ui.createGCalendar();
+			c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
 			
 			
 			for (int i = 0; i <= 6; i++){
-				Property<CheckBox> day = item.getItemProperty(ui.displayDay(i));
-				DeadlineDayCheckBox checkbox = new DeadlineDayCheckBox(deadline, i, periodselected, filterdeadlines);			
+				Property<CheckBox> day = item.getItemProperty(ui.displayDay(c.get(Calendar.DAY_OF_WEEK)));
+				DeadlineDayCheckBox checkbox = 
+						new DeadlineDayCheckBox(deadline, ui.encodeDay(c.get(Calendar.DAY_OF_WEEK)), periodselected, filterdeadlines);			
 				day.setValue(checkbox);
+				c.add(Calendar.DATE, 1);
 			}
 		}
 	}

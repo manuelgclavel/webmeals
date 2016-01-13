@@ -2,11 +2,10 @@ package com.example.mobile.viewer;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
-import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
-import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealSelectionPlus;
@@ -21,7 +20,6 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.DateField;
@@ -73,15 +71,13 @@ public class SummariesView extends NavigationView {
 		
 		VerticalComponentGroup content = new VerticalComponentGroup();
 		
-		String timezone = ui.getResidence().getZone();
-		Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 		
-		c.set(Calendar.YEAR, c.get(Calendar.YEAR));
-		//c.set(Calendar.YEAR, 2000);
-		c.set(Calendar.MONTH, c.get(Calendar.MONTH));
+		GregorianCalendar c = ui.createGCalendar();
+		
+		//c.set(Calendar.YEAR, c.get(Calendar.YEAR));
+		//c.set(Calendar.MONTH, c.get(Calendar.MONTH));
 		//c.set(Calendar.MONTH, Calendar.FEBRUARY);
 		int max = c.getActualMaximum(Calendar.DAY_OF_MONTH);
-		//Notification.show(Integer.valueOf(max).toString());
 		
 		start = new DateField("From: ");
 		end = new DateField("To: ");

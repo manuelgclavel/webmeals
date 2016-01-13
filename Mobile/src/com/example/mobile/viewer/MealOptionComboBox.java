@@ -1,11 +1,10 @@
 package com.example.mobile.viewer;
 
 import java.sql.Connection;
-//import java.sql.Date;
-import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 
 import com.example.mobile.MobileUI;
@@ -17,7 +16,6 @@ import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealOptionDeadline;
 import com.example.mobile.data.MealSelection;
 import com.example.mobile.data.Residency;
-import com.example.mobile.data.User;
 import com.example.mobile.presenter.MealOptionComboBoxBehavior;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
@@ -30,7 +28,6 @@ public class MealOptionComboBox extends NativeSelect {
 
 	final public MobileUI ui = (MobileUI) UI.getCurrent();
 	final public JDBCConnectionPool connectionPool = ((MobileUI) UI.getCurrent()).getConnectionPool();
-	final public java.util.Date dayselected;
 	final public Meal mealselected;
 	final public DailyMealSelection dailymealselection;
 	final public FoodRegime activeregime;
@@ -40,22 +37,26 @@ public class MealOptionComboBox extends NativeSelect {
 	
 	private MealSelection curMealSelection;
 	private MealOption curMealOption;
+	private GregorianCalendar gcalendar;
+	
+	private String test;
 	
 
-
-
-	MealOptionComboBox(Meal meal, FoodRegime regime, java.util.Date selected, DailyMealSelection dailymeal, 
+	public MealOptionComboBox(Meal meal, FoodRegime regime, GregorianCalendar calendar, DailyMealSelection dailymeal, 
 			BeanItemContainer<Residency> periods, 
 			BeanItemContainer<MealOptionDeadline> mealoptiondeadlines, 
 			BeanItemContainer<DeadlineDay> deadlinedays){
-		this.dayselected = new java.sql.Date(selected.getTime()); 
 		this.mealselected = meal;
 		this.dailymealselection = dailymeal;
 		this.activeregime = regime;
 		this.periods = periods;
 		this.mealoptiondeadlines = mealoptiondeadlines;
 		this.deadlinedays = deadlinedays;
+		this.setGcalendar(calendar);
 		
+		
+		
+		this.setNullSelectionAllowed(true);
 		
 		
 		Connection conn;
@@ -144,11 +145,27 @@ public class MealOptionComboBox extends NativeSelect {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		
-		this.addValueChangeListener(new MealOptionComboBoxBehavior(
-				dayselected, dailymealselection, activeregime, mealselected,
-				this));			
+		addValueChangeListener(new MealOptionComboBoxBehavior(
+				gcalendar, dailymealselection, activeregime, mealselected,
+				this));		
+		
+		
+		
+	}
+
+
+
+
+	public GregorianCalendar getGcalendar() {
+		return gcalendar;
+	}
+
+
+
+
+	public void setGcalendar(GregorianCalendar gcalendar) {
+		this.gcalendar = gcalendar;
 	}
 
 }	 

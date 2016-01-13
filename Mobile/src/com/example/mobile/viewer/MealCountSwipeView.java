@@ -1,46 +1,41 @@
 package com.example.mobile.viewer;
 
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
 import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
 import com.vaadin.addon.touchkit.ui.NavigationBar;
 import com.vaadin.addon.touchkit.ui.NavigationManager;
+import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationListener;
 import com.vaadin.addon.touchkit.ui.SwipeView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
-import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationListener;
-import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.server.AbstractErrorMessage.ContentMode;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.DateField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.DateField;
+import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
 public class MealCountSwipeView extends NavigationManager implements NavigationListener {
 	
-  int pos = 0;
-  boolean show;
-  Date dayselected;
-  String timezone;
+	private MobileUI ui = (MobileUI) UI.getCurrent();
+	private int pos = 0;
+	private boolean show;
+	private Date dayselected;
 
   public MealCountSwipeView(boolean showusers) {
-	  timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
-	 Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
-	  this.dayselected= c.getTime();
-	  this.show = showusers;
+	 
+	 GregorianCalendar c = ui.createGCalendar();
+	 dayselected= c.getTime();
+	 show = showusers;
+	 
       // Set up the initial views
-      //navigateTo(createView(+pos));
 	  setCurrentComponent(createView(+pos));
       setNextComponent(createView(pos+1));
       setPreviousComponent(createView(pos-1));
@@ -84,15 +79,11 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 		final Button next = new Button("next");
 		
 
-		Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+		GregorianCalendar c = ui.createGCalendar();
 		c.setTime(dayselected);
 		c.add(Calendar.DATE, currentpos);
 		dateshown.setValue(c.getTime());
 		
-		SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd");
-		isoFormat.setTimeZone(TimeZone.getTimeZone(timezone));
-		dateshown.setDateFormat(isoFormat.format(c.getTime()));
-
 		layout.addComponent(dateshown);
 		
 		HorizontalButtonGroup buttons = new HorizontalButtonGroup();
@@ -115,10 +106,10 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 		dateshown.addValueChangeListener(new ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+				GregorianCalendar c = ui.createGCalendar();
 				c.setTime(((Date) event.getProperty().getValue()));
-				c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 
-						c.get(Calendar.DATE), 0, 0, 0);
+				//c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 
+				//		c.get(Calendar.DATE), 0, 0, 0);
 				pos = 0;
 				dayselected = c.getTime();
 				setCurrentComponent(createView(+pos));
@@ -163,7 +154,7 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				pos = 0;
-				Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+				GregorianCalendar c = ui.createGCalendar();
 				dayselected= c.getTime();
 				
 				setCurrentComponent(createView(+pos));

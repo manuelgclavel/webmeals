@@ -4,10 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
-import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.data.DailyMealSelection;
@@ -16,37 +14,24 @@ import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOptionDeadline;
 import com.example.mobile.data.Residency;
-import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.DateField;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
 @SuppressWarnings("serial")
 public class SelectionDateView extends VerticalComponentGroup {
-	final private MobileUI mobile;
-	final private JDBCConnectionPool connectionPool;
+	private MobileUI mobile = ((MobileUI) UI.getCurrent());
+	private JDBCConnectionPool connectionPool = mobile.getConnectionPool();
 	private BeanItemContainer<Residency> periods ;
 	private BeanItemContainer<MealOptionDeadline> mealoptiondeadlines ;
 	private BeanItemContainer<DeadlineDay> deadlinedays ;
-	
-	
-	
-	
 
-	public SelectionDateView(Date date, int dinerpk, int dinertype) {
+	public SelectionDateView(GregorianCalendar c, int dinerpk, int dinertype) {
 		// TODO Auto-generated constructor stub
-		this.mobile = ((MobileUI) UI.getCurrent());
-		this.connectionPool = mobile.getConnectionPool();
-		
+	
 		
 		PreparedStatement ps;
 		ResultSet result;
@@ -71,7 +56,7 @@ public class SelectionDateView extends VerticalComponentGroup {
 			}
 			ps = conn.prepareStatement("SELECT count(*), pk from DailyMealSelection" + " " +  
 					"WHERE Date(date) = ?  and" + " " + property +  " = ?");
-			ps.setDate(1, new java.sql.Date(date.getTime()));
+			ps.setDate(1, new java.sql.Date(c.getTime().getTime()));
 			ps.setInt(2, dinerpk);
 			result = ps.executeQuery();
 			result.next();
@@ -80,7 +65,7 @@ public class SelectionDateView extends VerticalComponentGroup {
 				
 				ps = conn.prepareStatement("INSERT INTO DailyMealSelection" + " " + 
 						"(date," + property + ") values (?,?)");
-				ps.setDate(1, new java.sql.Date(date.getTime()));
+				ps.setDate(1, new java.sql.Date(c.getTime().getTime()));
 				ps.setInt(2, dinerpk);
 				ps.executeUpdate();
 				result.close();
@@ -126,8 +111,8 @@ public class SelectionDateView extends VerticalComponentGroup {
 						"and Date(Residency.start) <= Date(?)" + " " + 
 						"and Date(Residency.end) >= Date(?)");
 				ps.setInt(1, mobile.getUser().getPk());
-				ps.setDate(2, new java.sql.Date(date.getTime()));
-				ps.setDate(3, new java.sql.Date(date.getTime()));
+				ps.setDate(2, new java.sql.Date(c.getTime().getTime()));
+				ps.setDate(3, new java.sql.Date(c.getTime().getTime()));
 				result = ps.executeQuery();
 				result.next();
 				FoodRegime regime = null;
@@ -152,13 +137,16 @@ public class SelectionDateView extends VerticalComponentGroup {
 				deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
 				mobile.populateDeadlineDays(connectionPool, deadlinedays);
 				
+				Label test = new Label(c.getTime().toString());
 				
+				addComponent(test);
 				for (Iterator<Meal> j = meals.getItemIds().iterator(); j.hasNext();) {
 					//Notification.show("HERE");
 					Meal meal = j.next();
 					NativeSelect options = 
-							new MealOptionComboBox(meal, regime, date, dailymealselection, periods, mealoptiondeadlines, deadlinedays);	
+							new MealOptionComboBox(meal, regime, c, dailymealselection, periods, mealoptiondeadlines, deadlinedays);	
 					addComponent(options);
+					
 				}
 
 			

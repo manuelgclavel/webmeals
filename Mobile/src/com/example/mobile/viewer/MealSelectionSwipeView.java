@@ -1,34 +1,24 @@
 package com.example.mobile.viewer;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
 import com.vaadin.addon.touchkit.ui.HorizontalButtonGroup;
 import com.vaadin.addon.touchkit.ui.NavigationBar;
-import com.vaadin.addon.touchkit.ui.NavigationButton;
 import com.vaadin.addon.touchkit.ui.NavigationManager;
-import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationEvent;
 import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationListener;
-import com.vaadin.addon.touchkit.ui.NavigationView;
 import com.vaadin.addon.touchkit.ui.SwipeView;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.navigator.Navigator;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.DateField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
 
@@ -36,22 +26,22 @@ import com.vaadin.ui.UI;
 public class MealSelectionSwipeView extends NavigationManager
 	implements NavigationListener {
 	
-  int pos = 0;
-  Date dayselected;
-  String timezone;
-  int diner;
-  int type = 1;
+	private MobileUI ui = (MobileUI) UI.getCurrent();
+	private int pos = 0;
+	private Date dayselected;
+	private int diner;
+	private int type = 1;
+  
  
 
-  public MealSelectionSwipeView(int diner, int type) {
+  public MealSelectionSwipeView(int selecteddiner, int selectedtype) {
 	  // TODO Auto-generated constructor stub
 	  setCaption("Meal selection (by day)");
 	  //this.manager = getNavigationManager();
-	  timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
-	  Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
-	  this.dayselected= c.getTime();
-	  this.diner = diner;
-	  this.type = type;
+	  GregorianCalendar c = ui.createGCalendar();
+	  dayselected= c.getTime();
+	  diner = selecteddiner;
+	  type = selectedtype;
 	  //navigateTo(createView(+pos));
 	  setCurrentComponent(createView(+pos));
 	  setNextComponent(createView(pos+1));
@@ -117,17 +107,12 @@ private Component createView(int currentpos) {
 		final Button next = new Button("next");
 		//final Button week = new Button("week");
 		
-		Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+		GregorianCalendar c = ui.createGCalendar();
 		c.setTime(dayselected);
 		c.add(Calendar.DATE, currentpos);
 		dateshown.setValue(c.getTime());
 		
-		SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd");
-		isoFormat.setTimeZone(TimeZone.getTimeZone(timezone));
-		dateshown.setDateFormat(isoFormat.format(c.getTime()));
 		
-		
-
 		layout.addComponent(dateshown);
 		
 		HorizontalButtonGroup buttons = new HorizontalButtonGroup();
@@ -144,17 +129,17 @@ private Component createView(int currentpos) {
 		//layout.addComponent(new Label(Integer.valueOf(currentpos).toString()));
 		/** END */
 		
-		layout.addComponent(new SelectionDateView(c.getTime(), diner, type));
+		layout.addComponent(new SelectionDateView(c, diner, type)); 
 		view.setContent(layout);
 		
 		
 		dateshown.addValueChangeListener(new ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+				GregorianCalendar c = ui.createGCalendar();
 				c.setTime(((Date) event.getProperty().getValue()));
-				c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 
-						c.get(Calendar.DATE), 0, 0, 0);
+				//c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 
+				//		c.get(Calendar.DATE), 0, 0, 0);
 				pos = 0;
 				dayselected = c.getTime();
 				setCurrentComponent(createView(+pos));
@@ -190,7 +175,7 @@ private Component createView(int currentpos) {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				pos = 0;
-				Calendar c = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+				GregorianCalendar c = ui.createGCalendar();
 				dayselected= c.getTime();
 				
 				setCurrentComponent(createView(+pos));
