@@ -78,7 +78,7 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 		//layout.addComponent(new Label(Integer.valueOf(currentpos).toString()));
 		/** END */
 		
-		GregorianCalendar c = ui.createGCalendar();
+		GregorianCalendar c = ui.createGCalendarNoTime();
 		c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
 		c.add(Calendar.DATE, currentpos * 7);
 		
@@ -123,7 +123,7 @@ public class SelectionWeekView extends NavigationManager implements NavigationLi
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				weekselected = 0;
-				GregorianCalendar c = ui.createGCalendar();
+				GregorianCalendar c = ui.createGCalendarNoTime();
 				c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
 				
 				

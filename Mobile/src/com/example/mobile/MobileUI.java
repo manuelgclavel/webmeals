@@ -84,9 +84,9 @@ public class MobileUI extends UI {
     	
     	try {
 			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/schweidt","root","4Meaningful");	
-			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/allenmoos","root","4Meaningful");
+			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/allenmoos","root","4Meaningful");
 			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/lugano","root","4Meaningful");	
-			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","4Meaningful");	
+			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","4Meaningful");	
 
 			manager = new NavigationManager(new LoginView());
 			setContent(manager);
@@ -314,7 +314,7 @@ public class MobileUI extends UI {
 	
 	public void populateMealSelectionsPlus(JDBCConnectionPool connectionPool, 
 			BeanItemContainer<MealSelectionPlus> mealselections,
-			Date dayselected){
+			GregorianCalendar c){
 		try {
 			Connection conn = connectionPool.reserveConnection();
 			PreparedStatement ps = 
@@ -322,7 +322,7 @@ public class MobileUI extends UI {
 							"INNER JOIN " + " " +
 							"(SELECT * from DailyMealSelection where Date(date) = Date(?)) AS Temp" + " " +
 							"ON MealSelection.ownedBy = Temp.pk");
-			ps.setDate(1, new java.sql.Date(dayselected.getTime()));
+			ps.setDate(1, new java.sql.Date(c.getTime().getTime()));
 			ResultSet result = ps.executeQuery();
 			while (result.next()){
 				mealselections.addItem(new MealSelectionPlus(result.getInt(1), result.getInt(2), 
@@ -1153,8 +1153,8 @@ public class MobileUI extends UI {
 		// TODO Auto-generated method stub
 		Residency selectedBy = null;
 		Residency period;
-		GregorianCalendar start = this.createGCalendar();
-		GregorianCalendar end = this.createGCalendar();
+		GregorianCalendar start = this.createGCalendarNoTime();
+		GregorianCalendar end = this.createGCalendarNoTime();
 		for (Iterator<Residency> i = periods.getItemIds().iterator(); i.hasNext();){
 			period = (Residency) i.next();
 			start.setTime(period.getStart());
@@ -1322,16 +1322,54 @@ public class MobileUI extends UI {
 	
 	
 	
-	public GregorianCalendar createGCalendar(){
+	public GregorianCalendar createGCalendarNoTime(){
 		GregorianCalendar calendar;
 		calendar = new GregorianCalendar(TimeZone.getTimeZone(this.getResidence().getZone()), 
 										new Locale(this.getResidence().getLang()));
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
 		//calendar = new GregorianCalendar(TimeZone.getTimeZone(this.getResidence().getZone()));
 		//calendar.setFirstDayOfWeek(Calendar.MONDAY);
 		//calendar.setMinimalDaysInFirstWeek(4);
 		//calendar = new GregorianCalendar(TimeZone.getTimeZone("Europe/Madrid"));
 		return calendar;
 	}
+	
+	public GregorianCalendar createGCalendarWithTime(){
+		GregorianCalendar calendar;
+		calendar = new GregorianCalendar(TimeZone.getTimeZone(this.getResidence().getZone()), 
+										new Locale(this.getResidence().getLang()));
+		return calendar;
+	}
+
+
+	public BeanItemContainer<MealOption> filteredByDate(BeanItemContainer<MealOption> mealoptions, 
+			BeanItemContainer<Residency> periods, GregorianCalendar calendar) {
+		// TODO Auto-generated method stub
+		BeanItemContainer<MealOption> filteredBy = new BeanItemContainer<MealOption>(MealOption.class);
+		MealOption mealoption = null;
+		Residency period;
+		GregorianCalendar start = this.createGCalendarNoTime();
+		GregorianCalendar end = this.createGCalendarNoTime();
+		for (Iterator<MealOption> m = mealoptions.getItemIds().iterator(); m.hasNext();){
+			mealoption = (MealOption) m.next();
+			for (Iterator<Residency> i = periods.getItemIds().iterator(); i.hasNext();){
+				period = (Residency) i.next();
+				if (period.getOwnedByOption() == mealoption.getPk()){
+					start.setTime(period.getStart());
+					end.setTime(period.getEnd());
+					if (start.before(calendar) && end.after(calendar)){
+						filteredBy.addItem(mealoption);
+						break;
+					}
+				}
+			}
+		}
+		return filteredBy;
+	}
+
 
 
 	

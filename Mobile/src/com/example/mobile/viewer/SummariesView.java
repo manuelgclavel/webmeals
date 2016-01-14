@@ -72,11 +72,8 @@ public class SummariesView extends NavigationView {
 		VerticalComponentGroup content = new VerticalComponentGroup();
 		
 		
-		GregorianCalendar c = ui.createGCalendar();
+		GregorianCalendar c = ui.createGCalendarNoTime();
 		
-		//c.set(Calendar.YEAR, c.get(Calendar.YEAR));
-		//c.set(Calendar.MONTH, c.get(Calendar.MONTH));
-		//c.set(Calendar.MONTH, Calendar.FEBRUARY);
 		int max = c.getActualMaximum(Calendar.DAY_OF_MONTH);
 		
 		start = new DateField("From: ");

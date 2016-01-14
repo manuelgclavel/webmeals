@@ -123,7 +123,7 @@ public class MealEditView extends NavigationView {
 		deadlinesTable.setSelectable(true);
 		deadlinesTable.setPageLength(deadlinesinfo.size());
 		
-		GregorianCalendar d = ui.createGCalendar();
+		GregorianCalendar d = ui.createGCalendarNoTime();
 		d.set(Calendar.DAY_OF_WEEK, d.getFirstDayOfWeek());
 		
 		for (int i = 0; i <= 6; i++){
@@ -303,7 +303,7 @@ public class MealEditView extends NavigationView {
 
 
 
-			GregorianCalendar c = ui.createGCalendar();
+			GregorianCalendar c = ui.createGCalendarNoTime();
 			c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
 			
 			

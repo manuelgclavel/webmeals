@@ -52,7 +52,6 @@ public class MealOptionComboBox extends NativeSelect {
 		this.periods = periods;
 		this.mealoptiondeadlines = mealoptiondeadlines;
 		this.deadlinedays = deadlinedays;
-		//this.setGcalendar(calendar);
 		
 		
 		
@@ -77,7 +76,7 @@ public class MealOptionComboBox extends NativeSelect {
 			result.close();
 			ps.close();
 			
-			
+			mealOptions = ui.filteredByDate(mealOptions, periods, calendar);
 			
 			
 			this.setContainerDataSource(mealOptions);

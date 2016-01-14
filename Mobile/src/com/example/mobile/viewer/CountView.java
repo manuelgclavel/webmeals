@@ -1,6 +1,7 @@
 package com.example.mobile.viewer;
 
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 
 import com.example.mobile.MobileUI;
@@ -8,6 +9,7 @@ import com.example.mobile.data.FoodRegime;
 import com.example.mobile.data.Meal;
 import com.example.mobile.data.MealOption;
 import com.example.mobile.data.MealSelectionPlus;
+import com.example.mobile.data.Residency;
 import com.example.mobile.presenter.UserPopupBehavior;
 import com.vaadin.addon.touchkit.ui.VerticalComponentGroup;
 import com.vaadin.data.util.BeanItemContainer;
@@ -26,13 +28,16 @@ public class CountView extends VerticalComponentGroup {
 	private BeanItemContainer<Meal> meals = new BeanItemContainer<Meal>(Meal.class);
 	private BeanItemContainer<MealOption> mealoptions = new BeanItemContainer<MealOption>(MealOption.class);
 	private BeanItemContainer<FoodRegime> regimenes = new BeanItemContainer<FoodRegime>(FoodRegime.class);
+	private BeanItemContainer<Residency> periods = new BeanItemContainer<Residency>(Residency.class);
 	
 	
-	public CountView (Date selected, boolean showusers){
+	public CountView (GregorianCalendar c, boolean showusers){
 		ui.populateMeals(connectionPool, meals);
 		ui.populateMealOptions(connectionPool, mealoptions);
+		ui.populateResidency(connectionPool, periods);
+		mealoptions = ui.filteredByDate(mealoptions, periods, c);
 		ui.populateFoodRegimes(connectionPool, regimenes);
-		ui.populateMealSelectionsPlus(connectionPool, mealselections, selected);
+		ui.populateMealSelectionsPlus(connectionPool, mealselections, c);
 
 			for (Iterator<Meal> j = meals.getItemIds().iterator(); j.hasNext();) {
 				Meal meal = j.next();

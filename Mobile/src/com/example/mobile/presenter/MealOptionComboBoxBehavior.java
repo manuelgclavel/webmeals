@@ -36,7 +36,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	private MealOptionComboBox combobox;
 
 	private MealOption selMealOption;
-	private GregorianCalendar gcalendar = ui.createGCalendar();
+	private GregorianCalendar gcalendar = ui.createGCalendarNoTime();
 
 	public MealOptionComboBoxBehavior(GregorianCalendar calendar, DailyMealSelection dailymealselection, 
 			FoodRegime regime,
@@ -145,31 +145,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 							combobox.ui.selectMealOptionDeadlineByPeriod(combobox.mealoptiondeadlines, 
 									combobox.ui.selectPeriodsByDateAndMealOption(combobox.periods, gcalendar, curMealOption)));
 
-					
-					/**
-					ps = conn.prepareStatement("select count(*), pk, cday, chour, cminute, literal, ownedBy from MealOptionDeadline where pk in" + " " +
-							"(select entity from MealOptionDeadline_days" + " " +
-							"where elements = WEEKDAY(Date(?)) and entity in (" + " " +
-							"select pk from MealOptionDeadline where pk in (" + " " +
-							"select MealOptionDeadline_ownedBy from" + " " + 
-							"MealOptionDeadline_ownedBy__Residency_deadlines where Residency_deadlines" + " " +
-							"IN (select pk from Residency where ownedByOption = ?" + " " +
-							"and Date(?) >= Date(start)  and Date(?) <= Date(end)))))");
-
-					ps.setDate(1, new java.sql.Date(dayselected.getTime()));
-					ps.setInt(2, curMealOption.getPk());
-					ps.setDate(3, new java.sql.Date(dayselected.getTime()));
-					ps.setDate(4, new java.sql.Date(dayselected.getTime()));
-
-					result = ps.executeQuery();
-					result.next();
-					if (result.getInt(1) > 0){
-						curOptionDeadline = new MealOptionDeadline(result.getInt(2), result.getInt(3), 
-								result.getInt(4), result.getInt(5), result.getString(6), result.getInt(7));
-					}
-					result.close();
-					ps.close();
-					**/
+	
 					
 				}
 				/**
@@ -181,32 +157,6 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 							combobox.ui.selectMealOptionDeadlineByPeriod(combobox.mealoptiondeadlines, 
 									combobox.ui.selectPeriodsByDateAndMealOption(combobox.periods, gcalendar, selMealOption)));
 
-					/**
-					ps = conn.prepareStatement("select count(*), pk, cday, chour, cminute, literal, ownedBy from MealOptionDeadline where pk in" + " " +
-							"(select entity from MealOptionDeadline_days" + " " +
-							"where elements = WEEKDAY(Date(?)) and entity in (" + " " +
-							"select pk from MealOptionDeadline where pk in (" + " " +
-							"select MealOptionDeadline_ownedBy from" + " " + 
-							"MealOptionDeadline_ownedBy__Residency_deadlines where Residency_deadlines" + " " +
-							"IN (select pk from Residency where ownedByOption = ?" + " " +
-							"and Date(?) >= Date(start)  and Date(?) <= Date(end)))))");
-
-					ps.setDate(1, new java.sql.Date(dayselected.getTime()));
-					ps.setInt(2, selMealOption.getPk());
-					ps.setDate(3, new java.sql.Date(dayselected.getTime()));
-					ps.setDate(4, new java.sql.Date(dayselected.getTime()));
-
-					result = ps.executeQuery();
-					result.next();
-
-					if (result.getInt(1) > 0){
-						selOptionDeadline = new MealOptionDeadline(result.getInt(2), result.getInt(3), 
-								result.getInt(4), result.getInt(5), result.getString(6), result.getInt(7));
-					}
-					result.close();
-					ps.close();
-					**/
-					
 				}
 				
 
@@ -260,33 +210,21 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 				} 
 				else { 
 					/** */
-					 GregorianCalendar current = ui.createGCalendar();
-					GregorianCalendar curDeadline = ui.createGCalendar();
-					GregorianCalendar selDeadline = ui.createGCalendar();
+					GregorianCalendar current = ui.createGCalendarWithTime();
+					GregorianCalendar curDeadline = ui.createGCalendarNoTime();
+					GregorianCalendar selDeadline = ui.createGCalendarNoTime();
 					
 					if (!(curOptionDeadline == null)){
-						//curDeadline = ui.createGCalendar();
 						curDeadline.setTime(gcalendar.getTime());
-						curDeadline.set(curDeadline.get(Calendar.YEAR), 
-							curDeadline.get(Calendar.MONTH), 
-							curDeadline.get(Calendar.DAY_OF_MONTH), 
-							0, 0, 0);
-						curDeadline.add(Calendar.MILLISECOND, - curDeadline.get(Calendar.MILLISECOND));
 						curDeadline.add(Calendar.DATE, - curOptionDeadline.getCday());
-						curDeadline.add(Calendar.HOUR_OF_DAY, + curOptionDeadline.getChour());
-						curDeadline.add(Calendar.MINUTE, + curOptionDeadline.getCminute());
+						curDeadline.set(Calendar.HOUR_OF_DAY, curOptionDeadline.getChour());
+						curDeadline.set(Calendar.MINUTE, curOptionDeadline.getCminute());
 					}
 					if  (!(selOptionDeadline == null)){
-						//selDeadline = ui.createGCalendar();
 						selDeadline.setTime(gcalendar.getTime());
-						selDeadline.set(selDeadline.get(Calendar.YEAR), 
-								selDeadline.get(Calendar.MONTH), 
-								selDeadline.get(Calendar.DAY_OF_MONTH), 
-								0, 0, 0);
-						selDeadline.add(Calendar.MILLISECOND, - selDeadline.get(Calendar.MILLISECOND));
 						selDeadline.add(Calendar.DATE, - selOptionDeadline.getCday());
-						selDeadline.add(Calendar.HOUR_OF_DAY, + selOptionDeadline.getChour());
-						selDeadline.add(Calendar.MINUTE, + selOptionDeadline.getCminute());
+						selDeadline.set(Calendar.HOUR_OF_DAY, selOptionDeadline.getChour());
+						selDeadline.set(Calendar.MINUTE, selOptionDeadline.getCminute());
 					}
 					
 					String preNote = "The selected day is: " + ui.displayDate(gcalendar) + ". ";
@@ -347,35 +285,25 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	private Boolean checkDeadlines(MealOptionDeadline curOption, MealOptionDeadline selOption){
 		//final String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
 		//final Calendar current = Calendar.getInstance(TimeZone.getTimeZone(timezone));
-		GregorianCalendar current = ui.createGCalendar();
+		GregorianCalendar current = ui.createGCalendarWithTime();
 		GregorianCalendar curDeadline = null;
 		GregorianCalendar selDeadline = null;
 		Boolean check = false;
 
 		if (!(curOption == null)){
-			curDeadline = ui.createGCalendar();
+			curDeadline = ui.createGCalendarNoTime();
 			curDeadline.setTime(gcalendar.getTime());
-			curDeadline.set(curDeadline.get(Calendar.YEAR), 
-					curDeadline.get(Calendar.MONTH), 
-					curDeadline.get(Calendar.DAY_OF_MONTH), 
-					0, 0, 0);
-			curDeadline.add(Calendar.MILLISECOND, - curDeadline.get(Calendar.MILLISECOND));
 			curDeadline.add(Calendar.DAY_OF_MONTH, - curOption.getCday());
-			curDeadline.add(Calendar.HOUR_OF_DAY, + curOption.getChour());
-			curDeadline.add(Calendar.MINUTE, + curOption.getCminute());
+			curDeadline.set(Calendar.HOUR_OF_DAY, curOption.getChour());
+			curDeadline.set(Calendar.MINUTE, curOption.getCminute());
 		}
 
 		if (!(selOption == null)){
-			selDeadline = ui.createGCalendar();
+			selDeadline = ui.createGCalendarNoTime();
 			selDeadline.setTime(gcalendar.getTime());
-			selDeadline.set(selDeadline.get(Calendar.YEAR), 
-					selDeadline.get(Calendar.MONTH), 
-					selDeadline.get(Calendar.DAY_OF_MONTH), 
-					0, 0, 0);
-			selDeadline.add(Calendar.MILLISECOND, - selDeadline.get(Calendar.MILLISECOND));
 			selDeadline.add(Calendar.DAY_OF_MONTH, - selOption.getCday());
-			selDeadline.add(Calendar.HOUR_OF_DAY, + selOption.getChour());
-			selDeadline.add(Calendar.MINUTE, + selOption.getCminute());
+			selDeadline.set(Calendar.HOUR_OF_DAY, selOption.getChour());
+			selDeadline.set(Calendar.MINUTE, selOption.getCminute());
 		}
 
 		if ((curOption == null) & (selOption == null)) {

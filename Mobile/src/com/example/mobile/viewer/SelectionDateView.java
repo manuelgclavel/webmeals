@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 
@@ -36,7 +37,13 @@ public class SelectionDateView extends VerticalComponentGroup {
 		PreparedStatement ps;
 		ResultSet result;
 		DailyMealSelection dailymealselection;
+		
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
 
+		
 		try {
 			Connection conn = connectionPool.reserveConnection();
 
@@ -55,7 +62,7 @@ public class SelectionDateView extends VerticalComponentGroup {
 				break;
 			}
 			ps = conn.prepareStatement("SELECT count(*), pk from DailyMealSelection" + " " +  
-					"WHERE Date(date) = ?  and" + " " + property +  " = ?");
+					"WHERE Date(date) = Date(?)  and" + " " + property +  " = ?");
 			ps.setDate(1, new java.sql.Date(c.getTime().getTime()));
 			ps.setInt(2, dinerpk);
 			result = ps.executeQuery();
@@ -64,7 +71,7 @@ public class SelectionDateView extends VerticalComponentGroup {
 					/** If it does not exists, created first and then save it */
 				
 				ps = conn.prepareStatement("INSERT INTO DailyMealSelection" + " " + 
-						"(date," + property + ") values (?,?)");
+						"(date," + property + ") values (Date(?),?)");
 				ps.setDate(1, new java.sql.Date(c.getTime().getTime()));
 				ps.setInt(2, dinerpk);
 				ps.executeUpdate();
@@ -97,10 +104,10 @@ public class SelectionDateView extends VerticalComponentGroup {
 				result.close();
 				ps.close();
 
-				ps = conn.prepareStatement("SELECT count(*), pk, description, name, residence from Residency" + " " +
-						"where ownedByRegime = ?" + " " +
-						"and Date(date) <= ?" + " " +
-						"and Date(date) >= ?");
+				//ps = conn.prepareStatement("SELECT count(*), pk, description, name, residence from Residency" + " " +
+				//		"where ownedByRegime = ?" + " " +
+				//		"and Date(date) <= ?" + " " +
+				//		"and Date(date) >= ?");
 
 				ps = conn.prepareStatement("SELECT count(*), FoodRegime.pk, description, name, residence" + " " +
 						"FROM FoodRegime" + " " + 

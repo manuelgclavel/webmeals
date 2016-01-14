@@ -95,7 +95,7 @@ public class ContractsEditView extends NavigationView {
 		contractmealoptionsTable.addContainerProperty("Meal", Label.class, null);
 		contractmealoptionsTable.addContainerProperty("Meal option", Label.class, null);
 		
-		GregorianCalendar c = ui.createGCalendar();
+		GregorianCalendar c = ui.createGCalendarNoTime();
 		c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
 		
 		for (int i = 0; i <= 6; i++){
@@ -139,7 +139,7 @@ public class ContractsEditView extends NavigationView {
 			mealproperty.setValue(new Label(meal.getLiteral()));
 			mealoptionproperty.setValue(new Label(mealoption.getInitial()));
 			
-			GregorianCalendar c = ui.createGCalendar();
+			GregorianCalendar c = ui.createGCalendarNoTime();
 			c.set(Calendar.DAY_OF_WEEK, c.getFirstDayOfWeek());
 			
 			for (int i = 0; i <= 6; i++){

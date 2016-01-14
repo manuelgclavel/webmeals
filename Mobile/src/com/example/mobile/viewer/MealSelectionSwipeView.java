@@ -38,7 +38,7 @@ public class MealSelectionSwipeView extends NavigationManager
 	  // TODO Auto-generated constructor stub
 	  setCaption("Meal selection (by day)");
 	  //this.manager = getNavigationManager();
-	  GregorianCalendar c = ui.createGCalendar();
+	  GregorianCalendar c = ui.createGCalendarNoTime();
 	  dayselected= c.getTime();
 	  diner = selecteddiner;
 	  type = selectedtype;
@@ -107,11 +107,11 @@ private Component createView(int currentpos) {
 		final Button next = new Button("next");
 		//final Button week = new Button("week");
 		
-		GregorianCalendar c = ui.createGCalendar();
+		GregorianCalendar c = ui.createGCalendarNoTime();
 		c.setTime(dayselected);
 		c.add(Calendar.DATE, currentpos);
 		dateshown.setValue(c.getTime());
-		dateshown.setTimeZone(c.getTimeZone());
+		//dateshown.setTimeZone(c.getTimeZone());
 		dateshown.setDateFormat("EEE, MMM d, yyyy");
 		
 		
@@ -138,10 +138,9 @@ private Component createView(int currentpos) {
 		dateshown.addValueChangeListener(new ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				GregorianCalendar c = ui.createGCalendar();
+				GregorianCalendar c = ui.createGCalendarNoTime();
 				c.setTime(((Date) event.getProperty().getValue()));
-				//c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 
-				//		c.get(Calendar.DATE), 0, 0, 0);
+
 				pos = 0;
 				dayselected = c.getTime();
 				setCurrentComponent(createView(+pos));
@@ -177,7 +176,7 @@ private Component createView(int currentpos) {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				pos = 0;
-				GregorianCalendar c = ui.createGCalendar();
+				GregorianCalendar c = ui.createGCalendarNoTime();
 				dayselected= c.getTime();
 				
 				setCurrentComponent(createView(+pos));

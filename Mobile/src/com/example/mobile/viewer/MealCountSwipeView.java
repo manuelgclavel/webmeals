@@ -4,6 +4,7 @@ package com.example.mobile.viewer;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import com.example.mobile.MobileUI;
 import com.example.mobile.presenter.ExitBehavior;
@@ -31,8 +32,9 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 
   public MealCountSwipeView(boolean showusers) {
 	 
-	 GregorianCalendar c = ui.createGCalendar();
+	 GregorianCalendar c = ui.createGCalendarNoTime();
 	 dayselected= c.getTime();
+	 
 	 show = showusers;
 	 
       // Set up the initial views
@@ -79,11 +81,12 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 		final Button next = new Button("next");
 		
 
-		GregorianCalendar c = ui.createGCalendar();
+		GregorianCalendar c = ui.createGCalendarNoTime();
 		c.setTime(dayselected);
 		c.add(Calendar.DATE, currentpos);
 		dateshown.setValue(c.getTime());
-		dateshown.setTimeZone(c.getTimeZone());
+		//dateshown.setTimeZone(c.getTimeZone());
+		//dateshown.setLocale(new Locale(ui.getResidence().getLang()));
 		dateshown.setDateFormat("EEE, MMM d, yyyy");
 		
 		layout.addComponent(dateshown);
@@ -101,17 +104,15 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 		//layout.addComponent(new Label(Integer.valueOf(currentpos).toString()));
 		/** END */
 
-		layout.addComponent(new CountView(c.getTime(), show));
+		layout.addComponent(new CountView(c, show));
 		view.setContent(layout);
 		
 		
 		dateshown.addValueChangeListener(new ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				GregorianCalendar c = ui.createGCalendar();
+				GregorianCalendar c = ui.createGCalendarNoTime();
 				c.setTime(((Date) event.getProperty().getValue()));
-				//c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 
-				//		c.get(Calendar.DATE), 0, 0, 0);
 				pos = 0;
 				dayselected = c.getTime();
 				setCurrentComponent(createView(+pos));
@@ -128,9 +129,6 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				//Calendar c = new GregorianCalendar();
-				//c.setTime(dayselected);
-				//c.add(Calendar.DATE, +1);
 				navigateTo(getNextComponent());
 			}
 			
@@ -141,10 +139,6 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 			@Override
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
-				//Calendar c = new GregorianCalendar();
-				//c.setTime(dayselected);
-				//c.add(Calendar.DATE, -1);
-				
 				navigateTo(getPreviousComponent());
 			}
 			
@@ -156,7 +150,7 @@ public class MealCountSwipeView extends NavigationManager implements NavigationL
 			public void buttonClick(ClickEvent event) {
 				// TODO Auto-generated method stub
 				pos = 0;
-				GregorianCalendar c = ui.createGCalendar();
+				GregorianCalendar c = ui.createGCalendarNoTime();
 				dayselected= c.getTime();
 				
 				setCurrentComponent(createView(+pos));
