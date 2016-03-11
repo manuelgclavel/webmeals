@@ -47,7 +47,7 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 		this.dailymealselection = dailymealselection;
 		this.activeregime = regime;
 		this.combobox = component;
-		this.gcalendar.setTime(calendar.getTime());;
+		this.gcalendar.setTime(calendar.getTime());
 
 	}
 
@@ -283,8 +283,6 @@ public class MealOptionComboBoxBehavior implements ValueChangeListener {
 	
 
 	private Boolean checkDeadlines(MealOptionDeadline curOption, MealOptionDeadline selOption){
-		//final String timezone = ((MobileUI) UI.getCurrent()).getResidence().getZone();
-		//final Calendar current = Calendar.getInstance(TimeZone.getTimeZone(timezone));
 		GregorianCalendar current = ui.createGCalendarWithTime();
 		GregorianCalendar curDeadline = null;
 		GregorianCalendar selDeadline = null;

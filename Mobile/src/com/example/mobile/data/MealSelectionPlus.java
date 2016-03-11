@@ -1,5 +1,7 @@
 package com.example.mobile.data;
 
+import java.util.Date;
+
 public class MealSelectionPlus {
 
 	private int pk ;
@@ -9,6 +11,7 @@ public class MealSelectionPlus {
 	private int ownedBy ;
 	private int selectedBy;
 	private int offeredTo;
+	private Date date;
 	
 	public MealSelectionPlus(int pk, int mealOption, int foodRegime, int meal, int ownedBy, 
 			int selectedBy, int offeredTo){
@@ -19,6 +22,18 @@ public class MealSelectionPlus {
 		this.ownedBy = ownedBy;
 		this.selectedBy = selectedBy;
 		this.offeredTo = offeredTo;
+	}
+	
+	public MealSelectionPlus(int pk, int mealOption, int foodRegime, int meal, int ownedBy, 
+			int selectedBy, int offeredTo, Date date){
+		this.pk = pk;
+		this.mealOption = mealOption;
+		this.foodRegime = foodRegime;
+		this.meal = meal;
+		this.ownedBy = ownedBy;
+		this.selectedBy = selectedBy;
+		this.offeredTo = offeredTo;
+		this.date = date;
 	}
 
 	public int getPk() {
@@ -48,6 +63,12 @@ public class MealSelectionPlus {
 		return offeredTo;
 	}
 	
+	public Date getDate(){
+		return this.date;
+		
+	}
+	
+	
 
 	void setPk(int pk){
 		this.pk = pk;
@@ -75,5 +96,10 @@ public class MealSelectionPlus {
 	
 	void setOfferedTo(int offeredTo){
 		this.offeredTo = offeredTo;
+	}
+	
+
+	public void setDate(Date date){
+		this.date = date;
 	}
 }

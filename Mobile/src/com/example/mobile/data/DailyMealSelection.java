@@ -1,12 +1,6 @@
 package com.example.mobile.data;
 
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
-import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 
 public class DailyMealSelection {
 	private int pk;

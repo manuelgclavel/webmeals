@@ -6,11 +6,11 @@ public class Residency {
 	private int pk ;
 	private Date start ;
 	private Date end;
-	private int ownedByRegime;
-	private int contract;
+	private int ownedByRegime; 
+	private int contract; 
 	private int ownedByOption;
 	private int guestRegime;
-	private int ownedBy;
+	private int ownedBy; // user
 	private int regime;
 
 	public Residency(int pk, Date start, Date end, int ownedByRegime, int contract,

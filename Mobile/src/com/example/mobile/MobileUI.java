@@ -45,6 +45,7 @@ import com.vaadin.addon.touchkit.ui.NavigationManager.NavigationEvent;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.data.Container;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.sqlcontainer.connection.JDBCConnectionPool;
 import com.vaadin.data.util.sqlcontainer.connection.SimpleJDBCConnectionPool;
@@ -84,10 +85,10 @@ public class MobileUI extends UI {
     	
     	try {
 			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/schweidt","root","4Meaningful");	
-			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/allenmoos","root","4Meaningful");
+			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/allenmoos","root","admin");
 			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/lugano","root","4Meaningful");	
-			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","4Meaningful");	
-
+			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","admin");	
+			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/mendaur","root","4Meaningful");
 			manager = new NavigationManager(new LoginView());
 			setContent(manager);
 			//setContent(new LoginView());
@@ -285,7 +286,8 @@ public class MobileUI extends UI {
 			Connection conn = connectionPool.reserveConnection();
 			PreparedStatement ps = 
 					conn.prepareStatement("SELECT MealSelection.pk, mealOption, foodRegime, meal, ownedBy FROM MealSelection" + " " +
-							"RIGHT JOIN " + " " +
+							//"RIGHT JOIN " + " " +
+							"INNER JOIN " + " " +
 							"(SELECT * from DailyMealSelection where Date(date) = Date(?)) AS Temp" + " " +
 							"ON MealSelection.ownedBy = Temp.pk");
 			ps.setDate(1, new java.sql.Date(dayselected.getTime()));
@@ -654,7 +656,31 @@ public class MobileUI extends UI {
 		}
 	}
 
-	
+
+	public void populateRegimens(JDBCConnectionPool connectionPool, BeanItemContainer<FoodRegime> regimens) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT * FROM FoodRegime");
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				regimens.addItem(new FoodRegime(result.getInt(1), result.getString(2), 
+						result.getString(3), result.getInt(4))); 
+			}
+			
+			result.close();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
+
 	
 
 	public void updateUserPassword(JDBCConnectionPool connectionPool, User user, String value) {
@@ -729,6 +755,31 @@ public class MobileUI extends UI {
 			conn.close();
 			connectionPool.releaseConnection(conn);
 			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+
+	public void createRegimen(String name, String description, int residence) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn= connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("INSERT FoodRegime (name, description, residence)" + " " +
+							"VALUES (?,?,?)");
+			ps.setString(1, name);
+			ps.setString(2,  description);
+			ps.setInt(3, residence);
+			ps.executeUpdate();
+			conn.commit();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1120,6 +1171,24 @@ public class MobileUI extends UI {
 		return found;
 	}
 	
+
+	public boolean existsRegimen(BeanItemContainer<FoodRegime> regimens, String name) {
+		// TODO Auto-generated method stub
+				boolean found = false;
+				FoodRegime regimen;
+				for (Iterator<FoodRegime> i = regimens.getItemIds().iterator(); i.hasNext();){
+					regimen = i.next();
+					if (regimen.getName().equals(name)){
+						found = true;
+						break;
+					}
+				}
+				return found;
+			}
+			
+
+
+	
 	public Meal findMealOfMealOption(BeanItemContainer<Meal> meals, MealOption mealoption) {
 		// TODO Auto-generated method stub
 		Meal result = null;
@@ -1273,6 +1342,51 @@ public class MobileUI extends UI {
 		}
 	}
 
+	
+	public void updateRegimen(int pk, String name, String description) {
+		// TODO Auto-generated method stub
+				try {
+					Connection conn= connectionPool.reserveConnection();
+					PreparedStatement ps = conn.prepareStatement("UPDATE FoodRegime SET name=?, description=? where pk =?");
+					ps.setString(1, name);
+					ps.setString(2, description);
+					ps.setInt(3, pk);
+					
+					ps.executeUpdate();
+					conn.commit();
+					ps.close();
+					conn.close();
+					connectionPool.releaseConnection(conn);
+					
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+	
+	public void updateUser(int pk, String name, String surname, String login) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn= connectionPool.reserveConnection();
+			PreparedStatement ps = conn.prepareStatement("UPDATE User SET name=?, surname=?, login=? where pk =?");
+			ps.setString(1, name);
+			ps.setString(2, surname);
+			ps.setString(3, login);
+			ps.setInt(4, pk);
+			
+			ps.executeUpdate();
+			conn.commit();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
 
 	public String displayDate(GregorianCalendar c) {
 		// TODO Auto-generated method stub
@@ -1371,9 +1485,340 @@ public class MobileUI extends UI {
 	}
 
 
+	public BeanItemContainer<User> filterOnlyCurrentUsers(BeanItemContainer<User> users, BeanItemContainer<Residency> periods) {
+		// TODO Auto-generated method stub
+		BeanItemContainer<User> filteredBy = new BeanItemContainer<User>(User.class);
+		User user;
+		Residency period;
+		GregorianCalendar today = this.createGCalendarNoTime();
+		GregorianCalendar start = this.createGCalendarNoTime();
+		GregorianCalendar end = this.createGCalendarNoTime();
+		for (Iterator<User> u = users.getItemIds().iterator(); u.hasNext();){
+			user = (User) u.next();
+			if (user.getRole() == 0) {
+				for (Iterator<Residency> m = periods.getItemIds().iterator(); m.hasNext();){
+					period = (Residency) m.next();
+					if (period.getOwnedBy() == user.getPk()){
+						start.setTime(period.getStart());
+						end.setTime(period.getEnd());
+						if (start.before(today) && end.after(today)){
+							filteredBy.addItem(user);
+							break;
+						}}}}}
 
+		return filteredBy;
+	}
+
+
+	public BeanItemContainer<Residency> filteredByUserWithContract(BeanItemContainer<Residency> periods, User selected) {
+		// TODO Auto-generated method stub
+		BeanItemContainer<Residency> filteredBy = new BeanItemContainer<Residency>(Residency.class);
+		Residency period;
+		for (Iterator<Residency> m = periods.getItemIds().iterator(); m.hasNext();){
+			period = (Residency) m.next();
+			if (period.getOwnedBy() == selected.getPk()){ 
+				filteredBy.addItem(period);
+				//break;
+			}}
+
+		return filteredBy;
+	}
+
+
+	public BeanItemContainer<Residency> filteredByUserWithRegime(BeanItemContainer<Residency> periods, User selected) {
+		// TODO Auto-generated method stub
+		BeanItemContainer<Residency> filteredBy = new BeanItemContainer<Residency>(Residency.class);
+		Residency period;
+		for (Iterator<Residency> m = periods.getItemIds().iterator(); m.hasNext();){
+			period = (Residency) m.next();
+			if (period.getOwnedByRegime() == selected.getPk()){ 
+				filteredBy.addItem(period);
+				//break;
+			}}
+
+		return filteredBy;
+	}
+
+
+	public static BeanItemContainer<Residency> selectPeriodsByMealOption(BeanItemContainer<Residency> periods, MealOption mealoption) {
+		// TODO Auto-generated method stub
+		BeanItemContainer<Residency> mealoptionperiods = new BeanItemContainer<Residency>(Residency.class);
+		Residency period;
+		for (Iterator<Residency> r  = periods.getItemIds().iterator(); r.hasNext();){
+			period = r.next();
+			if (period.getOwnedByOption() == mealoption.getPk()){
+				mealoptionperiods.addBean(period);
+			}
+		}
+		
+		return mealoptionperiods;
+	}
 	
+	public static BeanItemContainer<MealOptionDeadline> selectDeadlinesByPeriod(BeanItemContainer<MealOptionDeadline> deadlines, Residency period) {
+		// TODO Auto-generated method stub
+		BeanItemContainer<MealOptionDeadline> perioddeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
+		MealOptionDeadline deadline;
+		for (Iterator<MealOptionDeadline> d  = deadlines.getItemIds().iterator(); d.hasNext();){
+			deadline = d.next();
+			if (deadline.getOwnedBy() == period.getPk()){
+				perioddeadlines.addBean(deadline);
+			}
+		}
+		
+		return perioddeadlines;
+	}
 
 
+	public static BeanItemContainer<DeadlineDay> selectDayByDeadline(BeanItemContainer<DeadlineDay> days,
+			MealOptionDeadline deadline) {
+		// TODO Auto-generated method stub
+		BeanItemContainer<DeadlineDay> deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
+		DeadlineDay day;
+		for (Iterator<DeadlineDay> d  = days.getItemIds().iterator(); d.hasNext();){
+			day = d.next();
+			if (day.getDeadline() == deadline.getPk()){
+				deadlinedays.addBean(day);
+			}
+		}
+		return deadlinedays;
+	}
+	
+	public static Boolean findDay(BeanItemContainer<DeadlineDay> days, int i){
+		Boolean found = false;
+		DeadlineDay day;
+		for (Iterator<DeadlineDay> d  = days.getItemIds().iterator(); d.hasNext();){
+			day = d.next();
+			if (day.getDay() == i){
+				found = true;
+				break;
+			}
+		}
+		
+		return found;
+	}
+
+
+	public void insertRegimenPeriod(Date start, Date end, FoodRegime regime, User selected) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn= connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("INSERT Residency (start, end, ownedByRegime, regime)" + " " +
+							"VALUES (?,?,?,?)");
+			ps.setDate(1, new java.sql.Date(start.getTime()));
+			ps.setDate(2,  new java.sql.Date(end.getTime()));
+			ps.setInt(3,  selected.getPk());
+			ps.setInt(4, regime.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
+
+
+	public boolean periodOverlaps(Date start, Date end, BeanItemContainer<Residency> periods) {
+		// TODO Auto-generated method stub
+		Boolean overlaps = false;
+		Residency period;
+		for (Iterator<Residency> p  = periods.getItemIds().iterator(); p.hasNext();){
+			period = p.next();
+			if (!(start.after(period.getEnd())) && !(end.before(period.getStart()))){
+				overlaps = true;
+				break;
+			}
+		}
+		return overlaps;
+	}
+
+
+	public void insertContractPeriod(Date start, Date end, Contract contract, User selected) {
+		// TODO Auto-generated method stub
+				try {
+					Connection conn= connectionPool.reserveConnection();
+					PreparedStatement ps = 
+							conn.prepareStatement("INSERT Residency (start, end, ownedBy, contract)" + " " +
+									"VALUES (?,?,?,?)");
+					ps.setDate(1, new java.sql.Date(start.getTime()));
+					ps.setDate(2,  new java.sql.Date(end.getTime()));
+					ps.setInt(3, selected.getPk());
+					ps.setInt(4, contract.getPk());
+					ps.executeUpdate();
+					conn.commit();
+					ps.close();
+					conn.close();
+					connectionPool.releaseConnection(conn);
+					
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+	}
+
+
+	public BeanItemContainer<Residency> filteredByUserWithRegimeMinus(BeanItemContainer<Residency> periods,
+			User selected, Residency residency) {
+		// TODO Auto-generated method stub
+				BeanItemContainer<Residency> filteredBy = new BeanItemContainer<Residency>(Residency.class);
+				Residency period;
+				for (Iterator<Residency> m = periods.getItemIds().iterator(); m.hasNext();){
+					period = (Residency) m.next();
+					if (period.getOwnedByRegime() == selected.getPk() && !(period.getPk() == residency.getPk())){ 
+						filteredBy.addItem(period);
+					}}
+
+				return filteredBy;
+	}
+
+
+	public void updateRegimenPeriod(Date start, Date end, FoodRegime regime, Residency selectedperiod) {
+		// TODO Auto-generated method stub
+		try {
+			Connection conn= connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("UPDATE Residency SET start = ?, end = ?, regime = ?" + " " +
+							"WHERE pk = ?");
+			ps.setDate(1, new java.sql.Date(start.getTime()));
+			ps.setDate(2,  new java.sql.Date(end.getTime()));
+			ps.setInt(3, regime.getPk());
+			ps.setInt(4, selectedperiod.getPk());
+			ps.executeUpdate();
+			conn.commit();
+			ps.close();
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void populateUserPeriodMealSelections(JDBCConnectionPool connectionPool, 
+			BeanItemContainer<MealSelectionPlus> mealselections,
+			Date start, Date end, User user){
+		try {
+			Connection conn = connectionPool.reserveConnection();
+			PreparedStatement ps = 
+					conn.prepareStatement("SELECT MealSelection.pk, mealOption, foodRegime, meal, ownedBy, Temp.selectedBy, Temp.offeredTo, Temp.date FROM MealSelection" + " " +
+							"INNER JOIN " + " " +
+							"(SELECT * from DailyMealSelection where Date(date) >= Date(?) and Date(date) <= Date(?) and selectedBy = ?) AS Temp" + " " +
+							"ON MealSelection.ownedBy = Temp.pk");
+			ps.setDate(1, new java.sql.Date(start.getTime()));
+			ps.setDate(2, new java.sql.Date(end.getTime()));
+			ps.setInt(3, user.getPk());
+			ResultSet result = ps.executeQuery();
+			while (result.next()){
+				mealselections.addItem(new MealSelectionPlus(result.getInt(1), result.getInt(2), 
+						result.getInt(3), result.getInt(4), result.getInt(5), result.getInt(6), result.getInt(7), result.getDate(8)));
+			}
+			result.close();
+			ps.close();	
+			conn.close();
+			connectionPool.releaseConnection(conn);
+			//Notification.show(Integer.valueOf(mealselections.size()).toString());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
+	public void updateRegimeMealSelection(BeanItemContainer<MealSelectionPlus> mealselections, FoodRegime regime) {
+		// TODO Auto-generated method stub
+		Connection conn;
+		PreparedStatement ps;
+		ResultSet result;
+
+		MealOption mealoption = null;
+		MealSelectionPlus mealselection;
+		MealOptionDeadline optionDeadline;
+
+		// initializing containers
+		BeanItemContainer<Residency> periods = new BeanItemContainer<Residency>(Residency.class);
+		populateResidency(connectionPool, periods);
+		BeanItemContainer<MealOptionDeadline> mealoptiondeadlines = new BeanItemContainer<MealOptionDeadline>(MealOptionDeadline.class);
+		populateMealOptionDeadlines(connectionPool, mealoptiondeadlines);	
+		BeanItemContainer<DeadlineDay> deadlinedays = new BeanItemContainer<DeadlineDay>(DeadlineDay.class);
+		populateDeadlineDays(connectionPool, deadlinedays);
+
+
+		GregorianCalendar gcalendar = createGCalendarNoTime();
+
+		GregorianCalendar current = createGCalendarWithTime();
+		GregorianCalendar curDeadline = null;
+
+
+		try {
+			conn = connectionPool.reserveConnection();
+
+			for (Iterator<MealSelectionPlus> m = mealselections.getItemIds().iterator(); m.hasNext();){
+				mealselection = (MealSelectionPlus) m.next();
+
+				// get the current meal option
+				ps = conn.prepareStatement("SELECT pk, position, initial, literal, ownedBy FROM MealOption" + " " +
+						"WHERE pk = ?");
+				ps.setInt(1, mealselection.getMealOption());
+				result = ps.executeQuery();
+				result.next();
+				mealoption = new MealOption(result.getInt(1), 
+						result.getInt(2), result.getString(3), result.getString(4), mealselection.getMeal());
+
+				result.close();
+				ps.close();
+				
+				// Get the deadline for the current meal option and day of the week
+
+				optionDeadline = selectMealOptionDeadlineByDay(deadlinedays, gcalendar,
+						selectMealOptionDeadlineByPeriod(mealoptiondeadlines, 
+								selectPeriodsByDateAndMealOption(periods, gcalendar, mealoption)));
+
+				// Get the deadline for the given meal option and day of the week
+				// NO NEED: IT IS THE SAME
+
+				// Get the actual deadline for the meal selection
+				curDeadline = createGCalendarNoTime();
+				curDeadline.setTime(mealselection.getDate());
+				curDeadline.add(Calendar.DAY_OF_MONTH, - optionDeadline.getCday());
+				curDeadline.set(Calendar.HOUR_OF_DAY, optionDeadline.getChour());
+				curDeadline.set(Calendar.MINUTE, optionDeadline.getCminute());
+
+				if (current.before(curDeadline)){
+					if (regime == null){
+						ps = conn.prepareStatement("UPDATE MealSelection SET foodRegime= 0 where pk = ?");
+						ps.setInt(1, mealselection.getPk());
+						ps.executeUpdate();
+						conn.commit();
+						ps.close();
+					} else {
+						ps.close();
+						ps = conn.prepareStatement("UPDATE MealSelection SET foodRegime= ? where pk = ?");
+						ps.setInt(1, regime.getPk());
+						ps.setInt(2, mealselection.getPk());
+						ps.executeUpdate();
+						conn.commit();
+						ps.close();
+					}
+				}
+			}
+			conn.close();
+			connectionPool.releaseConnection(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+
+	}
 
 }
