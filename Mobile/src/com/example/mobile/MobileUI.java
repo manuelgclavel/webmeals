@@ -87,8 +87,14 @@ public class MobileUI extends UI {
 			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/schweidt","root","4Meaningful");	
 			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/allenmoos","root","admin");
 			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/lugano","root","4Meaningful");	
-			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","admin");	
-			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/mendaur","root","4Meaningful");
+    		//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/ravenahl","root","4Meaningful");	
+    		
+    		//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/testschweidt","root","4Meaningful");	
+    		//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/testallenmoos","root","4Meaningful");	
+			connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/testlugano","root","4Meaningful");	
+			//connectionPool = new SimpleJDBCConnectionPool ("com.mysql.jdbc.Driver","jdbc:mysql://localhost/testravenahl","root","4Meaningful");	
+			
+			
 			manager = new NavigationManager(new LoginView());
 			setContent(manager);
 			//setContent(new LoginView());

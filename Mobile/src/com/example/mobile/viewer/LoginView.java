@@ -39,10 +39,15 @@ import com.vaadin.ui.UI;
 	
 	public LoginView(){
 		//setCaption("Schweidt´s Meal Count");
-		setCaption("Allenmoos´s Meal Count");
-		//setCaption("Mendaur´s Meal Count");
+		//setCaption("Allenmoos´s Meal Count");
 		//setCaption("Lugano´s Meal Count");
 		//setCaption("Ravenahl´s Meal Count");
+		
+		//setCaption("(Test) Schweidt´s Meal Count");
+		//setCaption("(Test) Allenmoos´s Meal Count");
+		setCaption("(Test) Lugano´s Meal Count");	
+		//setCaption("(Test) Ravenahl´s Meal Count");
+		
 		VerticalComponentGroup content = new VerticalComponentGroup();
 		setWidth("100%");
 		

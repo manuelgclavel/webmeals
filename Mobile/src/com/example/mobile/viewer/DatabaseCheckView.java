@@ -311,7 +311,7 @@ public class DatabaseCheckView extends NavigationView {
 					mealselection = (MealSelection) i.next();
 					for (Iterator<MealOption> h = mealoptions.getItemIds().iterator(); h.hasNext();){
 						mealoption = (MealOption) h.next();
-						if(mealselection.getMeal() == mealoption.getPk()) { 
+						if(mealselection.getMealOption() == mealoption.getPk()) { 
 							found = true ; 
 							break ;}
 					}

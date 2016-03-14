@@ -271,6 +271,13 @@ public class EditUserView extends NavigationView {
 							if (!(startnewregimen.getValue().after(endnewregimen.getValue()))){
 								if (!(ui.periodOverlaps(startnewregimen.getValue(), 
 										endnewregimen.getValue(), ui.filteredByUserWithRegime(regimeperiods,selected)))){
+									// update meal selections of the new given period with new regime
+									mealselections.removeAllItems();
+									ui.populateUserPeriodMealSelections(connectionPool, mealselections,
+											startnewregimen.getValue(), endnewregimen.getValue(), selected);
+									ui.updateRegimeMealSelection(mealselections,
+											(FoodRegime) regimenscombo.getValue());
+									// update residency with new regime period
 									ui.insertRegimenPeriod(startnewregimen.getValue(), 
 											endnewregimen.getValue(),
 											(FoodRegime) regimenscombo.getValue(),

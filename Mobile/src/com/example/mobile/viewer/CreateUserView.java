@@ -46,11 +46,15 @@ public class CreateUserView extends NavigationView {
 	private final NativeSelect role;
 	private final CheckBox filter;
 	
-	private final Table userstable;
+	private Table userstable;
 	private BeanItemContainer<User> users = new BeanItemContainer<User>(User.class);
 	private BeanItemContainer<Residency> periods = new BeanItemContainer<Residency>(Residency.class);
 
 	public CreateUserView() {
+		
+		ui.populateUsers(ui.getConnectionPool(), users);
+		ui.populateResidency(ui.getConnectionPool(), periods);
+		
 
 		Button logout = new Button();
 		logout.setCaption("Exit");
@@ -89,7 +93,6 @@ public class CreateUserView extends NavigationView {
 		content.addComponent(name);
 		content.addComponent(surname);
 		content.addComponent(login);
-		//content.addComponent(password);
 		content.addComponent(role);
 		
 		Button createButton = new Button("Add");
@@ -104,15 +107,19 @@ public class CreateUserView extends NavigationView {
 		
 		filter = new CheckBox("Only current residents", true);
 		
+		userstable = new Table("");
+		initializeuserstable(ui.filterOnlyCurrentUsers(users,periods));
+		
+		
 		filter.addValueChangeListener(new ValueChangeListener(){
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				// TODO Auto-generated method stub
 				if (!(filter.getValue())){
-					userstable.setContainerDataSource(users);
+					initializeuserstable(users);
 				} else {
-					userstable.setContainerDataSource(ui.filterOnlyCurrentUsers(users,periods));
+					initializeuserstable(ui.filterOnlyCurrentUsers(users,periods));
 				}
 			}});
 		
@@ -124,18 +131,9 @@ public class CreateUserView extends NavigationView {
 		
 		
 		
-		ui.populateUsers(ui.getConnectionPool(), users);
-		ui.populateResidency(ui.getConnectionPool(), periods);
 		
 
-		userstable = new Table("");
-		userstable.setContainerDataSource(ui.filterOnlyCurrentUsers(users,periods));
-		userstable.setSelectable(true);
-		userstable.setVisibleColumns("surname", "name");
-		userstable.sort(new Object[] {"surname", "name"}, new boolean[] {true, true});
-		userstable.setPageLength(userstable.size());
-		//userstable.setPageLength(10);
-		userstable.setSizeFull();
+		
 		content.addComponent(userstable);
 		
 		userstable.addItemClickListener(new ItemClickListener(){
@@ -180,12 +178,24 @@ public class CreateUserView extends NavigationView {
 		
 	}
 	
-	public void initialize(){
+	private void initialize(){
 		name.setValue("");
 		surname.setValue("");
 		login.setValue("");
 		//password.setValue("");
 		role.setValue(null);
+	}
+	
+	private void initializeuserstable(BeanItemContainer<User> users){
+		userstable.removeAllItems();
+		userstable.setContainerDataSource(users);
+		userstable.setSelectable(true);
+		userstable.setVisibleColumns("surname", "name", "login");
+		userstable.sort(new Object[] {"surname", "name"}, new boolean[] {true, true});
+		userstable.setPageLength(userstable.size());
+		//userstable.setPageLength(10);
+		userstable.setSizeFull();
+		
 	}
 
 }
