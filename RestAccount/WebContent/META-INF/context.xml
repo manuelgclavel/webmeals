@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+
+  <Resource name="jdbc/account" auth="Container" type="javax.sql.DataSource"
+               maxTotal="100" maxIdle="30" maxWaitMillis="10000"
+               username="account" password="whitepebbles" driverClassName="com.mysql.jdbc.Driver"
+               url="jdbc:mysql://localhost:3306/account"/>
+ <Resource name="bean/KeyResource" auth="Container"
+            type="com.whitepebbles.restaccount.KeyResource"
+            factory="org.apache.naming.factory.BeanFactory"
+            key="celcafe"/>
+</Context>
